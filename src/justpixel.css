@@ -1,0 +1,133 @@
+.main {
+    background-color: #1b1b1b;
+    display: grid;
+    grid-template-columns: 50px 960px auto;
+    grid-template-rows: auto;
+    grid-gap: 20px;
+    height: 100vh;
+}
+
+.gridBitmap88 {
+    display: grid;
+    grid-template-columns: 160px 160px 160px 160px 160px 160px 160px 160px;
+    grid-template-rows: 160px 160px 160px 160px 160px 160px 160px 160px;
+}
+
+.gridBitmap66 {
+    display: grid;
+    grid-template-columns: 160px 160px 160px 160px 160px 160px;
+    grid-template-rows: 160px 160px 160px 160px 160px 160px;
+}
+
+.gridBitmap44 {
+    display: grid;
+    grid-template-columns: 160px 160px 160px 160px;
+    grid-template-rows: 160px 160px 160px 160px;
+}
+
+.gridBitmap22 {
+    display: grid;
+    grid-template-columns: 160px 160px;
+    grid-template-rows: 160px 160px;
+}
+
+.gridChar {
+    display: grid;
+    grid-template-columns: 20px 20px 20px 20px 20px 20px 20px 20px;
+    grid-template-rows: 20px 20px 20px 20px 20px 20px 20px 20px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #555555
+}
+
+.gridCharWithoutGrid {
+    display: grid;
+    grid-template-columns: 20px 20px 20px 20px 20px 20px 20px 20px;
+    grid-template-rows: 20px 20px 20px 20px 20px 20px 20px 20px;
+}
+
+.pixel {
+    border-style: dotted;
+    border-width: 1px;
+    border-color: #333333
+}
+
+.pixelWithoutGrid {
+    border-style: none;
+}
+
+
+.blinkingCursor {
+    animation: flashing 1.8s infinite;
+    border-style: solid; 
+    border-width: 2px;
+    border-color: #ffffff
+}
+@keyframes flashing {
+    0%   { border-color: #ffffff; }
+    50%  { border-color: transparent; }
+    100% { border-color: #ffffff; }
+}
+
+.toolbar {
+    box-shadow: 1px 1px rgba(0,0,0,0.16), 1px 7px 6px rgba(0,0,0,0.20);
+    background-color: #3b3b3b;
+}
+
+.toolbarIcon {
+    margin: 14px;
+    color: #bbbbbb;
+    font-size: 20px;
+ }
+
+.toolbarIcon:hover {
+    color: #f7ff23;
+}
+
+.toolbarIconOff {
+    margin: 14px;
+    color: #3b3b3b;
+    font-size: 20px;
+}
+
+.mega65-logo {
+    width: 240px;
+    height: 100px;
+    user-select: none;
+    transform: translate(-94px,78px) rotate(270deg);;
+}
+
+.colorSelector {
+    display: grid;
+    grid-template-columns: 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px auto;
+    grid-template-rows: 20px;
+    grid-column-gap: 7px;
+    margin-top: 7px;
+}
+
+.colorPixelBlock {
+    border-style: dotted;
+    border-width: 1px;
+    border-color: #aaaaaa;
+    width: 20px;
+    height: 20px;
+}
+
+.colorPixelBlockSelected {
+    border-style: solid;
+    border-width: 2px;
+    border-color: #aaaaaa;
+    width: 20px;
+    height: 20px;
+}
+
+.set-f-key {
+    font-size: 10px;
+    alignment: right;
+    color: #888888
+}
+
+
+.preview {
+    background-color: #000000;
+}
