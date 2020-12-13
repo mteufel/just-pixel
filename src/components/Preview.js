@@ -8,18 +8,22 @@ const Preview = {
     setup() {
 
         const scaleFactor = ref(2)
-        const showCursor = ref(false)
+        const showCursor = ref(true)
+        const showArea = ref(false)
         const preview = ref(null)
         const ctx = ref(null)
 
         BitmapStore.subscribe( () => {
-            let matrix = generateMatrix()
-            paintPreview(ctx, scaleFactor.value, matrix, ScreenStore.getMemoryPosition())
-            paintPreviewCursor(ctx, scaleFactor.value, showCursor.value)
-        })
 
-        onMounted(() => {
-            paintForTheFirstTime(preview, ctx, scaleFactor, showCursor)
+            if (ScreenStore.getLastAction()==='new') {
+                paintForTheFirstTime(preview, ctx, scaleFactor, showCursor)
+                ScreenStore.setLastAction('')
+            } else {
+                let matrix = generateMatrix()
+                paintPreview(ctx, scaleFactor.value, matrix, ScreenStore.getMemoryPosition())
+                paintPreviewCursor(ctx, scaleFactor.value, showCursor.value)
+            }
+
         })
 
         const paintForTheFirstTime = (preview, ctx, scaleFactor, showCursor) => {
@@ -52,9 +56,8 @@ const Preview = {
             paintForTheFirstTime(preview, ctx, scaleFactor, showCursor)
         }
 
-
         return  {
-            preview, scaleFactor, showCursor, zoomIn, zoomOut, toggleCursor
+            preview, scaleFactor, showCursor, showArea, zoomIn, zoomOut, toggleCursor
         }
 
     },
@@ -128,17 +131,31 @@ function paintPreview(ctx, scaleFactor, matrix, memoryPosition, withCursor = fal
     let bg = BitmapStore.getBackgroundColor(memoryPosition)
     let x = 0
     let y = 1
+    let r,g,b
     for (let mp = memoryPosition; mp < (memoryPosition+8); mp++) {
         let bits = BitmapStore.getBitmap()[mp]
         for (let bitNumber = 7; bitNumber > -1; bitNumber--) {
+
             if (getBit(bits, bitNumber) == true) {
-                setPixel(ctx, scaleFactor, pos.x + x, pos.y + y, fg.r, fg.g, fg.b)
-            } else {
+                r = fg.r
+                g = fg.g
+                b = fg.b
                 if (withCursor) {
-                    setPixel(ctx, scaleFactor, pos.x + x, pos.y + y, 255, 255, 255)
-                } else {
-                    setPixel(ctx, scaleFactor, pos.x + x, pos.y + y, bg.r, bg.g, bg.b)
+                    r = Math.min(255, r*1.5)
+                    g = Math.min(255, g*1.5)
+                    b = Math.min(255, b*1.5)
                 }
+                setPixel(ctx, scaleFactor, pos.x + x, pos.y + y, r, g, b)
+            } else {
+                r = bg.r
+                g = bg.g
+                b = bg.b
+                if (withCursor) {
+                    r = 255
+                    g = 255
+                    b = 255
+                }
+                setPixel(ctx, scaleFactor, pos.x + x, pos.y + y, r, g, b)
 
             }
             x++

@@ -1,4 +1,5 @@
 import { h, toRef, ref } from 'vue'
+import { createUUID } from '../utils.js'
 import ScreenStore from '../stores/ScreenStore.js'
 
 const Char = {
@@ -13,13 +14,14 @@ const Char = {
                 char.value = ScreenStore.createChar(memoryIndex.value)
             }
         })
-        return () => {
-            let css = 'gridChar'
-            if (ScreenStore.getShowGridInChars()==false) {
-                css = 'gridCharWithoutGrid'
-            }
-            return h('div', { class: css }, char.value)
+        return { memoryIndex, char }
+    },
+    render() {
+        let css = 'gridChar'
+        if (ScreenStore.getShowGridInChars()==false) {
+            css = 'gridCharWithoutGrid'
         }
+        return h('div', { memIndex: this.memoryIndex, key: createUUID(), class: css }, this.char)
     }
 
 }

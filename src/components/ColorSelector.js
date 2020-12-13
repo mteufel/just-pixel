@@ -82,14 +82,14 @@ const ColorSelector = {
                     sets = ColorCollectionStore.setCollection(sets, collectionIndex.value)
                 }
 
-                if (e.key === 'ArrowRight' && e.shiftKey==true) {
+                if (e.key === 'ArrowRight' && e.shiftKey==false && e.ctrlKey==true) {
                     setIndex.value = setIndex.value + 1
                     if (setIndex.value == 8) {
                         setIndex.value = 0
                     }
                 }
 
-                if (e.key === 'ArrowLeft' && e.shiftKey==true) {
+                if (e.key === 'ArrowLeft' && e.shiftKey==false && e.ctrlKey==true) {
                     setIndex.value = setIndex.value - 1
                     if (setIndex.value == -1) {
                         setIndex.value = 7

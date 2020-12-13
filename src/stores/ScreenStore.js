@@ -1,17 +1,24 @@
 import { h } from 'vue';
 import BitmapStore from './BitmapStore.js';
 import { Char } from '../components/Char';
+import { createUUID } from '../utils.js'
 
 const createPixelStore = () => {
 
     let subscribers = []
     let subscribersCharChange = []
     let memoryPosition = 0
+    let screen = []
+    let lastMemoryPosition = 0
     let cursorX = 0
     let cursorY = 0
     let charX = 1
+    let charY = 1
     let sizeX = 0
     let sizeY = 0
+    let cutX = 0
+    let cutY = 0
+    let lastAction
 
     // 0 = pixels on, char on
     // 1 = pixels on, char off
@@ -35,6 +42,7 @@ const createPixelStore = () => {
     }
 
     return {
+        clearSubscribers: () => subscribers = [],
         subscribe: (fn) => {
             subscribers.push(fn)
         },
@@ -42,11 +50,19 @@ const createPixelStore = () => {
             subscribersCharChange.push(fn)
         },
         getMemoryPosition: () => memoryPosition,
+        setMemoryPosition: (newMemPos) => memoryPosition = newMemPos,
+        getScreen: () => screen,
+        getScreenStartMemoryPos:() => {
+            return screen[0].props.memoryIndex
+        },
         getCursorX: () => cursorX,
         getCursorY: () => cursorY,
         getCharX: () => charX,
+        getCharY: () => charY,
         getShowGridInChars: () => showGridInChars,
         getGridMode: () => gridMode,
+        getLastAction: () => lastAction,
+        setLastAction: (action) => lastAction = action,
         setGridMode: (mode) => {
             // 0 = pixels on, char on
             if (mode==0) {
@@ -70,26 +86,39 @@ const createPixelStore = () => {
             }
             gridMode = mode
         },
+        dumpBlinkingCursor: () => {
+            console.log('x=' + cursorX)
+            console.log('y=' + cursorY)
+            console.log('charX=' + charX)
+            console.log('charY=' + charY)
+            console.log('memoryPosition=' + memoryPosition)
+        },
         build: (screenSizeX, screenSizeY, x, y) => {
             sizeX = screenSizeX
             sizeY = screenSizeY
-            let screen = []
+            cutX = x
+            cutY = y
+            screen = []
             let memPos = 0
+            let originalY = y
+            //console.log('build - sizeX=' + sizeX + ' sizeY=' + sizeY + ' x=' + x + ' y=' + y)
+
             for (let counter = 0; counter < (sizeX * sizeY); counter++) {
+                //console.log('counter=' + counter + '  mod=' + counter%sizeX + ' memoryPosition=' + memoryPosition)
                 if (counter%sizeX==0) {
                     memPos = 8 * ( x + 40 * y )
+                    //console.log('mod zugeschlagen --> memoryPosition=' + memoryPosition)
                     y++
                 }
-                screen.push( h(Char, {  memoryIndex: memPos } ))
+                screen.push( h(Char, {  memoryIndex: memPos, xxx: 0, key: createUUID() } ))
                 memPos = memPos + 8
             }
-            return screen;
+            memoryPosition = 8 * ( x + 40 * originalY )
         },
         createColorPixelBlock: (r,g,b, css='colorPixelBlock') => {
             return createPixel(r,g,b, false, css)
         },
         createChar: (memoryIndex) => {
-            //console.log('Building Char / memoryIndex=' + memoryIndex)
             let pixels = []
             let yy = 0;
             for (let y = memoryIndex; y < memoryIndex + 8; y++) {
@@ -98,7 +127,6 @@ const createPixelStore = () => {
                     if (memoryIndex == memoryPosition && x == cursorX && yy == cursorY) {
                         doBlink = true
                     }
-
                     let pixelClass = 'pixel'
                     if (showGridInPixels==false) {
                         pixelClass = 'pixelWithoutGrid'
@@ -122,6 +150,7 @@ const createPixelStore = () => {
                 }
                 yy++;
             }
+
             return pixels
         },
         refreshChar: (memPos = -1, memPos2 = -1) => {
@@ -142,10 +171,11 @@ const createPixelStore = () => {
             cursorY = cursorY - 1
             if (cursorY == -1) {
                 memoryPosition = memoryPosition - (40 * 8)
-                if ( memoryPosition < 0 ) {
+                if ( memoryPosition < ScreenStore.getScreen()[0].props.memoryIndex  ) {
                     memoryPosition = memoryPosition + (40 * 8)
                     cursorY = 0
                 } else {
+                    charY = charY - 1
                     cursorY = 7
                     charChange(memoryPosition)
                     BitmapStore.callSubscribers() // repaint the preview (show cursor)
@@ -156,12 +186,21 @@ const createPixelStore = () => {
         cursorDown: () => {
             cursorY = cursorY + 1
             if (cursorY == 8) {
-                memoryPosition = memoryPosition + (40 * 8)
-                if ( memoryPosition >= (  (40 * 8) * sizeY )) {
+                memoryPosition = memoryPosition + (40* 8)
+
+                if ( memoryPosition >= (  ScreenStore.getScreenStartMemoryPos() + (40*8) * sizeY )) {
+
+                    console.log('sizeY=' + sizeY)
+                    console.log('calc=' + (  (40* 8) * sizeY ) )
+                    console.log('memoryPosition (verglichen mit calc)=' + memoryPosition)
                     memoryPosition = memoryPosition - (40 * 8)
+                    console.log('memoryPosition neu=' + memoryPosition)
+                    console.log('cursorY=' + cursorY)
                     cursorY = 7
+                    console.log('333')
                 } else {
                     cursorY = 0
+                    charY = charY + 1
                     charChange(memoryPosition)
                     BitmapStore.callSubscribers() // repaint the preview (show cursor)
                 }
@@ -170,7 +209,7 @@ const createPixelStore = () => {
         },
         cursorRight: () => {
             cursorX = cursorX + 1
-               if (cursorX == 8) {
+            if (cursorX == 8) {
                 if (charX < sizeX) {
                     memoryPosition = memoryPosition + 8
                     charX = charX + 1
@@ -199,12 +238,14 @@ const createPixelStore = () => {
             refreshChar(memoryPosition, (memoryPosition+8) )
         },
         actionNew: () => {
+            lastAction = 'new'
             BitmapStore.clearBitmap()
             cursorX = 0
             cursorY = 0
             memoryPosition = 0
             ScreenStore.refreshAll()
             charChange(memoryPosition)
+            BitmapStore.callSubscribers() // repaint the preview (show cursor)
         },
         actionGrid: () => {
             let mode = ScreenStore.getGridMode() + 1
@@ -224,6 +265,8 @@ function createPixel(r, g, b, blink, pixelClass) {
     }
     return h('div', divAttributes )
 }
+
+
 
 const ScreenStore = createPixelStore()
 

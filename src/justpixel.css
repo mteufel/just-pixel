@@ -19,6 +19,12 @@
     grid-template-rows: 160px 160px 160px 160px 160px 160px;
 }
 
+.gridBitmap88 {
+    display: grid;
+    grid-template-columns: 160px 160px 160px 160px 160px 160px 60px 160px;
+    grid-template-rows: 160px 160px 160px 160px 160px 160px 160px 160px;
+}
+
 .gridBitmap44 {
     display: grid;
     grid-template-columns: 160px 160px 160px 160px;

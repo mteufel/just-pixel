@@ -7,6 +7,8 @@ const createBitmapStore = () => {
                              //     => $b0 => Highbyte : grey ($b)
                              //               LowByte  : black ($0)
 
+
+
     // Colors (c) by Deekay/Crest
     let colorPalette = [
         { color: 'black',       colorIndex: 0,  colorIndexHex: 0x0, colorCodeHex: 0x0a0a0a, r: 10, g: 10, b: 10 },
@@ -33,6 +35,50 @@ const createBitmapStore = () => {
         subscribers.forEach( callFunction => callFunction())
     }
 
+    const createBlock = (char) => {
+        bitmap[char+0] = 255
+        bitmap[char+1] = 255
+        bitmap[char+2] = 255
+        bitmap[char+3] = 255
+        bitmap[char+4] = 255
+        bitmap[char+5] = 255
+        bitmap[char+6] = 255
+        bitmap[char+7] = 255
+    }
+
+    const createBlock2 = (char) => {
+        bitmap[char+0] = 100
+        bitmap[char+1] = 100
+        bitmap[char+2] = 100
+        bitmap[char+3] = 100
+        bitmap[char+4] = 100
+        bitmap[char+5] = 100
+        bitmap[char+6] = 100
+        bitmap[char+7] = 100
+    }
+
+    const createTestBitmap = (char, other = false) => {
+        if (other) {
+            bitmap[char+0] = 1
+            bitmap[char+1] = 2
+            bitmap[char+2] = 4
+            bitmap[char+3] = 8
+            bitmap[char+4] = 16
+            bitmap[char+5] = 32
+            bitmap[char+6] = 64
+            bitmap[char+7] = 128
+        } else {
+            bitmap[char+0] = 128
+            bitmap[char+1] = 64
+            bitmap[char+2] = 32
+            bitmap[char+3] = 16
+            bitmap[char+4] = 8
+            bitmap[char+5] = 4
+            bitmap[char+6] = 2
+            bitmap[char+7] = 1
+        }
+    }
+
     return {
         getNibble: (number, nth) => (number >> 4*nth) & 0xF,
         clearBitmap: () => {
@@ -44,6 +90,31 @@ const createBitmapStore = () => {
             for (let i = 0; i < 1000; i++) {
                 colors.push(176)
             }
+
+            /*
+            const zeile = 40*8
+
+            for (let i = 0; i < (25*zeile); i = i + 8) {
+                let zufall = (Math.random() * (20 - 1)) + 1;
+                if (zufall < 10) {
+                    createTestBitmap(i)
+                } else {
+                    createTestBitmap(i, true)
+                }
+            }
+
+            for (let i = 0; i < (25*zeile); i = i + 8) {
+                let zufall = (Math.random() * (50 - 1)) + 1;
+                if (zufall < 10) {
+                    createBlock(i)
+                }
+
+            }
+
+            //createBlock2(1960)
+            //createBlock2(1968)
+            */
+
 
         },
         dumpBitmap: () => {
