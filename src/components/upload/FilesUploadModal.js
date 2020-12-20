@@ -16,6 +16,8 @@ const FilesUploadModal = {
             BitmapStore.setBitmap(UploadStore.bitmap)
             BitmapStore.setColorRam(UploadStore.colorRam)
             ScreenStore.refreshAll()
+            ScreenStore.setLastAction("uploaded")
+            BitmapStore.callSubscribers()
             UploadStore.toggle()
         }
 
@@ -31,7 +33,7 @@ const FilesUploadModal = {
             onOk: this.okPressed,
             title: 'Upload Bitmap' } , [ h(UploadButton, {  placeholder: 'Select Bitmap file', type: 'bitmap' }),
                                          h("p"),
-                                         h(UploadButton, {  placeholder: 'Select ColorRam file', type: 'color-ram' })])
+                                         h(UploadButton, {  placeholder: 'Select Color file', type: 'color-ram' })])
     }
 }
 

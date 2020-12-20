@@ -15,7 +15,7 @@ const Preview = {
 
         BitmapStore.subscribe( () => {
 
-            if (ScreenStore.getLastAction()==='new') {
+            if (ScreenStore.getLastAction()==='new' || ScreenStore.getLastAction()==='uploaded' ) {
                 paintForTheFirstTime(preview, ctx, scaleFactor, showCursor)
                 ScreenStore.setLastAction('')
             } else {
