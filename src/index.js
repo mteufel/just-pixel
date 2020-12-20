@@ -4,6 +4,10 @@ import Antd from 'ant-design-vue'
 
 import './justpixel.css'
 import './justpixel.antd.dark.css'
+
+console.log(' start !!! ')
+
+
 const app = createApp({})
 
 app.component('screen', Screen)

@@ -117,6 +117,8 @@ const createBitmapStore = () => {
 
 
         },
+        setBitmap: (data) => bitmap = data,
+        setColorRam: (data) => colors = data,
         dumpBitmap: () => {
           console.log(bitmap)
         },
@@ -160,8 +162,28 @@ const createBitmapStore = () => {
             colors[memoryPosition/8] =  (fg << 4) | bg
         },
 
+        download: (fileName) => {
+            //Upload https://stackoverflow.com/questions/55238215/ant-design-upload-get-file-content
+            // --Bitmap--
+            let bytes = new Uint8Array(BitmapStore.getBitmap().length)
+            BitmapStore.getBitmap().forEach( ((value, index) => bytes[index] = value))
+            let blob = new Blob([bytes], { type: 'application/octet-stream' })
+            let link = document.createElement('a')
+            link.href = window.URL.createObjectURL(blob)
+            link.download = fileName + '-bitmap.bin'
+            link.click()
+            // --Colors--
+            bytes = new Uint8Array(BitmapStore.getColorRam().length)
+            BitmapStore.getColorRam().forEach( ((value, index) => bytes[index] = value))
+            blob = new Blob([bytes], { type: 'application/octet-stream' })
+            link = document.createElement('a')
+            link.href = window.URL.createObjectURL(blob)
+            link.download = fileName + '-colors.bin'
+            link.click()
+        },
+
         getBitmap: () => bitmap,
-        getColorRam: () => colorRam,
+        getColorRam: () => colors,
         subscribe: (fn) => {
             subscribers.push(fn)
         }

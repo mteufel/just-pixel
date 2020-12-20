@@ -20,6 +20,11 @@ const Screen = {
             ScreenStore.actionNew()
 
             window.addEventListener("keydown", function(e) {
+
+                if (ScreenStore.isDialogOpen()) {
+                    return
+                }
+
                 e.preventDefault()
                 if (e.key === 'c') {
                     ScreenStore.actionNew()

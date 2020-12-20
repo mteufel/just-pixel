@@ -1,4 +1,4 @@
-import { h, ref, onMounted } from 'vue'
+import { h, ref, resolveComponent } from 'vue'
 import BitmapStore from '../stores/BitmapStore'
 import ScreenStore from '../stores/ScreenStore'
 import { Button, Checkbox } from 'ant-design-vue'
@@ -62,16 +62,22 @@ const Preview = {
 
     },
     render() {
-        return h('div', [ h('canvas', { ref: 'preview', class: 'preview' }),
-                          h('div', [
-                              h(Button.Group, {}, [
-                                  h(Button, { onClick: $event => this.zoomIn() }, h(ZoomInOutlined)),
-                                  h(Button, { onClick: $event => this.zoomOut() }, h(ZoomOutOutlined)),
-                              ]),
-                              h('p', ' '),
-                              h(Checkbox, { checked: this.showCursor,
-                                            onClick: $event => this.toggleCursor() }, 'Show cursor')
-                          ])])
+
+        const content = [
+            h( Button.Group, {}, [
+                h(Button, { onClick: $event => this.zoomIn() }, h(ZoomInOutlined)),
+                h(Button, { onClick: $event => this.zoomOut() }, h(ZoomOutOutlined)),
+            ]),
+            h('p', ' '),
+            h(Checkbox, { checked: this.showCursor,
+                onClick: ($event) => {this.toggleCursor()} }, 'Show cursor')
+        ]
+
+        return h('div', [
+                          h('canvas', { ref: 'preview', class: 'preview' }),
+                          h('div', content)
+                        ])
+
     }
 
 }

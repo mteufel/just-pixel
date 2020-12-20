@@ -19,6 +19,7 @@ const createPixelStore = () => {
     let cutX = 0
     let cutY = 0
     let lastAction
+    let dialogOpen = false
 
     // 0 = pixels on, char on
     // 1 = pixels on, char off
@@ -254,7 +255,9 @@ const createPixelStore = () => {
             }
             ScreenStore.setGridMode(mode)
             ScreenStore.refreshAll()
-        }
+        },
+        isDialogOpen: () => dialogOpen,
+        setDialogOpen: (open) => dialogOpen = open
     }
 }
 

@@ -137,3 +137,10 @@
 .preview {
     background-color: #000000;
 }
+
+.upload-list-inline ::v-deep(.ant-upload-list-item) {
+    float: left;
+    width: 200px;
+    margin-right: 8px;
+    background-color: whitesmoke;
+}

@@ -49,6 +49,11 @@ const ColorSelector = {
         onMounted(() => {
             const self = this
             window.addEventListener("keydown", function(e) {
+
+                if (ScreenStore.isDialogOpen()) {
+                    return
+                }
+
                 e.preventDefault()
                 if (e.key === 'F1') {
                     let index = sets[setIndex.value].paletteIndexBg;
