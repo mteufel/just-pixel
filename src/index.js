@@ -1,12 +1,9 @@
 import { createApp } from 'vue'
-import { Screen } from './components/Screen.js';
+import { Screen } from './components/Screen.js'
 import Antd from 'ant-design-vue'
 
 import './justpixel.css'
 import './justpixel.antd.dark.css'
-
-console.log(' start !!! ')
-
 
 const app = createApp({})
 

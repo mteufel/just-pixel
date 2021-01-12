@@ -1,7 +1,7 @@
-import {h, onMounted, watch, ref } from "vue"
-import {Modal, Input} from "ant-design-vue"
-import {createBasicDialogStore} from "../stores/BasicDialogStore";
-import BitmapStore from "../stores/BitmapStore";
+import {h, onMounted, watch, ref } from 'vue'
+import {Modal, Input} from 'ant-design-vue'
+import {createBasicDialogStore} from '../stores/BasicDialogStore'
+import BitmapStore from '../stores/BitmapStore'
 
 const DownloadStore = createBasicDialogStore()
 DownloadStore.downloadFileName = null

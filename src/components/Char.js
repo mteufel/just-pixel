@@ -1,10 +1,13 @@
 import { h, toRef, ref } from 'vue'
 import { createUUID } from '../utils.js'
-import ScreenStore from '../stores/ScreenStore.js'
+import ScreenStore from '../stores/ScreenStore'
+import BitmapStore from '../stores/BitmapStore'
 
 const Char = {
     props: {
-        memoryIndex: Number
+        memoryIndex: Number,
+        charX: Number,
+        charY: Number
     },
     setup(props) {
         const memoryIndex = toRef(props, 'memoryIndex')
@@ -17,11 +20,15 @@ const Char = {
         return { memoryIndex, char }
     },
     render() {
-        let css = 'gridChar'
-        if (ScreenStore.getShowGridInChars()==false) {
-            css = 'gridCharWithoutGrid'
+        let mcmExtension = ''
+        if (BitmapStore.isMCM()) {
+            mcmExtension = 'MCM'
         }
-        return h('div', { memIndex: this.memoryIndex, key: createUUID(), class: css }, this.char)
+        let css = 'gridChar' + mcmExtension
+        if (ScreenStore.getShowGridInChars()==false) {
+            css = 'gridCharWithoutGrid' + mcmExtension
+        }
+        return h('div', { memIndex: this.memoryIndex, key: createUUID(), 'data-char-x': this.charX, 'data-char-y': this.charY, class: css }, this.char)
     }
 
 }

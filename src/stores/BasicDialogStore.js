@@ -1,4 +1,4 @@
-import ScreenStore from "./ScreenStore.js"
+import ScreenStore from './ScreenStore.ts'
 
 const createBasicDialogStore = () => {
     let visible = false

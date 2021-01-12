@@ -1,9 +1,10 @@
-import {h, onMounted, ref, reactive} from 'vue'
-import BitmapStore from '../stores/BitmapStore.js';
-import ScreenStore from '../stores/ScreenStore.js';
-import {Toolbar} from "./Toolbar.js";
-import {ColorSelector} from "./ColorSelector.js";
-import {Preview} from "./Preview.js";
+import {h, onMounted, ref } from 'vue'
+import BitmapStore from '../stores/BitmapStore.js'
+import ScreenStore from '../stores/ScreenStore.ts'
+import {Toolbar} from './Toolbar.js'
+import {ColorPalette} from './palette/ColorPalette'
+import {StatusBar} from './StatusBar.js'
+import {Preview} from './Preview.js'
 
 const Screen = {
 
@@ -15,7 +16,6 @@ const Screen = {
         BitmapStore.clearBitmap()
 
         onMounted(() => {
-            //const self = this
 
             ScreenStore.actionNew()
 
@@ -34,48 +34,55 @@ const Screen = {
                     ScreenStore.actionGrid()
                 }
 
-                if (e.key === 'x') {
+                if (e.key === 'd') {
                     ScreenStore.dumpBlinkingCursor()
+                    BitmapStore.dumpBitmap()
                 }
-
 
                 if (e.key === '1') {
-                    let index = ScreenStore.getMemoryPosition() + ScreenStore.getCursorY()
-                    BitmapStore.flipBit(index, 7-ScreenStore.getCursorX())
-                    ScreenStore.refreshChar();
+                    ScreenStore.paint('b')
+                }
+                if (e.key === '2') {
+                    ScreenStore.paint('f')
+                }
+                if (e.key === '3') {
+                    ScreenStore.paint('f2')
+                }
+                if (e.key === '4') {
+                    ScreenStore.paint('f3')
                 }
 
-                if (e.key === 'ArrowDown' && e.shiftKey==false && e.ctrlKey==false ) {
+                if (e.key === 'ArrowDown' && e.altKey==false && e.shiftKey==false && e.ctrlKey==false ) {
                     ScreenStore.cursorDown()
                 }
 
-                if (e.key === 'ArrowUp'&& e.shiftKey==false && e.ctrlKey==false) {
+                if (e.key === 'ArrowUp' && e.altKey==false && e.shiftKey==false && e.ctrlKey==false) {
                     ScreenStore.cursorUp()
                 }
 
-                if (e.key === 'ArrowRight' && e.shiftKey==false && e.ctrlKey==false) {
+                if (e.key === 'ArrowRight' && e.altKey==false && e.shiftKey==false && e.ctrlKey==false) {
                     ScreenStore.cursorRight()
                 }
 
-                if (e.key === 'ArrowLeft' && e.shiftKey==false && e.ctrlKey==false) {
+                if (e.key === 'ArrowLeft' && e.altKey==false && e.shiftKey==false && e.ctrlKey==false) {
                     ScreenStore.cursorLeft()
                 }
 
-                if (e.key === 'ArrowLeft' && e.shiftKey==true && e.ctrlKey==false) {
+                if (e.key === 'ArrowLeft' && e.altKey==false && e.shiftKey==true && e.ctrlKey==false) {
                     if (x.value > 0) {
                         x.value = x.value - 1
                     }
                 }
-                if (e.key === 'ArrowRight' && e.shiftKey==true && e.ctrlKey==false) {
+                if (e.key === 'ArrowRight' && e.altKey==false && e.shiftKey==true && e.ctrlKey==false) {
                     x.value = x.value + 1
                 }
 
-                if (e.key === 'ArrowUp'&& e.shiftKey==true && e.ctrlKey==false) {
+                if (e.key === 'ArrowUp' && e.altKey==false && e.shiftKey==true && e.ctrlKey==false) {
                     if (y.value > 0) {
                         y.value = y.value - 1
                     }
                 }
-                if (e.key === 'ArrowDown' && e.shiftKey==true && e.ctrlKey==false) {
+                if (e.key === 'ArrowDown' && e.altKey==false && e.shiftKey==true && e.ctrlKey==false) {
                     if (y.value < 19) {
                         y.value = y.value + 1
                     }
@@ -90,12 +97,15 @@ const Screen = {
     render() {
 
         ScreenStore.clearSubscribers()
-        ScreenStore.build(6,6,this.x,this.y)
+        ScreenStore.build(12,8,this.x,this.y)
         let calculatedMemoryPosition = ScreenStore.getScreenStartMemoryPos() + ( ( (40*8) * (ScreenStore.getCharY()-1) ) + (ScreenStore.getCharX()-1) * 8  )
         let result = h('div', { class: 'main' }, [
             h('div', { class: 'toolbar' }, h(Toolbar)),
-            h('div', { class: 'gridBitmap66' }, ScreenStore.getScreen(),
-            h('div', { class: 'colorSelector' }, h(ColorSelector)) ),
+            h('div', { class: 'paletteColor' }, h(ColorPalette)),
+            h('div', { class: 'gridBitmap128' }, [ScreenStore.getScreen(),
+                                                 h('div', { class: 'colorSelector' }, h(StatusBar))
+                                                ],
+            ),
             h(Preview) ]);
         ScreenStore.setMemoryPosition(calculatedMemoryPosition)
         BitmapStore.callSubscribers() // repaint the preview (show cursor)

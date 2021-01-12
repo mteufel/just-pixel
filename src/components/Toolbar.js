@@ -1,12 +1,11 @@
-import {h, ref} from 'vue'
+import {h} from 'vue'
 import { PlusOutlined, BorderInnerOutlined, DownloadOutlined, UploadOutlined, QuestionOutlined } from '@ant-design/icons-vue'
-import ScreenStore from "../stores/ScreenStore"
-import BitmapStore from  "../stores/BitmapStore"
-import {Help, HelpStore} from "./Help"
+import ScreenStore from '../stores/ScreenStore'
+import {Help, HelpStore} from './Help'
 import {Download, DownloadStore} from "./Download"
-import { FilesUploadModal } from "./upload/FilesUploadModal"
-import { UploadStore } from "./upload/UploadStore"
-import {NewModal, NewStore} from "./NewModal";
+import { FilesUploadModal } from './upload/FilesUploadModal'
+import { UploadStore } from './upload/UploadStore'
+import {NewModal, NewStore} from './NewModal';
 const svg = new URL('../mega65.svg', import.meta.url);
 
 const Toolbar = {

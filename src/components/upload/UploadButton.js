@@ -1,7 +1,7 @@
-import {h, toRefs} from "vue"
-import {Button, Upload} from "ant-design-vue"
-import {UploadOutlined} from "@ant-design/icons-vue"
-import {useUpload} from "./UseUpload"
+import {h, toRefs} from 'vue'
+import {Button, Upload} from 'ant-design-vue'
+import {UploadOutlined} from '@ant-design/icons-vue'
+import {useUpload} from './UseUpload'
 
 const UploadButton = {
     props: {

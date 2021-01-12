@@ -1,10 +1,39 @@
 .main {
     background-color: #1b1b1b;
     display: grid;
-    grid-template-columns: 50px 960px auto;
+    grid-template-columns: 50px 120px auto auto;
     grid-template-rows: auto;
     grid-gap: 20px;
     height: 100vh;
+}
+
+.paletteColor {
+    display: grid;
+    grid-template-columns: 20px 20px 20px 20px 20px 20px;
+    grid-template-rows: 20px 20px 20px 20px 20px 20px 20px 20px
+                        20px 20px 20px 20px 20px 20px 20px 20px
+                        20px 20px 20px 20px 20px 20px 20px 20px
+                        20px 20px 20px 20px 20px 20px 20px 20px
+                        20px 20px 20px 20px 20px 20px 20px 20px
+                        20px 20px 20px 20px 20px 20px 20px 20px;
+}
+
+.color {
+    border-style: dotted;
+    border-width: 1px;
+    border-color: #333333
+}
+
+.colorCursor {
+    border: 1px solid transparent;
+    box-sizing: border-box;
+    border-image-outset: 0px;
+    border-image-repeat: repeat;
+    border-image-source: url('_dist_/selection.gif');
+    left: 100px;
+    border-image-slice: 6;
+    border-image-width: 2px;
+
 }
 
 .gridBitmap88 {
@@ -17,6 +46,12 @@
     display: grid;
     grid-template-columns: 160px 160px 160px 160px 160px 160px;
     grid-template-rows: 160px 160px 160px 160px 160px 160px;
+}
+
+.gridBitmap128 {
+    display: grid;
+    grid-template-columns: 160px 160px 160px 160px 160px 160px 160px 160px 160px 160px 160px 160px;
+    grid-template-rows: 160px 160px 160px 160px 160px 160px 160px 160px;
 }
 
 .gridBitmap88 {
@@ -43,7 +78,7 @@
     grid-template-rows: 20px 20px 20px 20px 20px 20px 20px 20px;
     border-style: solid;
     border-width: 1px;
-    border-color: #555555
+    border-color: #999999
 }
 
 .gridCharWithoutGrid {
@@ -51,6 +86,22 @@
     grid-template-columns: 20px 20px 20px 20px 20px 20px 20px 20px;
     grid-template-rows: 20px 20px 20px 20px 20px 20px 20px 20px;
 }
+
+.gridCharMCM {
+    display: grid;
+    grid-template-columns: 40px 40px 40px 40px;
+    grid-template-rows: 20px 20px 20px 20px 20px 20px 20px 20px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #999999
+}
+
+.gridCharWithoutGridMCM {
+    display: grid;
+    grid-template-columns: 40px 40px 40px 40px;
+    grid-template-rows: 20px 20px 20px 20px 20px 20px 20px 20px;
+}
+
 
 .pixel {
     border-style: dotted;
@@ -105,11 +156,14 @@
 
 .colorSelector {
     display: grid;
-    grid-template-columns: 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px auto;
+    grid-column-start: 1;
+    grid-column-end: 7;
+    grid-template-columns: 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px auto;
     grid-template-rows: 20px;
     grid-column-gap: 7px;
     margin-top: 7px;
 }
+
 
 .colorPixelBlock {
     border-style: dotted;
@@ -120,11 +174,19 @@
 }
 
 .colorPixelBlockSelected {
-    border-style: solid;
-    border-width: 2px;
-    border-color: #aaaaaa;
+
+    border: 1px solid transparent;
+    box-sizing: border-box;
+    border-image-outset: 0px;
+    border-image-repeat: repeat;
+    border-image-source: url('_dist_/selection.gif');
+    left: 100px;
+    border-image-slice: 6;
+    border-image-width: 2px;
     width: 20px;
     height: 20px;
+
+
 }
 
 .set-f-key {
@@ -138,9 +200,3 @@
     background-color: #000000;
 }
 
-.upload-list-inline ::v-deep(.ant-upload-list-item) {
-    float: left;
-    width: 200px;
-    margin-right: 8px;
-    background-color: whitesmoke;
-}

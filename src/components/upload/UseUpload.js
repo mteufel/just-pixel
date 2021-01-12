@@ -1,5 +1,5 @@
-import {message} from "ant-design-vue"
-import {UploadStore} from "./UploadStore";
+import {message} from 'ant-design-vue'
+import {UploadStore} from './UploadStore'
 
 export function useUpload(props) {
 

@@ -1,4 +1,4 @@
-import { h, ref, resolveComponent } from 'vue'
+import { h, ref } from 'vue'
 import BitmapStore from '../stores/BitmapStore'
 import ScreenStore from '../stores/ScreenStore'
 import { Button, Checkbox } from 'ant-design-vue'
@@ -7,9 +7,9 @@ import { ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons-vue'
 const Preview = {
     setup() {
 
-        const scaleFactor = ref(2)
+        const scaleFactor = ref(1)
         const showCursor = ref(true)
-        const showArea = ref(false)
+        const clickAndPixel = ref(false)
         const preview = ref(null)
         const ctx = ref(null)
 
@@ -56,8 +56,13 @@ const Preview = {
             paintForTheFirstTime(preview, ctx, scaleFactor, showCursor)
         }
 
+        const toggleClickAndPixel = () => {
+            clickAndPixel.value = !clickAndPixel.value
+            ScreenStore.setClickAndPixel(clickAndPixel.value)
+        }
+
         return  {
-            preview, scaleFactor, showCursor, showArea, zoomIn, zoomOut, toggleCursor
+            preview, scaleFactor, showCursor, clickAndPixel, zoomIn, zoomOut, toggleCursor, toggleClickAndPixel
         }
 
     },
@@ -65,12 +70,15 @@ const Preview = {
 
         const content = [
             h( Button.Group, {}, [
-                h(Button, { onClick: $event => this.zoomIn() }, h(ZoomInOutlined)),
-                h(Button, { onClick: $event => this.zoomOut() }, h(ZoomOutOutlined)),
+                h(Button, { onClick: e => this.zoomIn() }, h(ZoomInOutlined)),
+                h(Button, { onClick: e => this.zoomOut() }, h(ZoomOutOutlined)),
             ]),
             h('p', ' '),
             h(Checkbox, { checked: this.showCursor,
-                onClick: ($event) => {this.toggleCursor()} }, 'Show cursor')
+                onClick: e => {this.toggleCursor()} }, 'Show cursor in preview'),
+            h('p', ' '),
+            h(Checkbox, { checked: this.clickAndPixel,
+                onClick: e => {this.toggleClickAndPixel()} }, 'Set Pixel on mouse click (double click sets background pixel)' )
         ]
 
         return h('div', [
@@ -88,7 +96,7 @@ function getBit(n, i) {
 
 function paintPreviewCursor(ctx, scaleFactor, showCursor) {
     let matrix = generateMatrix()
-    let memPos = ScreenStore.getMemoryPosition()
+    let memPos = parseInt(ScreenStore.getMemoryPosition())
 
     // clear around the around with original bitmap data
     // before setting a new cursor
@@ -130,11 +138,68 @@ function paintPreviewWithCursor(ctx, scaleFactor, matrix, memoryPosition) {
     return paintPreview(ctx, scaleFactor, matrix, memoryPosition, true)
 }
 
-function paintPreview(ctx, scaleFactor, matrix, memoryPosition, withCursor = false) {
+function paintPreviewMCM(ctx, scaleFactor, matrix, memoryPosition, withCursor = false) {
+    //console.log('paintPreviewMCM ', { ctx, scaleFactor, matrix, memoryPosition, withCursor } )
     let pos = calculatePosition(matrix, memoryPosition)
     pos.x = memoryPosition - pos.posFrom
-    let fg = BitmapStore.getForegroundColor(memoryPosition)
-    let bg = BitmapStore.getBackgroundColor(memoryPosition)
+    let bg = BitmapStore.getBackgroundColorMCM()
+    let fg = BitmapStore.getForegroundColorMCM(memoryPosition)
+    let fg2 = BitmapStore.getForegroundColor2MCM(memoryPosition)
+    let fg3 = BitmapStore.getForegroundColor2MCM(memoryPosition)
+    let x = 0
+    let y = 1
+    let r,g,b
+    for (let mp = memoryPosition; mp < (memoryPosition+8); mp++) {
+
+        let binary = BitmapStore.getBinaryLine(mp).padStart(8,'0')
+        let binaryIndex7 = binary.substr(0,2)
+        let binaryIndex6 = binary.substr(2,2)
+        let binaryIndex5 = binary.substr(4,2)
+        let binaryIndex4 = binary.substr(6,2)
+        let arr = [binaryIndex7, binaryIndex6, binaryIndex5, binaryIndex4]
+
+        let color = BitmapStore.getBackgroundColorMCM()
+        arr.forEach( pixelPattern => {
+            switch(pixelPattern) {
+                case "00":
+                    color = BitmapStore.getBackgroundColorMCM()
+                    break;
+                case "01":
+                    color = BitmapStore.getForegroundColorMCM(memoryPosition)
+                    break;
+                case "10":
+                    color = BitmapStore.getForegroundColor2MCM(memoryPosition)
+                    break;
+                case "11":
+                    color = BitmapStore.getForegroundColor3MCM(memoryPosition)
+                    break;
+            }
+            r = color.r
+            g = color.g
+            b = color.b
+            if (withCursor) {
+                r = Math.min(255, r*1.5)
+                g = Math.min(255, g*1.5)
+                b = Math.min(255, b*1.5)
+            }
+            setPixel(ctx, scaleFactor, pos.x + x, pos.y + y, r, g, b)
+            x = x + 2
+        })
+        y = y + 1
+        x=0
+
+
+    }
+}
+
+function paintPreview(ctx, scaleFactor, matrix, memoryPosition, withCursor = false) {
+    if (BitmapStore.isMCM()) {
+        return paintPreviewMCM(ctx, scaleFactor, matrix, memoryPosition, withCursor)
+    }
+    let pos = calculatePosition(matrix, memoryPosition)
+    pos.x = memoryPosition - pos.posFrom
+    let fg = BitmapStore.getForegroundColorHires(memoryPosition)
+    let bg = BitmapStore.getBackgroundColorHires(memoryPosition)
     let x = 0
     let y = 1
     let r,g,b
@@ -190,8 +255,13 @@ function calculatePosition(matrix, memoryPosition) {
 }
 
 function setPixel(ctx, scaleFactor, x, y, r, g, b) {
-    ctx.value.fillStyle = 'rgb(' + r +',' + g +',' + b +')'
-    ctx.value.fillRect( (x*scaleFactor)-1, (y*scaleFactor)-1, 1*scaleFactor, 1*scaleFactor )
+    if (BitmapStore.isMCM()) {
+        ctx.value.fillStyle = 'rgb(' + r +',' + g +',' + b +')'
+        ctx.value.fillRect( (x*(scaleFactor+.5))-1, (y*(scaleFactor+.5))-1, 2*(scaleFactor+0.5), 1*(scaleFactor+.5) )
+    } else {
+        ctx.value.fillStyle = 'rgb(' + r +',' + g +',' + b +')'
+        ctx.value.fillRect( (x*scaleFactor)-1, (y*scaleFactor)-1, 1*scaleFactor, 1*scaleFactor )
+    }
 }
 
 export { Preview }

@@ -1,33 +1,24 @@
+import {defaultColors} from '../components/palette/ColorPalette'
+import {colorMega65} from '../utils'
+
 const createBitmapStore = () => {
 
-    let bitmap = []          // 8 x 8 bits per char (8 Bytes), 40 chars per line (320 Bytes), 25 lines (8000 Bytes)
+    let bitmap = []          // Hires: 8 x 8 bits per char (8 Bytes), 40 chars per line (320 Bytes), 25 lines (8000 Bytes)
 
-    let colors = []          // 1 Byte per char, 40 chars per line, 25 line   = 1000 Bytes
+    let screenRam = []       // Hires:
+                             // 1 Byte per char, 40 chars per line, 25 line   = 1000 Bytes
                              // Color for one char e.g. 176
                              //     => $b0 => Highbyte : grey ($b)
                              //               LowByte  : black ($0)
 
 
+    let colorRam = []
 
-    // Colors (c) by Deekay/Crest
-    let colorPalette = [
-        { color: 'black',       colorIndex: 0,  colorIndexHex: 0x0, colorCodeHex: 0x0a0a0a, r: 10, g: 10, b: 10 },
-        { color: 'white',       colorIndex: 1,  colorIndexHex: 0x1, colorCodeHex: 0xfff8ff, r: 255, g: 248, b: 255 },
-        { color: 'red',         colorIndex: 2,  colorIndexHex: 0x2, colorCodeHex: 0x851f02, r: 133, g: 31, b: 2 },
-        { color: 'cyan',        colorIndex: 3,  colorIndexHex: 0x3, colorCodeHex: 0x65cda8, r: 101, g: 205, b: 169 },
-        { color: 'purple',      colorIndex: 4,  colorIndexHex: 0x4, colorCodeHex: 0xa73b9f, r: 167, g: 59, b: 159 },
-        { color: 'green',       colorIndex: 5,  colorIndexHex: 0x5, colorCodeHex: 0x4dab19, r: 77, g: 171, b: 25 },
-        { color: 'blue',        colorIndex: 6,  colorIndexHex: 0x6, colorCodeHex: 0x1a0c92, r: 26, g: 12, b: 146 },
-        { color: 'yellow',      colorIndex: 7,  colorIndexHex: 0x7, colorCodeHex: 0xebe353, r: 235, g: 227, b: 83 },
-        { color: 'orange',      colorIndex: 8,  colorIndexHex: 0x8, colorCodeHex: 0xa94b02, r: 169, g: 74, b: 2 },
-        { color: 'brown',       colorIndex: 9,  colorIndexHex: 0x9, colorCodeHex: 0x441e00, r: 68, g: 30, b: 0 },
-        { color: 'light red',   colorIndex: 10, colorIndexHex: 0xa, colorCodeHex: 0xd28074, r: 210, g: 128, b: 116 },
-        { color: 'dark grey',   colorIndex: 11, colorIndexHex: 0xb, colorCodeHex: 0x464646, r: 70, g: 70, b: 70 },
-        { color: 'grey',        colorIndex: 12, colorIndexHex: 0xc, colorCodeHex: 0x8b8b8b, r: 139, g: 139, b: 139 },
-        { color: 'light green', colorIndex: 13, colorIndexHex: 0xd, colorCodeHex: 0x8ef68e, r: 142, g: 246, b: 142 },
-        { color: 'light blue',  colorIndex: 14, colorIndexHex: 0xe, colorCodeHex: 0x4d91d1, r: 77, g: 145, b: 209 },
-        { color: 'light grey',  colorIndex: 15, colorIndexHex: 0xf, colorCodeHex: 0xbababa, r: 186, g: 186, b: 186 },
-    ]
+    let backgroundColorMCM = null
+
+    let mode = 0             // 0 = Classic Hires Bitmaps C64
+                             // 1 = Multicolor Bitmap
+
 
     let subscribers = []
 
@@ -35,92 +26,56 @@ const createBitmapStore = () => {
         subscribers.forEach( callFunction => callFunction())
     }
 
-    const createBlock = (char) => {
-        bitmap[char+0] = 255
-        bitmap[char+1] = 255
-        bitmap[char+2] = 255
-        bitmap[char+3] = 255
-        bitmap[char+4] = 255
-        bitmap[char+5] = 255
-        bitmap[char+6] = 255
-        bitmap[char+7] = 255
-    }
-
-    const createBlock2 = (char) => {
-        bitmap[char+0] = 100
-        bitmap[char+1] = 100
-        bitmap[char+2] = 100
-        bitmap[char+3] = 100
-        bitmap[char+4] = 100
-        bitmap[char+5] = 100
-        bitmap[char+6] = 100
-        bitmap[char+7] = 100
-    }
-
-    const createTestBitmap = (char, other = false) => {
-        if (other) {
-            bitmap[char+0] = 1
-            bitmap[char+1] = 2
-            bitmap[char+2] = 4
-            bitmap[char+3] = 8
-            bitmap[char+4] = 16
-            bitmap[char+5] = 32
-            bitmap[char+6] = 64
-            bitmap[char+7] = 128
-        } else {
-            bitmap[char+0] = 128
-            bitmap[char+1] = 64
-            bitmap[char+2] = 32
-            bitmap[char+3] = 16
-            bitmap[char+4] = 8
-            bitmap[char+5] = 4
-            bitmap[char+6] = 2
-            bitmap[char+7] = 1
-        }
-    }
-
     return {
-        getNibble: (number, nth) => (number >> 4*nth) & 0xF,
+        createMulticolorTest: () => {
+            console.log('createMulticolorTest')
+            BitmapStore.setBackgroundColorMCM(6)
+            BitmapStore.setForegroundColor3MCM(0, BitmapStore.getColorByIndex(14).colorIndexHex)
+            let myBitmap = BitmapStore.getBitmap()
+            myBitmap[0] = 51
+            myBitmap[1] = 15
+            myBitmap[2] = 240
+            BitmapStore.setBitmap(myBitmap)
+
+
+        },
+        getNibble: (number, nth) =>  (number >> 4*nth) & 0xF,
         clearBitmap: () => {
             bitmap = []
-            colors = []
+            screenRam = []
+            colorRam = []
             for (let i = 0; i < 8000; i++) {
                 bitmap.push(0)
             }
             for (let i = 0; i < 1000; i++) {
-                colors.push(176)
+                screenRam.push(0)
+                colorRam.push(0)
             }
-
-            /*
-            const zeile = 40*8
-
-            for (let i = 0; i < (25*zeile); i = i + 8) {
-                let zufall = (Math.random() * (20 - 1)) + 1;
-                if (zufall < 10) {
-                    createTestBitmap(i)
-                } else {
-                    createTestBitmap(i, true)
-                }
+            if (BitmapStore.isMCM()) {
+                BitmapStore.setBackgroundColorMCM(0)
             }
-
-            for (let i = 0; i < (25*zeile); i = i + 8) {
-                let zufall = (Math.random() * (50 - 1)) + 1;
-                if (zufall < 10) {
-                    createBlock(i)
-                }
-
-            }
-
-            //createBlock2(1960)
-            //createBlock2(1968)
-            */
-
 
         },
         setBitmap: (data) => bitmap = data,
-        setColorRam: (data) => colors = data,
+        setScreenRam: (data) => screenRam = data,
         dumpBitmap: () => {
-          console.log(bitmap)
+            if (BitmapStore.isMCM()) {
+                console.info( ' Dumping: MCM ----------------------------------------')
+                console.log( { bitmap })
+                console.log( { screenRam })
+                console.log( { colorRam })
+                console.log( { backgroundColorMCM })
+                defaultColors.forEach(  color => {
+                    let res = colorMega65(color)
+                    console.log ('colorConversion ', { color, res })
+                } )
+
+            } else {
+                console.info( ' Dumping: HIRES ----------------------------------------')
+                console.log( { bitmap })
+                console.log( { screenRam })
+            }
+
         },
         getBinaryLine: (idx) => {
             let value = bitmap[idx]
@@ -130,63 +85,246 @@ const createBitmapStore = () => {
             }
             return s;
         },
-        flipBit: (index,pos) => {
-            bitmap[index] = bitmap[index]^(1<<pos)  // XOR
+        flipBackground: (index, pos) => {
+            bitmap[index] = bitmap[index] & ~(1<<pos)  //  CLEAR BIT
             callSubscribers()
         },
+        flipForeground: (index, pos) => {
+            //bitmap[index] = bitmap[index]^(1<<pos)  // XOR
+            bitmap[index] = bitmap[index] | (1<<pos)  //  OR / SET BIT
+            callSubscribers()
+        },
+        flipBit: (index,pos) => {
+            //bitmap[index] = bitmap[index]^(1<<pos)  // XOR
+            bitmap[index] = bitmap[index]|(1<<pos)  //  OR
+            callSubscribers()
+        },
+        setBinaryLine: (index, binaryLine) => bitmap[index] = parseInt(binaryLine,2),
         callSubscribers: () => {
             callSubscribers()
         },
-        getColorByIndex: (idx) => colorPalette.find( color => color.colorIndex===idx),
-        getColorByHexNumber: (hex) => colorPalette.find( color => color.colorIndexHex===hex),
-        getColorByName: (name) => colorPalette.find( color => color.color===name),
-        getColor: (memoryPosition) => colors[memoryPosition/8],
-        getBackgroundColor: (memoryPosition) => {
-            let color = BitmapStore.getColor(memoryPosition)
+        getColorByIndex: (idx) => defaultColors.find( color => color.colorIndex===idx),
+        getColorByHexNumber: (hex) => defaultColors.find( color => color.colorIndexHex===hex),
+        getColorByName: (name) => defaultColors.find( color => color.color===name),
+
+
+        getColorFromScreenRam: (memoryPosition) => screenRam[memoryPosition/8],
+
+        // ------------------------------------------------------------
+        //   Color Getters and Setter for HIRES Mode
+        // ------------------------------------------------------------
+        getBackgroundColorHires: (memoryPosition) => {
+            let color = BitmapStore.getColorFromScreenRam(memoryPosition)  // hi und low byte
             // returns the LowByte == Background
             return BitmapStore.getColorByHexNumber(BitmapStore.getNibble(color, 0))
         },
-        getForegroundColor: (memoryPosition) => {
-            let color = BitmapStore.getColor(memoryPosition)
+        getForegroundColorHires: (memoryPosition) => {
+            let color = BitmapStore.getColorFromScreenRam(memoryPosition)  // hi und low byte
             // returns the HighByte == Foreground
             return BitmapStore.getColorByHexNumber(BitmapStore.getNibble(color, 1))
         },
-        setBackgroundColor: (memoryPosition, bg) => {
-            let color = BitmapStore.getColor(memoryPosition)  // hi und low byte
+        setBackgroundColorHires: (memoryPosition, bg) => {
+            let color = BitmapStore.getColorFromScreenRam(memoryPosition)  // hi und low byte
             let fg = BitmapStore.getNibble(color, 1)
-            colors[memoryPosition/8] =  (fg << 4) | bg
+            screenRam[memoryPosition/8] =  (fg << 4) | bg
         },
-        setForegroundColor: (memoryPosition, fg) => {
-            let color = BitmapStore.getColor(memoryPosition)  // hi und low byte
+        setForegroundColorHires: (memoryPosition, fg) => {
+            let color = BitmapStore.getColorFromScreenRam(memoryPosition)  // hi und low byte
             let bg = BitmapStore.getNibble(color, 0)
-            colors[memoryPosition/8] =  (fg << 4) | bg
+            screenRam[memoryPosition/8] =  (fg << 4) | bg
         },
 
+
+
+
+        // ------------------------------------------------------------
+        //   Color Getters and Setter for MULTICOLOR Mode
+        // ------------------------------------------------------------
+
+        getBackgroundColorMCM: () => {
+            return backgroundColorMCM
+        },
+        getForegroundColorMCM: (memoryPosition) => {
+            let color = BitmapStore.getColorFromScreenRam(memoryPosition)
+            // returns the HighByte == Foreground
+            return BitmapStore.getColorByHexNumber(BitmapStore.getNibble(color, 1))
+        },
+        getForegroundColor2MCM: (memoryPosition) => {
+            let color = BitmapStore.getColorFromScreenRam(memoryPosition)
+            return BitmapStore.getColorByHexNumber(BitmapStore.getNibble(color, 0))
+        },
+        getForegroundColor3MCM: (memoryPosition) => {
+            let color = colorRam[memoryPosition/8]
+            return BitmapStore.getColorByHexNumber(color)
+        },
+
+        setBackgroundColorMCM: (bg) => {
+            backgroundColorMCM = BitmapStore.getColorByIndex(bg)
+
+        },
+        setForegroundColorMCM: (memoryPosition, fg) => {
+            let selColor = BitmapStore.getColorByIndex(fg)
+            console.log('setForegroundColorMCM selColor ', { selColor } )
+            let colorValue = BitmapStore.getColorFromScreenRam(memoryPosition)
+            console.log('setForegroundColorMCM colorValue ', { colorValue } )
+            let colorValueHexComplete = colorValue.toString(16)
+            //let ColorValueVorne = colorValueHexComplete.substr(0,1)
+            let ColorValueVorne = selColor.colorIndexHex.toString(16)
+            let ColorValueHinten = colorValueHexComplete.substr(1,1)
+            let colorValueNeu = '0x'.concat(ColorValueVorne,ColorValueHinten)
+            console.log('setForegroundColorMCM alt/neu ', { colorValueHexComplete, colorValueNeu })
+            screenRam[memoryPosition/8] =  parseInt(colorValueNeu,16)
+        },
+
+        setForegroundColor2MCM: (memoryPosition, fg) => {
+            let selColor = BitmapStore.getColorByIndex(fg)
+            console.log('setForegroundColor2MCM selColor ', { selColor } )
+            let colorValue = BitmapStore.getColorFromScreenRam(memoryPosition)
+            console.log('setForegroundColor2MCM colorValue ', { colorValue } )
+            let colorValueHexComplete = colorValue.toString(16)
+            let ColorValueVorne = colorValueHexComplete.substr(0,1)
+            //let ColorValueHinten = colorValueHexComplete.substr(1,1)
+            let ColorValueHinten = selColor.colorIndexHex.toString(16)
+            let colorValueNeu = '0x'.concat(ColorValueVorne,ColorValueHinten)
+            console.log('setForegroundColor2MCM alt/neu ', { colorValueHexComplete, colorValueNeu })
+            screenRam[memoryPosition/8] =  parseInt(colorValueNeu,16)
+        },
+
+        setForegroundColor3MCM: (memoryPosition, fg) => {
+            // MCM Foreground color to be stored into Color RAM
+            colorRam[memoryPosition/8] = fg
+        },
+
+
+
         download: (fileName) => {
-            //Upload https://stackoverflow.com/questions/55238215/ant-design-upload-get-file-content
-            // --Bitmap--
-            let bytes = new Uint8Array(BitmapStore.getBitmap().length)
-            BitmapStore.getBitmap().forEach( ((value, index) => bytes[index] = value))
-            let blob = new Blob([bytes], { type: 'application/octet-stream' })
-            let link = document.createElement('a')
-            link.href = window.URL.createObjectURL(blob)
-            link.download = fileName + '-bitmap.bin'
-            link.click()
-            // --Colors--
-            bytes = new Uint8Array(BitmapStore.getColorRam().length)
-            BitmapStore.getColorRam().forEach( ((value, index) => bytes[index] = value))
-            blob = new Blob([bytes], { type: 'application/octet-stream' })
-            link = document.createElement('a')
-            link.href = window.URL.createObjectURL(blob)
-            link.download = fileName + '-colors.bin'
-            link.click()
+            console.log('download ', fileName)
+            let fileCreated = false
+
+            if (BitmapStore.isMCM()) {
+
+                // ======================================
+                //  Prepare Multicolor (MCM) File
+                // ======================================
+
+                // 0000-1f3f Bitmap data (8000 bytes)
+                // 1f40-2327 Screen RAM colors (1000 bytes)
+                // 2828-270f Color RAM (1000 bytes)
+                // 2710 background color
+                // 2711-2721 Color Palette REDs   10001 - 10017
+                // 2722-2732 Color Palette GREENs 10018 - 10034
+                // 2733-2743 Color Palette BLUEs  10035 - 10051
+                // 2744 mode
+
+
+                let bitmapLength = 8000
+                let screenRamLength = 1000
+                let colorRamLength = 1000
+                let backgroundLength = 1
+                let identifier = 1
+                let reds = 16
+                let greens = 16
+                let blues = 16
+                var bytes =  new Uint8Array( bitmapLength + screenRamLength + colorRamLength + backgroundLength + reds + greens + blues + identifier)
+                var idx = 0
+                console.log('download bitmap length=', BitmapStore.getBitmap().length)
+                BitmapStore.getBitmap().forEach( byte => {
+                    bytes[idx] = byte
+                    idx++
+                })
+                console.log('download screenRam length=', BitmapStore.getScreenRam().length)
+                BitmapStore.getScreenRam().forEach( byte => {
+                    bytes[idx] = byte
+                    idx++
+                })
+                console.log('download colorRamLength length=', BitmapStore.getColorRam().length)
+                BitmapStore.getColorRam().forEach( byte => {
+                    bytes[idx] = byte
+                    idx++
+                })
+                bytes[idx] = BitmapStore.getBackgroundColorMCM()
+                idx++
+                defaultColors.forEach( color => {
+                    let res = colorMega65(color)
+                    bytes[idx] = res.r
+                    idx++
+                })
+                defaultColors.forEach( color => {
+                    let res = colorMega65(color)
+                    bytes[idx] = res.g
+                    idx++
+                })
+                defaultColors.forEach( color => {
+                    let res = colorMega65(color)
+                    bytes[idx] = res.b
+                    idx++
+                })
+
+                bytes[idx] = BitmapStore.getMode()  // which type of file to we provide ?
+                fileCreated = true
+
+            } else {
+
+                // ======================================
+                //  Prepare Hires Bitmap File
+                // ======================================
+
+
+                let bitmapLength = 8000
+                let screenRamLength = 1000
+                let identifier = 1
+                var bytes =  new Uint8Array( bitmapLength + screenRamLength + identifier)
+                var idx = 0
+                console.log('download bitmap length=', BitmapStore.getBitmap().length)
+                BitmapStore.getBitmap().forEach( byte => {
+                    bytes[idx] = byte
+                    idx++
+                })
+                console.log('download screenRam length=', BitmapStore.getScreenRam().length)
+                BitmapStore.getScreenRam().forEach( byte => {
+                    bytes[idx] = byte
+                    idx++
+                })
+                bytes[idx] = BitmapStore.getMode()  // which type of file to we provide ?
+                fileCreated = true
+
+            }
+
+            if (fileCreated) {
+                // Download the prepared file ....
+                let blob = new Blob([bytes], { type: 'application/octet-stream' })
+                let link = document.createElement('a')
+                link.href = window.URL.createObjectURL(blob)
+                link.download = fileName + '-' + BitmapStore.getModeAsText() + '.bin'
+                link.click()
+            }
+
+
         },
 
         getBitmap: () => bitmap,
-        getColorRam: () => colors,
+        getScreenRam: () => screenRam,
+        getColorRam: () => colorRam,
         subscribe: (fn) => {
             subscribers.push(fn)
-        }
+        },
+        activateHiresBitmaps: () => mode = 0,
+        activateMulticolorBitmaps: () => mode = 1,
+        isMCM: () => mode == 1,
+        getMode: () => mode,
+        getModeAsText: () => {
+            switch (mode) {
+                case 0:
+                    return 'hires'
+                    break
+                case 1:
+                    return 'mcm'
+                    break
+            }
+            return '???'
+
+        },
+        setColorRam: (colRam) => colorRam = colRam
 
     }
 }

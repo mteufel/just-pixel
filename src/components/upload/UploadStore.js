@@ -1,4 +1,4 @@
-import { createBasicDialogStore } from "../../stores/BasicDialogStore"
+import { createBasicDialogStore } from '../../stores/BasicDialogStore'
 
 const UploadStore = createBasicDialogStore()
 

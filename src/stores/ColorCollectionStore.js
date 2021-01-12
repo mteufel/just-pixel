@@ -1,4 +1,4 @@
-import BitmapStore from "./BitmapStore.js"
+import BitmapStore from './BitmapStore.js'
 
 const createColorCollectionStore = () => {
 
