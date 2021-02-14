@@ -14,7 +14,7 @@ const FilesUploadModal = {
 
         const okPressed = () => {
             console.log('Loaded ',  UploadStore.bitmap )
-            if (UploadStore.bitmap[10001]==1) {
+            if (UploadStore.bitmap[10049]==1) {
                 BitmapStore.activateMulticolorBitmaps()
             }
             BitmapStore.setBitmap(UploadStore.bitmap.slice(0,8000))
@@ -37,9 +37,7 @@ const FilesUploadModal = {
             closable: true,
             destroyOnClose: true,
             onOk: this.okPressed,
-            title: 'Upload Bitmap' } , [ h(UploadButton, {  placeholder: 'Select Bitmap file', type: 'bitmap' }),
-                                         h("p"),
-                                         h(UploadButton, {  placeholder: 'Select Color file', type: 'color-ram' })])
+            title: 'Upload Bitmap' } , [ h(UploadButton, {  placeholder: 'Select Bitmap file', type: 'bitmap' })])
     }
 }
 

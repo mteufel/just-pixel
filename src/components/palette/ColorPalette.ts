@@ -1,6 +1,7 @@
-import {h, onMounted, ref, reactive} from 'vue'
+import {h, onMounted, ref, watch} from 'vue'
 import ScreenStore from "../../stores/ScreenStore"
 import BitmapStore from "../../stores/BitmapStore"
+import { createUUID } from "../../utils"
 
 // Colors (c) by Deekay/Crest
 /*
@@ -23,7 +24,17 @@ const defaultColors = [
     { color: 'light grey',  colorIndex: 15, colorIndexHex: 0xf, colorCodeHex: 0xbababa, r: 186, g: 186, b: 186 },
 ]*/
 
-const defaultColors = [
+type Color = {
+    color: string;
+    colorIndex: number;
+    colorIndexHex: number;
+    colorCodeHex: number;
+    r: number;
+    g: number;
+    b: number;
+}
+
+const defaultColors : Color[] = [
     { color: 'black',       colorIndex: 0,  colorIndexHex: 0x0, colorCodeHex: 0x000000, r: 0, g: 0, b: 0 },
     { color: 'white',       colorIndex: 1,  colorIndexHex: 0x1, colorCodeHex: 0xffffff, r: 255, g: 255, b: 255 },
     { color: 'red',         colorIndex: 2,  colorIndexHex: 0x2, colorCodeHex: 0x68372b, r: 0x68, g: 0x37, b: 0x2b },
@@ -54,6 +65,11 @@ const ColorPalette = {
         const palette = ref(defaultColors)
         const selectedColorIndex = ref(0)
 
+        // this makes sure that the color gets selected when moving inside palette
+        watch(selectedColorIndex, (newValue : any, oldValue : any) => {
+            onColorSelected({ target: { id: parseInt(newValue) } })
+        })
+
         onMounted(() => {
 
             window.addEventListener("keydown", function(e) {
@@ -79,7 +95,7 @@ const ColorPalette = {
 
                 if (e.key === 'ArrowDown' && e.altKey==false && e.shiftKey==false && e.ctrlKey==true) {
                     let newIndex = selectedColorIndex.value + 6
-                    if (newIndex > palette.value.length)
+                    if (newIndex > palette.value.length - 1)
                         return
                     selectedColorIndex.value = newIndex
                 }
@@ -116,11 +132,35 @@ const ColorPalette = {
         })
 
 
-        const onColorSelected = (e) => {
+        const onColorSelected = (e : any) => {
             selectedColorIndex.value = e.target.id
             let color = getColorByIndex(e.target.id)
+
             console.log('onColorSelected', { selectedColorIndex, color, e } )
-            if (BitmapStore.isMCM()) {
+            if (BitmapStore.isFCM()) {
+                // ---------------------------------
+                // -----           FCM        ------
+                // ---------------------------------
+                if (ScreenStore.getSelectedColorPart()==='f') {
+                    BitmapStore.setForegroundColor1FCM(color)
+                }
+                if (ScreenStore.getSelectedColorPart()==='f2') {
+                    BitmapStore.setForegroundColor2FCM(color)
+                }
+                if (ScreenStore.getSelectedColorPart()==='f3') {
+                    BitmapStore.setForegroundColor3FCM(color)
+                }
+                if (ScreenStore.getSelectedColorPart()==='f4') {
+                    BitmapStore.setForegroundColor4FCM(color)
+                }
+                if (ScreenStore.getSelectedColorPart()==='f5') {
+                    BitmapStore.setForegroundColor5FCM(color)
+                }
+                if (ScreenStore.getSelectedColorPart()==='f6') {
+                    BitmapStore.setForegroundColor6FCM(color)
+                }
+
+            } else if (BitmapStore.isMCM()) {
                 // ---------------------------------
                 // -----           MCM        ------
                 // ---------------------------------
@@ -156,21 +196,20 @@ const ColorPalette = {
 
         }
 
-        const onColorEdit = (e) => {
+        const onColorEdit = (e : any) => {
             console.log('onColorEdit: not yet implemented ', { e })
         }
 
-        const createBlock = (blockId, r, g, b, css) => {
+        const createBlock = (blockId : number, r : number, g : number, b : number, css : string) => {
             return h('div', { onClick: (e) => onColorSelected(e), onDblClick: (e) => onColorEdit(e), id: blockId, class: css, style: 'background-color: rgb(' + r + ', ' + g + ', ' + b + ')'} )
         }
 
-        const getColorByIndex = (idx) => palette.value.find( color => color.colorIndex==parseInt(idx))
+        const getColorByIndex = (idx : number) => palette.value.find( color => color.colorIndex==idx)
 
         return { palette, selectedColorIndex, onColorSelected, getColorByIndex, onColorEdit, createBlock }
 
     },
     render() {
-
         let result = []
         this.palette.forEach( color => {
             let css = 'color'
@@ -187,4 +226,4 @@ const ColorPalette = {
 
 
 
-export { ColorPalette, defaultColors }
+export { Color, ColorPalette, defaultColors }

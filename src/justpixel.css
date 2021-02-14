@@ -29,7 +29,7 @@
     box-sizing: border-box;
     border-image-outset: 0px;
     border-image-repeat: repeat;
-    border-image-source: url('_dist_/selection.gif');
+    border-image-source: url('dist/selection.gif');
     left: 100px;
     border-image-slice: 6;
     border-image-width: 2px;
@@ -148,10 +148,10 @@
 }
 
 .mega65-logo {
-    width: 240px;
-    height: 100px;
+    width: 200px;
+    height: 80px;
     user-select: none;
-    transform: translate(-94px,78px) rotate(270deg);;
+    transform: translate(1935px,215px) rotate(0deg);
 }
 
 .colorSelector {
@@ -179,7 +179,7 @@
     box-sizing: border-box;
     border-image-outset: 0px;
     border-image-repeat: repeat;
-    border-image-source: url('_dist_/selection.gif');
+    border-image-source: url('dist/selection.gif');
     left: 100px;
     border-image-slice: 6;
     border-image-width: 2px;

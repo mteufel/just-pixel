@@ -1,6 +1,8 @@
 import {h, ref, onMounted} from 'vue'
 import ScreenStore from '../stores/ScreenStore'
 import BitmapStore from '../stores/BitmapStore'
+import EventHandlerStore from '../stores/EventHandlerStore'
+import {defaultColors} from '../components/palette/ColorPalette'
 
 const StatusBar = {
 
@@ -8,76 +10,101 @@ const StatusBar = {
 
         let text = ref(null)
         ScreenStore.setSelectedColorPart('f')
+
         let colorBackground = ref(BitmapStore.getColorByIndex(0))
-        let cssBackground = ref('colorPixelBlock')
         let colorForeground = ref(BitmapStore.getColorByIndex(0))
-        let cssForeground = ref('colorPixelBlockSelected')
         let colorForeground2 = ref(BitmapStore.getColorByIndex(0))
-        let cssForeground2 = ref('colorPixelBlock')
         let colorForeground3 = ref(BitmapStore.getColorByIndex(0))
+        let colorForeground4 = ref(BitmapStore.getColorByIndex(0))
+        let colorForeground5 = ref(BitmapStore.getColorByIndex(0))
+        let colorForeground6 = ref(BitmapStore.getColorByIndex(0))
+
+        let cssBackground = ref('colorPixelBlock')
+        let cssForeground = ref('colorPixelBlockSelected')
+        let cssForeground2 = ref('colorPixelBlock')
         let cssForeground3 = ref('colorPixelBlock')
+        let cssForeground4 = ref('colorPixelBlock')
+        let cssForeground5 = ref('colorPixelBlock')
+        let cssForeground6 = ref('colorPixelBlock')
 
         let colorPicBackground = ref(BitmapStore.getColorByIndex(0))
         let colorPicForeground = ref(BitmapStore.getColorByIndex(0))
         let colorPicForeground2 = ref(BitmapStore.getColorByIndex(0))
         let colorPicForeground3 = ref(BitmapStore.getColorByIndex(0))
 
-        onMounted(() => {
+        const statusBarKeyDownEventListener = (e) => {
 
-            window.addEventListener("keydown", function(e) {
+            if (ScreenStore.isDialogOpen()) {
+                return
+            }
 
-                if (ScreenStore.isDialogOpen()) {
+            e.preventDefault()
+            let s = ['b','f','f2','f3','f4','f5', 'f6']
+            let i = s.findIndex( m => m===ScreenStore.getSelectedColorPart())
+            if (i > s.length)
+                i=-1
+
+
+            if (e.key === 'ArrowRight' && e.altKey==true && e.shiftKey==false && e.ctrlKey==false  ) {
+                if ( ( BitmapStore.isMCM() &&  ScreenStore.getSelectedColorPart() === 'f3' ) ||
+                     ( BitmapStore.isFCM() &&  ScreenStore.getSelectedColorPart() === 'f6' ) ||
+                     ( !BitmapStore.isMCM() && !BitmapStore.isFCM() && ScreenStore.getSelectedColorPart() === 'f' ) ) {
                     return
                 }
 
-                e.preventDefault()
-                let s = ['b','f','f2','f3']
-                let i = s.findIndex( m => m===ScreenStore.getSelectedColorPart())
-                if (i > s.length)
-                    i=-1
+                ScreenStore.setSelectedColorPart(s[i+1])
+                onColor( { target: { id: ScreenStore.getSelectedColorPart() }})
+            }
 
-
-                if (e.key === 'ArrowRight' && e.altKey==true && e.shiftKey==false && e.ctrlKey==false  ) {
-                    if ( (ScreenStore.getSelectedColorPart() === 'f3' && BitmapStore.isMCM()) || (ScreenStore.getSelectedColorPart() === 'f' && !BitmapStore.isMCM()) )
-                        return
-                    ScreenStore.setSelectedColorPart(s[i+1])
-                    onColor( { target: { id: ScreenStore.getSelectedColorPart() }})
+            if (e.key === 'ArrowLeft' && e.altKey==true && e.shiftKey==false && e.ctrlKey==false) {
+                if ( ( BitmapStore.isFCM() &&  ScreenStore.getSelectedColorPart() === 'f' ) ||
+                     (ScreenStore.getSelectedColorPart() === 'b') ) {
+                    return
                 }
 
-                if (e.key === 'ArrowLeft' && e.altKey==true && e.shiftKey==false && e.ctrlKey==false) {
-                    if ( (ScreenStore.getSelectedColorPart() === 'b') )
-                        return
-                    ScreenStore.setSelectedColorPart(s[i-1])
-                    onColor( { target: { id: ScreenStore.getSelectedColorPart() }})
+                ScreenStore.setSelectedColorPart(s[i-1])
+                onColor( { target: { id: ScreenStore.getSelectedColorPart() }})
 
+            }
+
+            if (e.key === 'X' ) {
+                if (BitmapStore.isFCM()) {
+                    return
                 }
 
-                if (e.key === 'X' ) {
-                    colorPicBackground.value = colorBackground.value
-                    colorPicForeground.value = colorForeground.value
-                    if (BitmapStore.isMCM()) {
-                        colorPicForeground2.value = colorForeground2.value
-                        colorPicForeground3.value = colorForeground3.value
-                    }
+                colorPicBackground.value = colorBackground.value
+                colorPicForeground.value = colorForeground.value
+                if (BitmapStore.isMCM()) {
+                    colorPicForeground2.value = colorForeground2.value
+                    colorPicForeground3.value = colorForeground3.value
+                }
+            }
+
+            if (e.key === 'x' ) {
+                if (BitmapStore.isFCM()) {
+                    return
                 }
 
-                if (e.key === 'x' ) {
-                    if (BitmapStore.isMCM()) {
-                        BitmapStore.setBackgroundColorMCM(colorPicBackground.value.colorIndexHex)
-                        BitmapStore.setForegroundColorMCM(ScreenStore.getMemoryPosition(), colorPicForeground.value.colorIndexHex)
-                        BitmapStore.setForegroundColor2MCM(ScreenStore.getMemoryPosition(), colorPicForeground2.value.colorIndexHex)
-                        BitmapStore.setForegroundColor3MCM(ScreenStore.getMemoryPosition(), colorPicForeground3.value.colorIndexHex)
+                if (BitmapStore.isMCM()) {
+                    BitmapStore.setBackgroundColorMCM(colorPicBackground.value.colorIndexHex)
+                    BitmapStore.setForegroundColorMCM(ScreenStore.getMemoryPosition(), colorPicForeground.value.colorIndexHex)
+                    BitmapStore.setForegroundColor2MCM(ScreenStore.getMemoryPosition(), colorPicForeground2.value.colorIndexHex)
+                    BitmapStore.setForegroundColor3MCM(ScreenStore.getMemoryPosition(), colorPicForeground3.value.colorIndexHex)
 
-                    } else {
-                        BitmapStore.setBackgroundColorHires(ScreenStore.getMemoryPosition(), colorPicBackground.value.colorIndexHex)
-                        BitmapStore.setForegroundColorHires(ScreenStore.getMemoryPosition(), colorPicForeground.value.colorIndexHex)
-                    }
-                    ScreenStore.refreshChar()
-                    ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
-
+                } else {
+                    BitmapStore.setBackgroundColorHires(ScreenStore.getMemoryPosition(), colorPicBackground.value.colorIndexHex)
+                    BitmapStore.setForegroundColorHires(ScreenStore.getMemoryPosition(), colorPicForeground.value.colorIndexHex)
                 }
+                ScreenStore.refreshChar()
+                ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
 
-            });
+            }
+
+        }
+
+        onMounted(() => {
+            EventHandlerStore.addEventListener('my', 'keydown', statusBarKeyDownEventListener)
+            refreshSelectedColors(ScreenStore.getMemoryPosition())
         })
 
 
@@ -92,6 +119,16 @@ const StatusBar = {
                 colorForeground.value = BitmapStore.getForegroundColorMCM(memoryPosition)
                 colorForeground2.value = BitmapStore.getForegroundColor2MCM(memoryPosition)
                 colorForeground3.value = BitmapStore.getForegroundColor3MCM(memoryPosition)
+            } else if (BitmapStore.isFCM()) {
+
+                text.value = 'FULL COLOR MODE'
+                colorForeground.value = BitmapStore.getForegroundColor1FCM();
+                colorForeground2.value = BitmapStore.getForegroundColor2FCM();
+                colorForeground3.value = BitmapStore.getForegroundColor3FCM();
+                colorForeground4.value = BitmapStore.getForegroundColor4FCM();
+                colorForeground5.value = BitmapStore.getForegroundColor5FCM();
+                colorForeground6.value = BitmapStore.getForegroundColor6FCM();
+
             } else {
                 text.value = 'HIRES'
                 colorBackground.value = BitmapStore.getBackgroundColorHires(memoryPosition)
@@ -104,6 +141,9 @@ const StatusBar = {
             cssForeground.value = 'colorPixelBlock'
             cssForeground2.value = 'colorPixelBlock'
             cssForeground3.value = 'colorPixelBlock'
+            cssForeground4.value = 'colorPixelBlock'
+            cssForeground5.value = 'colorPixelBlock'
+            cssForeground6.value = 'colorPixelBlock'
             if (e.target.id === 'b') {
                 cssBackground.value = 'colorPixelBlockSelected'
             }
@@ -116,11 +156,21 @@ const StatusBar = {
             if (e.target.id === 'f3') {
                 cssForeground3.value = 'colorPixelBlockSelected'
             }
+            if (e.target.id === 'f4') {
+                cssForeground4.value = 'colorPixelBlockSelected'
+            }
+            if (e.target.id === 'f5') {
+                cssForeground5.value = 'colorPixelBlockSelected'
+            }
+            if (e.target.id === 'f6') {
+                cssForeground6.value = 'colorPixelBlockSelected'
+            }
             ScreenStore.setSelectedColorPart(e.target.id)
         }
 
 
         return  { text, colorBackground,  cssBackground, colorForeground, cssForeground, colorForeground2, cssForeground2, colorForeground3, cssForeground3,
+                 colorForeground4, cssForeground4, colorForeground5, cssForeground5, colorForeground6, cssForeground6,
                   colorPicBackground, colorPicForeground, colorPicForeground2, colorPicForeground3, onColor }
 
 
@@ -143,6 +193,21 @@ const StatusBar = {
                 statusBarContent.push( h('div', createBlock('pf', this.colorPicForeground.r,this.colorPicForeground.g,this.colorPicForeground.b) ) )
                 statusBarContent.push( h('div', createBlock('pf2', this.colorPicForeground2.r,this.colorPicForeground2.g,this.colorPicForeground2.b) ) )
                 statusBarContent.push( h('div', createBlock('pf3', this.colorPicForeground3.r,this.colorPicForeground3.g,this.colorPicForeground3.b) ) )
+
+            } else if (BitmapStore.isFCM()) {
+
+                statusBarContent.push( h('div', { onClick: (e) => this.onColor(e) }, createBlock('f', this.colorForeground.r,this.colorForeground.g,this.colorForeground.b, this.cssForeground) ) )
+                statusBarContent.push( h('div', { onClick: (e) => this.onColor(e) }, createBlock('f2', this.colorForeground2.r,this.colorForeground2.g,this.colorForeground2.b, this.cssForeground2) ) )
+                statusBarContent.push( h('div', { onClick: (e) => this.onColor(e) }, createBlock('f3', this.colorForeground3.r,this.colorForeground3.g,this.colorForeground3.b, this.cssForeground3) ) )
+                statusBarContent.push( h('div', { onClick: (e) => this.onColor(e) }, createBlock('f4', this.colorForeground4.r,this.colorForeground4.g,this.colorForeground4.b, this.cssForeground4) ) )
+                statusBarContent.push( h('div', { onClick: (e) => this.onColor(e) }, createBlock('f5', this.colorForeground5.r,this.colorForeground5.g,this.colorForeground5.b, this.cssForeground5) ) )
+                statusBarContent.push( h('div', { onClick: (e) => this.onColor(e) }, createBlock('f6', this.colorForeground6.r,this.colorForeground6.g,this.colorForeground6.b, this.cssForeground6) ) )
+
+
+                statusBarContent.push( h('div') )
+                statusBarContent.push( h('div') )
+                statusBarContent.push( h('div') )
+                statusBarContent.push( h('div') )
 
             } else {
                 statusBarContent.push( h('div', { onClick: (e) => this.onColor(e) }, createBlock('b', this.colorBackground.r,this.colorBackground.g,this.colorBackground.b, this.cssBackground) ) )
@@ -167,6 +232,8 @@ const StatusBar = {
 const createBlock = (blockId, r, g, b, css = 'colorPixelBlock') => {
     return h('div', { id: blockId, class: css, style: 'background-color: rgb(' + r + ', ' + g + ', ' + b + ')'} )
 }
+
+
 
 
 export { StatusBar }
