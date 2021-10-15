@@ -200,10 +200,10 @@ const StatusBar = {
 
         return  { text, colorBackground,  cssBackground, colorForeground, cssForeground, colorForeground2, cssForeground2, colorForeground3, cssForeground3,
                  colorForeground4, cssForeground4, colorForeground5, cssForeground5, colorForeground6, cssForeground6,
-                 cssForeground7, colorForeground7, cssForeground7,
-                 cssForeground8, colorForeground8, cssForeground8,
-                 cssForeground9, colorForeground9, cssForeground9,
-                 cssForeground0, colorForeground0, cssForeground0,
+                 cssForeground7, colorForeground7,
+                 cssForeground8, colorForeground8,
+                 cssForeground9, colorForeground9,
+                 cssForeground0, colorForeground0,
                  colorPicBackground, colorPicForeground, colorPicForeground2, colorPicForeground3, onColor }
 
         },

@@ -88,9 +88,7 @@ const createBitmapStore = () => {
 
         },
         setBitmap: (data : number[]) => bitmap = data,
-        getBitmap: () => bitmap,
         setScreenRam: (data : number[] ) => screenRam = data,
-        getScreenRam: () => screenRam,
         dumpBitmap: () => {
             if (BitmapStore.isMCM()) {
                 console.info( ' Dumping: MCM ----------------------------------------')
