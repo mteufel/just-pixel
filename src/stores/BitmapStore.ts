@@ -1,5 +1,7 @@
+// @ts-nocheck
 import {colorMega65} from '../utils'
-import { defaultColors, Color } from '../components/palette/ColorPalette.js'
+import { Color } from '../components/palette/ColorPalette'
+import ColorPaletteStore from "./ColorPaletteStore";
 
 const createBitmapStore = () => {
 
@@ -16,19 +18,23 @@ const createBitmapStore = () => {
 
     let backgroundColorMCM : Color = null
 
-    let mode : number = 0           // 0 = Classic Hires Bitmaps C64
+    let mode : number = 2           // 0 = Classic Hires Bitmaps C64
                                     // 1 = Multicolor Bitmap
                                     // 2 = Full Color Mode
 
 
     let subscribers : Function[] = []
 
-    let foregroundColor1FCM : Color = defaultColors[0]
-    let foregroundColor2FCM : Color = defaultColors[0]
-    let foregroundColor3FCM : Color = defaultColors[0]
-    let foregroundColor4FCM : Color = defaultColors[0]
-    let foregroundColor5FCM : Color = defaultColors[0]
-    let foregroundColor6FCM : Color = defaultColors[0]
+    let foregroundColor1FCM : Color = ColorPaletteStore.colors()[0]
+    let foregroundColor2FCM : Color = ColorPaletteStore.colors()[0]
+    let foregroundColor3FCM : Color = ColorPaletteStore.colors()[0]
+    let foregroundColor4FCM : Color = ColorPaletteStore.colors()[0]
+    let foregroundColor5FCM : Color = ColorPaletteStore.colors()[0]
+    let foregroundColor6FCM : Color = ColorPaletteStore.colors()[0]
+    let foregroundColor7FCM : Color = ColorPaletteStore.colors()[0]
+    let foregroundColor8FCM : Color = ColorPaletteStore.colors()[0]
+    let foregroundColor9FCM : Color = ColorPaletteStore.colors()[0]
+    let foregroundColor0FCM : Color = ColorPaletteStore.colors()[0]
 
 
     const callSubscribers = () => {
@@ -82,7 +88,9 @@ const createBitmapStore = () => {
 
         },
         setBitmap: (data : number[]) => bitmap = data,
+        getBitmap: () => bitmap,
         setScreenRam: (data : number[] ) => screenRam = data,
+        getScreenRam: () => screenRam,
         dumpBitmap: () => {
             if (BitmapStore.isMCM()) {
                 console.info( ' Dumping: MCM ----------------------------------------')
@@ -136,9 +144,9 @@ const createBitmapStore = () => {
             callSubscribers()
         },
         clearSubscribers: () => subscribers = [],
-        getColorByIndex: (idx : number ) => defaultColors.find( color  => color.colorIndex===idx),
-        getColorByHexNumber: (hex : number) => defaultColors.find( color => color.colorIndexHex===hex),
-        getColorByName: (name : number ) => defaultColors.find( color => color.color===name),
+        getColorByIndex: (idx : number ) => ColorPaletteStore.colors().find( color  => color.colorIndex===idx),
+        getColorByHexNumber: (hex : number) => ColorPaletteStore.colors().find( color => color.colorIndex===hex),
+        getColorByName: (name : number ) => ColorPaletteStore.colors().find( color => color.color===name),
 
 
         getColorFromScreenRam: (memoryPosition : number) => screenRam[memoryPosition/8],
@@ -383,7 +391,16 @@ const createBitmapStore = () => {
         getForegroundColor5FCM: () => foregroundColor5FCM,
         setForegroundColor5FCM: (color) => foregroundColor5FCM = color,
         getForegroundColor6FCM: () => foregroundColor6FCM,
-        setForegroundColor6FCM: (color) => foregroundColor6FCM = color
+        setForegroundColor6FCM: (color) => foregroundColor6FCM = color,
+        getForegroundColor7FCM: () => foregroundColor7FCM,
+        setForegroundColor7FCM: (color) => foregroundColor7FCM = color,
+        getForegroundColor8FCM: () => foregroundColor8FCM,
+        setForegroundColor8FCM: (color) => foregroundColor8FCM = color,
+        getForegroundColor9FCM: () => foregroundColor9FCM,
+        setForegroundColor9FCM: (color) => foregroundColor9FCM = color,
+        getForegroundColor0FCM: () => foregroundColor0FCM,
+        setForegroundColor0FCM: (color) => foregroundColor0FCM = color
+
     }
 }
 

@@ -29,7 +29,7 @@
     box-sizing: border-box;
     border-image-outset: 0px;
     border-image-repeat: repeat;
-    border-image-source: url('dist/selection.gif');
+    border-image-source: url('selection.gif');
     left: 100px;
     border-image-slice: 6;
     border-image-width: 2px;
@@ -120,10 +120,38 @@
     border-width: 2px;
     border-color: #ffffff
 }
+
+.blinkingCursorStart {
+    animation: flashingStart 1.8s infinite;
+    border-top: solid;
+    border-left: solid;
+    border-right: none;
+    border-bottom: none;
+    border-width: 3px;
+    border-color: #ff00ff
+}
+
+.blinkingCursorEnd {
+    animation: flashingStart 1.8s infinite;
+    border-top: none;
+    border-left: none;
+    border-right: solid;
+    border-bottom: solid;
+    border-width: 3px;
+    border-color: #ff00ff
+}
+
+
 @keyframes flashing {
     0%   { border-color: #ffffff; }
     50%  { border-color: transparent; }
     100% { border-color: #ffffff; }
+}
+
+@keyframes flashingStart {
+    0%   { border-color: #ff00ff; }
+    50%  { border-color: #500050; }
+    100% { border-color: #ff00ff; }
 }
 
 .toolbar {
@@ -179,7 +207,7 @@
     box-sizing: border-box;
     border-image-outset: 0px;
     border-image-repeat: repeat;
-    border-image-source: url('dist/selection.gif');
+    border-image-source: url('selection.gif');
     left: 100px;
     border-image-slice: 6;
     border-image-width: 2px;

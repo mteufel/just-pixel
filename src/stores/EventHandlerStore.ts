@@ -1,4 +1,4 @@
-
+// @ts-nocheck
 // EventHandlerStore helps to remember global registerred Event-Handlers.
 // On Component Re-Render where we put e.g. KeyDown-EventListers in OnMounted-LifecycleHandlers
 // you have to make sure to remove EventHandlers before adding another one, otherwise you may get too much events!

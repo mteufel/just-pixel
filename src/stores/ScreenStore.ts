@@ -1,7 +1,9 @@
+// @ts-nocheck
 import { h } from 'vue'
-import BitmapStore from './BitmapStore.js'
+import BitmapStore from './BitmapStore'
 import { Char } from '../components/Char'
 import { createUUID } from '../utils'
+import { CopyContext } from './CopyContext'
 
 const createPixelStore = () => {
 
@@ -31,6 +33,7 @@ const createPixelStore = () => {
     let gridMode = 0
     let showGridInPixels = true
     let showGridInChars = true
+    let copyContext = CopyContext()
 
     const refreshChar = (memPos, memPos2 = -1) => {
         subscribers.forEach( callFunction => {
@@ -114,6 +117,8 @@ const createPixelStore = () => {
             refreshChar(memoryPosition, -1 )
 
         },
+        getCopyContext: () => copyContext,
+        setCopyContext: (cc) => copyContext = cc,
         setGridMode: (mode: number) => {
             // 0 = pixels on, char on
             if (mode==0) {
@@ -182,10 +187,13 @@ const createPixelStore = () => {
             let x=0
             let y=0
             let doBlink = false
+
             for (let idx = bitmapDataIndex; idx < bitmapDataIndex + 64; idx++) {
 
                 doBlink = false
+
                 if (bitmapDataIndex == memoryPosition && x == cursorX && y == cursorY) {
+
                     doBlink = true
                 }
                 let pixelClass = 'pixel'
@@ -195,7 +203,7 @@ const createPixelStore = () => {
 
 
                 color = BitmapStore.getColorByIndex(BitmapStore.getBitmap()[idx])
-                pixels.push (createPixel( idx, x, y, color.r,color.g,color.b, doBlink, pixelClass))
+                pixels.push (createPixel( charIndex, x, y, color.r,color.g,color.b, doBlink, pixelClass))
                 x++
                 if (x==8) {
                     x=0;
@@ -212,7 +220,6 @@ const createPixelStore = () => {
 
         },
         createChar: (memoryIndex: number) => {
-
             if (BitmapStore.isFCM()) {
                 return ScreenStore.createCharFCM(memoryIndex);  // memoryIndex acts as charIndex
             }
@@ -239,6 +246,14 @@ const createPixelStore = () => {
                     if (showGridInPixels==false) {
                         pixelClass = 'pixelWithoutGrid'
                     }
+
+                    if (y == copyContext.endMemPos+7 && x == numPixels-1) {
+                        pixelClass = 'blinkingCursorEnd'
+                    }
+                    if (y == copyContext.startMemPos && x == 0) {
+                        pixelClass = 'blinkingCursorStart'
+                    }
+
 
                     if (BitmapStore.isMCM()) {
 
@@ -453,6 +468,18 @@ const createPixelStore = () => {
                         break
                     case "f6":
                         BitmapStore.setBitmapAt(index, BitmapStore.getForegroundColor6FCM().colorIndex)
+                        break
+                    case "f7":
+                        BitmapStore.setBitmapAt(index, BitmapStore.getForegroundColor7FCM().colorIndex)
+                        break
+                    case "f8":
+                        BitmapStore.setBitmapAt(index, BitmapStore.getForegroundColor8FCM().colorIndex)
+                        break
+                    case "f9":
+                        BitmapStore.setBitmapAt(index, BitmapStore.getForegroundColor9FCM().colorIndex)
+                        break
+                    case "f0":
+                        BitmapStore.setBitmapAt(index, BitmapStore.getForegroundColor0FCM().colorIndex)
                 }
 
 
@@ -542,11 +569,16 @@ const createPixelStore = () => {
 
 function onClick(e, doubleClick) {
     let oldMemPos = ScreenStore.getMemoryPosition()
+
     ScreenStore.setMemoryPosition(e.target.dataset.memoryIndex)
     ScreenStore.setCursor(e.target.dataset.x, e.target.dataset.y, e.target.parentElement.dataset.charX, e.target.parentElement.dataset.charY)
     ScreenStore.refreshChar(oldMemPos)
     ScreenStore.refreshChar()
-    ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
+    console.log(e.target)
+   // ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
+
+
+
 
     if (ScreenStore.isClickAndPixel()) {
         if (doubleClick) {
