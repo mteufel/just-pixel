@@ -41,24 +41,10 @@ const UploadButton = {
     setup(props) {
         const {placeholder} = toRefs(props)
         const fileList = ref(null)
-        return {placeholder, fileList}
-    },
-    render() {
-        return h(Upload, { fileList: this.fileList,
-            multiple: false,
-            accept: '.gpl',
-            showUploadList: true,
-            listType: 'picture',
-            onChange: (fileData) => {
-                if (fileData.file.status === "removed") {
-                    this.fileList = []
-                } else {
-                    this.fileList = [ fileData.file ]
-                }
-            },
-            transformFile: (file) => uploadDataLineByLine(file, (result) => {
 
-
+        const transformFile = (file) => {
+            console.log('transforming file ', file)
+            uploadDataLineByLine(file, (result =>{
                 let final = []
 
                 result.forEach( line => {
@@ -72,13 +58,37 @@ const UploadButton = {
                 console.log(final)
 
                 final.forEach( (col, index) => {
-                    ColorPaletteStore.setColor( ColorSelectionStore.color().colorIndex + index, 100,100,100 )
+                    if (ColorSelectionStore.color().colorIndex + index <= 254) {
+                        ColorPaletteStore.setColor( ColorSelectionStore.color().colorIndex + index, col[0],col[1], col[2] )
+                    }
                 })
-                emit('ColorSelectionModal', colorSelection.value)
+
+            }))
+        }
+
+        return {placeholder, fileList, transformFile}
+    },
+    render() {
+        return h(Upload, { fileList: this.fileList,
+            multiple: false,
+            accept: '.gpl',
+            showUploadList: true,
+            listType: 'text',
+            onChange: (event) => {
+
+                console.log('event ', event)
 
 
+                if (event.file.status === "removed") {
+                    this.fileList = []
+                } else {
+                    console.log('else .... ')
+                    this.fileList = [ event.file ]
+                }
 
-            })
+
+            },
+            transformFile: (file) => this.transformFile(file)
 
         }, h(Button, null, [h(UploadOutlined), this.placeholder] ) )
     }
@@ -93,7 +103,7 @@ const UploadPalette = {
     render() {
         return [h('div', ['Start at index: ', h(InputNumber, { id: 'startAt', value: this.index, min: 0, max:254, onChange: newValue => this.index = newValue })]),
                 h('br'),
-                h(UploadButton, {  placeholder: 'Select Gimp palette (.gpl) file', type: 'gpl' })]
+                h(UploadButton, { placeholder: 'Select Gimp palette (.gpl) file', type: 'gpl' })]
     }
 }
 
@@ -124,14 +134,14 @@ const Tabby = {
 
 
 const PaletteUpDownload = {
-    setup() {
+    setup(context, { emit }) {
         const dialogVisible = ref(PaletteUpDownloadStore.isVisible())
         PaletteUpDownloadStore.subscribe( () => {
             dialogVisible.value = PaletteUpDownloadStore.isVisible()
         })
 
         const okPressed = () => {
-            //BitmapStore.download(DownloadStore.downloadFileName)
+            emit('ReRender')
             console.log('ok has been pressed')
             PaletteUpDownloadStore.toggle()
         }

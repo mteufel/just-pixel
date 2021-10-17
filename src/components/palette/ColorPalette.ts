@@ -40,13 +40,6 @@ const ColorPalette = {
 
                 e.preventDefault()
 
-                if (e.key=== 'F11') {
-                    ColorPaletteStore.makePaletteWhite()
-                    ColorPaletteStore.colors()[100] = { color: 'light red',   colorIndex: 100, colorIndexHex: 100, colorCodeHex: 0x9a6759, r: 0x9a, g: 0x67, b: 0x59 }
-                    selectedColorIndex.value = 100
-                    emit('Hallo')
-                    console.log('emit done')
-                }
 
                 if (e.key === 'ArrowRight' && e.altKey==false && e.shiftKey==false && e.ctrlKey==true  ) {
                     if (selectedColorIndex.value == palette.value[palette.value.length-1].colorIndex)
@@ -210,7 +203,13 @@ const ColorPalette = {
             selectedColorIndex.value = ColorSelectionStore.color().colorIndex
         }
 
-        return { palette, selectedColorIndex, onColorSelected, getColorByIndex, onColorEdit, createBlock, onColorSelectionModal }
+        const reRenderColorPalette = () => {
+            console.log('abc')
+            selectedColorIndex.value = selectedColorIndex.value+1
+            selectedColorIndex.value = selectedColorIndex.value-1
+        }
+
+        return { palette, selectedColorIndex, onColorSelected, getColorByIndex, onColorEdit, createBlock, onColorSelectionModal, reRenderColorPalette }
 
     },
     render() {
@@ -224,7 +223,7 @@ const ColorPalette = {
             result.push(this.createBlock(color.colorIndex, color.r, color.g, color.b, css))
         })
         result.push(h(ColorSelectionModal, { onColorSelectionModal: data => this.onColorSelectionModal(data) }))
-        result.push(h(PaletteUpDownload))
+        result.push(h(PaletteUpDownload, { onReRender: () => this.reRenderColorPalette() }))
         return result
     }
 
