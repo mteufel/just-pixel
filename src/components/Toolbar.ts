@@ -8,7 +8,7 @@ import { FilesUploadModal } from './upload/FilesUploadModal'
 import { UploadStore } from './upload/UploadStore'
 import {NewModal, NewStore} from './NewModal';
 import {PaletteUpDownload, PaletteUpDownloadStore} from "./palette/PaletteUpDownload";
-const svg = new URL('../mega65.svg', import.meta.url);
+
 
 const Toolbar = {
     setup(props, context) {
@@ -48,7 +48,6 @@ const Toolbar = {
             h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
             h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
             h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('img', { class:'mega65-logo', src: svg.href } ),
             // ab hier die ganzen Dialog-Komponenten die potentiell aufgemacht werden können...
             h('div', { } , [h(Help), h(Download), h(FilesUploadModal), h(NewModal)])
 

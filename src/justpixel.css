@@ -1,13 +1,49 @@
+html {
+    scrollbar-face-color: #646464;
+    scrollbar-base-color: #646464;
+    #scrollbar-3dlight-color: #646464;
+    #scrollbar-highlight-color: #646464;
+    #scrollbar-track-color: #000;
+    #scrollbar-arrow-color: #000;
+    #scrollbar-shadow-color: #646464;
+    #scrollbar-dark-shadow-color: #646464;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px;}
+::-webkit-scrollbar-thumb { height: 50px; background-color: #666; border-radius: 3px;}
+::-webkit-scrollbar-corner { background-color: #1b1b1b;}
+
+
 .main {
     background-color: #1b1b1b;
     display: grid;
-    grid-template-columns: 50px 120px 300px auto;
-    grid-template-rows: auto;
-    grid-gap: 20px;
+    grid-template-columns: 50px 120px auto auto;
+    grid-template-rows: auto 50px;
+    grid-gap: 10px;
+    height: 100vh;
+}
+
+.toolbar {
+    #border: 1px red solid;
+    box-shadow: 1px 1px rgba(0,0,0,0.16), 1px 7px 6px rgba(0,0,0,0.20);
+    background-color: #3b3b3b;
+}
+
+.empty {
+    #border: 1px red solid;
+}
+
+.logoContainer {
+    #border: 1px green solid;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+
     height: 100vh;
 }
 
 .paletteColor {
+    #border: 1px red solid;
     display: grid;
     grid-template-columns: 20px 20px 20px 20px 20px 20px;
     grid-template-rows: 20px 20px 20px 20px 20px 20px 20px 20px
@@ -18,59 +54,32 @@
                         20px 20px 20px 20px 20px 20px 20px 20px;
 }
 
-.color {
-    border-style: dotted;
-    border-width: 1px;
-    border-color: #333333
-}
-
-.colorCursor {
-    border: 1px solid transparent;
-    box-sizing: border-box;
-    border-image-outset: 0px;
-    border-image-repeat: repeat;
-    border-image-source: url('selection.gif');
-    left: 100px;
-    border-image-slice: 6;
-    border-image-width: 2px;
-
-}
-
-.gridBitmap88 {
+.gridBitmap {
+    #border: 1px red solid;
+    overflow: auto;
     display: grid;
-    grid-template-columns: 160px 160px 160px 160px 160px 160px 160px 160px;
-    grid-template-rows: 160px 160px 160px 160px 160px 160px 160px 160px;
+    grid-template-columns: 160px 160px 160px 160px 160px 160px 160px 160px 160px 160px
+                           160px 160px 160px 160px 160px 160px 160px 160px 160px 160px
+                           160px 160px 160px 160px 160px 160px 160px 160px 160px 160px
+                           160px 160px 160px 160px 160px 160px 160px 160px 160px 160px;
+
+    grid-template-rows: 160px 160px 160px 160px 160px 160px 160px 160px 160px 160px
+                        160px 160px 160px 160px 160px 160px 160px 160px 160px 160px
+                        160px 160px 160px 160px 160px;
+
 }
 
-.gridBitmap66 {
+
+.statusBar {
+    #border: 1px red solid;
     display: grid;
-    grid-template-columns: 160px 160px 160px 160px 160px 160px;
-    grid-template-rows: 160px 160px 160px 160px 160px 160px;
+    grid-template-columns: 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 350px auto;
+    grid-template-rows: 20px;
+    grid-column-gap: 7px;
+    margin-top: 7px;
 }
 
-.gridBitmap128 {
-    display: grid;
-    grid-template-columns: 160px 160px 160px 160px 160px 160px 160px 160px 160px 160px 160px 160px;
-    grid-template-rows: 160px 160px 160px 160px 160px 160px 160px 160px;
-}
 
-.gridBitmap88 {
-    display: grid;
-    grid-template-columns: 160px 160px 160px 160px 160px 160px 60px 160px;
-    grid-template-rows: 160px 160px 160px 160px 160px 160px 160px 160px;
-}
-
-.gridBitmap44 {
-    display: grid;
-    grid-template-columns: 160px 160px 160px 160px;
-    grid-template-rows: 160px 160px 160px 160px;
-}
-
-.gridBitmap22 {
-    display: grid;
-    grid-template-columns: 160px 160px;
-    grid-template-rows: 160px 160px;
-}
 
 .gridChar {
     display: grid;
@@ -102,6 +111,23 @@
     grid-template-rows: 20px 20px 20px 20px 20px 20px 20px 20px;
 }
 
+.color {
+    border-style: dotted;
+    border-width: 1px;
+    border-color: #333333
+}
+
+.colorCursor {
+    border: 1px solid transparent;
+    box-sizing: border-box;
+    border-image-outset: 0px;
+    border-image-repeat: repeat;
+    border-image-source: url('selection.gif');
+    left: 100px;
+    border-image-slice: 6;
+    border-image-width: 2px;
+
+}
 
 .pixel {
     border-style: dotted;
@@ -154,11 +180,6 @@
     100% { border-color: #ff00ff; }
 }
 
-.toolbar {
-    box-shadow: 1px 1px rgba(0,0,0,0.16), 1px 7px 6px rgba(0,0,0,0.20);
-    background-color: #3b3b3b;
-}
-
 .toolbarIcon {
     margin: 14px;
     color: #bbbbbb;
@@ -175,21 +196,11 @@
     font-size: 20px;
 }
 
+
 .mega65-logo {
     width: 200px;
     height: 80px;
-    user-select: none;
-    transform: translate(1935px,215px) rotate(0deg);
-}
-
-.colorSelector {
-    display: grid;
-    grid-column-start: 1;
-    grid-column-end: 7;
-    grid-template-columns: 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px auto;
-    grid-template-rows: 20px;
-    grid-column-gap: 7px;
-    margin-top: 7px;
+    #border: 1px yellow solid;
 }
 
 

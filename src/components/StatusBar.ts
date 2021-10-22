@@ -3,6 +3,7 @@ import {h, ref, onMounted} from 'vue'
 import ScreenStore from '../stores/ScreenStore'
 import BitmapStore from '../stores/BitmapStore'
 import EventHandlerStore from '../stores/EventHandlerStore'
+const svg = new URL('../mega65.svg', import.meta.url);
 
 const StatusBar = {
 
@@ -254,8 +255,9 @@ const StatusBar = {
                 statusBarContent.push( h('div') )
             }
 
-            statusBarContent.push( h('div') )
-            statusBarContent.push (h('div', null, this.text ) )
+            statusBarContent.push( h('div' ) )
+            statusBarContent.push (h('div', null , this.text ) )
+            statusBarContent.push( h('div', { class: 'logoContainer' }, [ h('img', { class: 'mega65-logo', src: svg.href } )  ]  ) )
             return statusBarContent
 
     }

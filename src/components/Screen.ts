@@ -310,16 +310,18 @@ const Screen = {
             offset = 8
         }
 
-        ScreenStore.build(offset, 12, 8, this.x, this.y)
+        ScreenStore.build(offset, 40, 25, this.x, this.y)
         let calculatedMemoryPosition = ScreenStore.getScreenStartMemoryPos() + ( ( (40*offset) * (ScreenStore.getCharY()-1) ) + (ScreenStore.getCharX()-1) * offset  )
         result = h('div', { class: 'main', key: this.modeCycle }, [
             h('div', { class: 'toolbar' }, h(Toolbar, { onModeSwitch: (data) => this.modeSwitch(data) })),
             h('div', { class: 'paletteColor' }, h(ColorPalette)),
-            h('div', { class: 'gridBitmap128', }, [ScreenStore.getScreen(),
-                    h('div', { class: 'colorSelector' }, h(StatusBar))
-                ],
+            h('div', { class: 'gridBitmap', }, [ScreenStore.getScreen() ]
             ),
-            h(Preview, { modeCycle: this.modeCycle}) ]);
+            h(Preview, { modeCycle: this.modeCycle}),
+            h('div', { class: 'empty' }, null),
+            h('div', { class: 'empty' }, null),
+            h('div', { class: 'statusBar' }, h(StatusBar))
+        ]);
         ScreenStore.setMemoryPosition(calculatedMemoryPosition)
         BitmapStore.callSubscribers() // repaint the preview (show cursor)
         return result
