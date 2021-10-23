@@ -17,9 +17,9 @@ html {
 .main {
     background-color: #1b1b1b;
     display: grid;
-    grid-template-columns: 50px 120px auto auto;
-    grid-template-rows: auto 50px;
-    grid-gap: 10px;
+    grid-template-columns: 50px 140px auto auto;
+    grid-template-rows: auto 70px;
+    grid-gap: 0px;
     height: 100vh;
 }
 
@@ -29,22 +29,22 @@ html {
     background-color: #3b3b3b;
 }
 
+.emptyToolbarBackground {
+    #border: 1px red solid;
+    background-color: #3b3b3b;
+}
+
+
 .empty {
     #border: 1px red solid;
 }
 
-.logoContainer {
-    #border: 1px green solid;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-
-    height: 100vh;
-}
 
 .paletteColor {
     #border: 1px red solid;
     display: grid;
+    margin-left: 10px;
+    margin-right: 10px;
     grid-template-columns: 20px 20px 20px 20px 20px 20px;
     grid-template-rows: 20px 20px 20px 20px 20px 20px 20px 20px
                         20px 20px 20px 20px 20px 20px 20px 20px
@@ -69,17 +69,35 @@ html {
 
 }
 
-
 .statusBar {
     #border: 1px red solid;
     display: grid;
     grid-template-columns: 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 20px 350px auto;
     grid-template-rows: 20px;
     grid-column-gap: 7px;
-    margin-top: 7px;
+    margin-top: 15px;
+    align-items: start;
 }
 
+.logoContainer {
+    margin-right: 15px;
+    margin-top: 10px;
+    #border: 1px green solid;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
 
+}
+
+.mega65-logo {
+    background-image: url('mega65.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 200px;
+    height: 45px;
+    border: none;
+    #border: 1px yellow solid;
+}
 
 .gridChar {
     display: grid;
@@ -197,13 +215,6 @@ html {
 }
 
 
-.mega65-logo {
-    width: 200px;
-    height: 80px;
-    #border: 1px yellow solid;
-}
-
-
 .colorPixelBlock {
     border-style: dotted;
     border-width: 1px;
@@ -232,6 +243,12 @@ html {
     font-size: 10px;
     alignment: right;
     color: #888888
+}
+
+.previewContainer {
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 10px;
 }
 
 

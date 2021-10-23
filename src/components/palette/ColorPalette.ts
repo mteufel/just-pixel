@@ -224,6 +224,7 @@ const ColorPalette = {
         })
         result.push(h(ColorSelectionModal, { onColorSelectionModal: data => this.onColorSelectionModal(data) }))
         result.push(h(PaletteUpDownload, { onReRender: () => this.reRenderColorPalette() }))
+        console.log('render color palette end')
         return result
     }
 

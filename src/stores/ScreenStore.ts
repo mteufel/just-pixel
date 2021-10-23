@@ -35,6 +35,7 @@ const createPixelStore = () => {
     let showGridInChars = true
     let copyContext = CopyContext()
 
+
     const refreshChar = (memPos, memPos2 = -1) => {
         subscribers.forEach( callFunction => {
             callFunction(memPos)
@@ -42,6 +43,7 @@ const createPixelStore = () => {
                 callFunction(memPos2)
             }
         })
+
     }
 
     const charChange = (memoryPosition) => {
@@ -162,7 +164,7 @@ const createPixelStore = () => {
             screen = []
             let memPos = 0
             let originalY = y
-            //console.log('build - sizeX=' + sizeX + ' sizeY=' + sizeY + ' x=' + x + ' y=' + y)
+            console.log('build - sizeX=' + sizeX + ' sizeY=' + sizeY + ' x=' + x + ' y=' + y)
 
             for (let counter = 0; counter < (sizeX * sizeY); counter++) {
                 //console.log('counter=' + counter + '  mod=' + counter%sizeX + ' memoryPosition=' + memoryPosition)
@@ -175,6 +177,7 @@ const createPixelStore = () => {
                 memPos = memPos + offset
             }
             memoryPosition = offset * ( x + 40 * originalY )
+            console.log('build end')
         },
         createCharFCM: (charIndex: number) => {
             let pixels = []
@@ -544,6 +547,8 @@ const createPixelStore = () => {
             }
             ScreenStore.refreshChar();
         },
+        checkMemoryPositions: () => false,
+        /*
         checkMemoryPositions: () => {
             let offset: number = 8
             let maxCheckPos: number = 7579
@@ -560,6 +565,8 @@ const createPixelStore = () => {
             }
             return flag
         },
+
+         */
         setClickAndPixel: (cap) => clickAndPixel = cap,
         isClickAndPixel: () => clickAndPixel,
         setTakeOverColor: (toc) => takeOverColor = toc,

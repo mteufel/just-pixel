@@ -117,7 +117,7 @@ const Preview = {
                 onClick: e => {this.toggleTakeOverColor()} }, 'Take over colors from last char, if empty' )
         ]
         //console.log('preview render context...', this.ctx)
-        return h('div', { key: this.modeCycle} , [
+        return h('div', { class: 'previewContainer', key: this.modeCycle} , [
                           h('canvas', { ref: 'preview', class: 'preview' }),
                           h('div', content)
                         ])

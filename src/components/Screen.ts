@@ -254,7 +254,7 @@ const Screen = {
 
                 if (e.key === 'ArrowDown' && e.altKey==false && e.shiftKey==false && e.ctrlKey==false ) {
                     ScreenStore.cursorDown( () => {
-                        if (y.value < 24 && ScreenStore.checkMemoryPositions()) {
+                        if (y.value < 24 ) {
                             y.value = y.value + 1
                             modeCycle.value = createUUID()
                         }
@@ -296,7 +296,7 @@ const Screen = {
     },
     render() {
         //console.trace()
-        //console.log('Render Screen......... ', this.modeCycle)
+        console.log('Render Screen......... ', this.modeCycle)
         //console.log(BitmapStore.getBitmap())
         let result
         let offset // offset defines number of data inside bitmap-data to define one 8x8 char
@@ -312,18 +312,20 @@ const Screen = {
 
         ScreenStore.build(offset, 40, 25, this.x, this.y)
         let calculatedMemoryPosition = ScreenStore.getScreenStartMemoryPos() + ( ( (40*offset) * (ScreenStore.getCharY()-1) ) + (ScreenStore.getCharX()-1) * offset  )
-        result = h('div', { class: 'main', key: this.modeCycle }, [
+        result = h('div', { class: 'main' }, [
             h('div', { class: 'toolbar' }, h(Toolbar, { onModeSwitch: (data) => this.modeSwitch(data) })),
             h('div', { class: 'paletteColor' }, h(ColorPalette)),
             h('div', { class: 'gridBitmap', }, [ScreenStore.getScreen() ]
             ),
             h(Preview, { modeCycle: this.modeCycle}),
+            h('div', { class: 'emptyToolbarBackground' }, null),
             h('div', { class: 'empty' }, null),
-            h('div', { class: 'empty' }, null),
-            h('div', { class: 'statusBar' }, h(StatusBar))
+            h('div', { class: 'statusBar' }, h(StatusBar)),
+            h('div', { class: 'logoContainer' }, [ h('div', { class: 'mega65-logo' } )  ]  )
         ]);
         ScreenStore.setMemoryPosition(calculatedMemoryPosition)
         BitmapStore.callSubscribers() // repaint the preview (show cursor)
+        console.log('Render screen End')
         return result
     }
 
