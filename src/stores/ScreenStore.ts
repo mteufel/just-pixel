@@ -177,7 +177,7 @@ const createPixelStore = () => {
                 memPos = memPos + offset
             }
             memoryPosition = offset * ( x + 40 * originalY )
-            console.log('build end')
+            console.log('build end ', screen.length)
         },
         createCharFCM: (charIndex: number) => {
             let pixels = []
@@ -346,7 +346,7 @@ const createPixelStore = () => {
                     charY = charY - 1
                     cursorY = 7
                     charChange(memoryPosition)
-                    BitmapStore.callSubscribers() // repaint the preview (show cursor)
+                    //BitmapStore.callSubscribers() // repaint the preview (show cursor)
                 }
             }
             refreshChar(memoryPosition, ( memoryPosition+(40*ScreenStore.getOffset()) ) )
@@ -372,8 +372,7 @@ const createPixelStore = () => {
                     cursorY = 0
                     charY = charY + 1
                     charChange(memoryPosition)
-
-                    BitmapStore.callSubscribers() // repaint the preview (show cursor)
+                    //BitmapStore.callSubscribers() // repaint the preview (show cursor)
                 }
             }
             refreshChar(memoryPosition, (memoryPosition-(40*ScreenStore.getOffset()) ) )
@@ -391,7 +390,7 @@ const createPixelStore = () => {
                     charX = charX + 1
                     cursorX = 0
                     charChange(memoryPosition)
-                    BitmapStore.callSubscribers() // repaint the preview (show cursor)
+                    //BitmapStore.callSubscribers() // repaint the preview (show cursor)
                 } else {
                     cursorX = numPixels-1
                     screenOneCharRight()
@@ -415,7 +414,7 @@ const createPixelStore = () => {
                     charX = charX - 1
                     cursorX = numPixels
                     charChange(memoryPosition)
-                    BitmapStore.callSubscribers() // repaint the preview (show cursor)
+                    //BitmapStore.callSubscribers() // repaint the preview (show cursor)
                 }
             }
             refreshChar(memoryPosition, (memoryPosition+ScreenStore.getOffset()) )

@@ -74,4 +74,6 @@ function uploadDataLineByLine(file, resolver) {
     }
 }
 
+
+
 export { createUUID, colorMega65, getColr, hexToRgb, rgbToHex, uploadData, uploadDataLineByLine }

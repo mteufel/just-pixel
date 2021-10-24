@@ -10,13 +10,13 @@ import { createUUID } from '../utils'
 import {NewStore} from './NewModal';
 import {CopyContext} from '../stores/CopyContext';
 import ColorPaletteStore from "../stores/ColorPaletteStore";
+import {GridBitmap} from "./GridBitmap";
 
 const Screen = {
 
     setup(context, { emit }) {
         console.log('Setup Screen......... ')
-        const x = ref(0)
-        const y = ref(0)
+
         const modeCycle = ref(0)  // this special values is important when user switches between FCM or HIRES/MCM because,
                                   // these modes have a different bitmap layout its important to make sure to re-render
                                   // the screen and the preview in order to respect the correct offsets inside the bitmaps (8 bytes versus 64 bytes)
@@ -292,40 +292,21 @@ const Screen = {
             });
         })
 
-     return { x, y, modeCycle, modeSwitch}
+     return { modeCycle, modeSwitch}
     },
     render() {
-        //console.trace()
         console.log('Render Screen......... ', this.modeCycle)
-        //console.log(BitmapStore.getBitmap())
-        let result
-        let offset // offset defines number of data inside bitmap-data to define one 8x8 char
-        ScreenStore.clearSubscribers()
-        BitmapStore.clearSubscribers()
-        if (BitmapStore.isFCM()) {
-          //  console.log('...FCM')
-            offset = 64
-        } else {
-          //  console.log('...OTHERS')
-            offset = 8
-        }
-
-        ScreenStore.build(offset, 40, 25, this.x, this.y)
-        let calculatedMemoryPosition = ScreenStore.getScreenStartMemoryPos() + ( ( (40*offset) * (ScreenStore.getCharY()-1) ) + (ScreenStore.getCharX()-1) * offset  )
-        result = h('div', { class: 'main' }, [
+        let result = h('div', { class: 'main' }, [
             h('div', { class: 'toolbar' }, h(Toolbar, { onModeSwitch: (data) => this.modeSwitch(data) })),
             h('div', { class: 'paletteColor' }, h(ColorPalette)),
-            h('div', { class: 'gridBitmap', }, [ScreenStore.getScreen() ]
-            ),
-            h(Preview, { modeCycle: this.modeCycle}),
+            h(GridBitmap),
+            h(Preview),
             h('div', { class: 'emptyToolbarBackground' }, null),
             h('div', { class: 'empty' }, null),
             h('div', { class: 'statusBar' }, h(StatusBar)),
             h('div', { class: 'logoContainer' }, [ h('div', { class: 'mega65-logo' } )  ]  )
         ]);
-        ScreenStore.setMemoryPosition(calculatedMemoryPosition)
-        BitmapStore.callSubscribers() // repaint the preview (show cursor)
-        console.log('Render screen End')
+        console.log('Render Screen End')
         return result
     }
 

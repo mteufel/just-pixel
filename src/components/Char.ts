@@ -1,8 +1,9 @@
 // @ts-nocheck
-import { h, toRef, ref } from 'vue'
+import {h, toRef, ref, onMounted} from 'vue'
 import { createUUID } from '../utils'
 import ScreenStore from '../stores/ScreenStore'
 import BitmapStore from '../stores/BitmapStore'
+import {KeyDownBuilder} from "../builders/KeyDownBuilder";
 
 const Char = {
     props: {
@@ -13,12 +14,16 @@ const Char = {
     setup(props) {
         const memoryIndex = toRef(props, 'memoryIndex')
         const char = ref(ScreenStore.createChar(memoryIndex.value))
+        const uuid = ref(createUUID())
         ScreenStore.subscribe( (memoryIndexToRefresh) =>  {
             if (memoryIndex.value == memoryIndexToRefresh) {
                 char.value = ScreenStore.createChar(memoryIndex.value)
             }
         })
-        return { memoryIndex, char }
+
+
+
+        return { memoryIndex, char, uuid }
     },
     render() {
         console.log('Char Render')
@@ -30,7 +35,7 @@ const Char = {
         if (ScreenStore.getShowGridInChars()==false) {
             css = 'gridCharWithoutGrid' + mcmExtension
         }
-        return h('div', { memIndex: this.memoryIndex, key: createUUID(), 'data-char-x': this.charX, 'data-char-y': this.charY, class: css }, this.char)
+        return h('div', { memIndex: this.memoryIndex, key: this.uuid, 'data-char-x': this.charX, 'data-char-y': this.charY, class: css }, this.char)
     }
 
 }
