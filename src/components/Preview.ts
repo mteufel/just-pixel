@@ -11,7 +11,7 @@ const Preview = {
     },
     setup(props) {
         //console.log('Preview Setup....................')
-        const modeCycle = toRef(props, 'modeCycle')
+        //const modeCycle = toRef(props, 'modeCycle')
 
         const scaleFactor = ref(1)
 
@@ -95,12 +95,12 @@ const Preview = {
 
 
         return  {
-            preview, scaleFactor, showCursor, clickAndPixel, takeOverColor, zoomIn, zoomOut, toggleCursor, toggleClickAndPixel, toggleTakeOverColor, modeCycle,ctx
+            preview, scaleFactor, showCursor, clickAndPixel, takeOverColor, zoomIn, zoomOut, toggleCursor, toggleClickAndPixel, toggleTakeOverColor, ctx
         }
 
     },
     render() {
-        //console.log('Preview Render.................... key ', this.modeCycle)
+        console.log('Render Preview..... ')
         const content = [
             h( Button.Group, {}, [
                 h(Button, { onClick: e => this.zoomIn() }, h(ZoomInOutlined)),
@@ -117,7 +117,8 @@ const Preview = {
                 onClick: e => {this.toggleTakeOverColor()} }, 'Take over colors from last char, if empty' )
         ]
         //console.log('preview render context...', this.ctx)
-        return h('div', { class: 'previewContainer', key: this.modeCycle} , [
+        console.log('Render Preview..... End')
+        return h('div', { class: 'previewContainer' } , [
                           h('canvas', { ref: 'preview', class: 'preview' }),
                           h('div', content)
                         ])

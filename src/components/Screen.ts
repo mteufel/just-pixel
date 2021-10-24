@@ -6,7 +6,7 @@ import {Toolbar} from './Toolbar'
 import {ColorPalette} from './palette/ColorPalette'
 import {StatusBar} from './StatusBar'
 import {Preview} from './Preview'
-import { createUUID } from '../utils'
+import { createUUID } from '../util/utils'
 import {NewStore} from './NewModal';
 import {CopyContext} from '../stores/CopyContext';
 import ColorPaletteStore from "../stores/ColorPaletteStore";
@@ -296,14 +296,14 @@ const Screen = {
     },
     render() {
         console.log('Render Screen......... ', this.modeCycle)
-        let result = h('div', { class: 'main' }, [
+        let result = h('div', { class: 'main', key: this.modeCycle }, [
             h('div', { class: 'toolbar' }, h(Toolbar, { onModeSwitch: (data) => this.modeSwitch(data) })),
             h('div', { class: 'paletteColor' }, h(ColorPalette)),
             h(GridBitmap),
             h(Preview),
             h('div', { class: 'emptyToolbarBackground' }, null),
             h('div', { class: 'empty' }, null),
-            h('div', { class: 'statusBar' }, h(StatusBar)),
+            h('div', { class: 'statusBar' }, h(StatusBar, { key: this.modeCycle })),
             h('div', { class: 'logoContainer' }, [ h('div', { class: 'mega65-logo' } )  ]  )
         ]);
         console.log('Render Screen End')

@@ -4,7 +4,7 @@ import {Modal, Input, TabPane, Tabs, Upload, Button, InputNumber} from 'ant-desi
 import {createBasicDialogStore} from '../../stores/BasicDialogStore'
 import {QuestionOutlined, UploadOutlined} from "@ant-design/icons-vue";
 import ColorSelectionStore from "../../stores/ColorSelectionStore";
-import {uploadData, uploadDataLineByLine} from "../../utils";
+import {uploadData, uploadDataLineByLine} from "../../util/utils";
 import {UploadStore} from "../upload/UploadStore";
 import ColorPaletteStore from "../../stores/ColorPaletteStore";
 

@@ -6,12 +6,13 @@ import {Toolbar} from './Toolbar'
 import {ColorPalette} from './palette/ColorPalette'
 import {StatusBar} from './StatusBar'
 import {Preview} from './Preview'
-import { createUUID } from '../utils'
+import { createUUID } from '../util/utils'
 import {NewStore} from './NewModal';
 import {CopyContext} from '../stores/CopyContext';
 import ColorPaletteStore from "../stores/ColorPaletteStore";
 import {GridBitmap} from "./GridBitmap";
 import {KeyDownBuilder} from "../builders/KeyDownBuilder";
+import {defineCursorKeys, definePaintKeys} from "../util/keys";
 
 
 const Screen2 = {
@@ -38,10 +39,8 @@ const Screen2 = {
         })
 
         KeyDownBuilder.clearKeys()
-        KeyDownBuilder.key('ArrowDown', () => ScreenStore.cursorDown())
-        KeyDownBuilder.key('ArrowUp', () => ScreenStore.cursorUp())
-        KeyDownBuilder.key('ArrowLeft', () => ScreenStore.cursorLeft())
-        KeyDownBuilder.key('ArrowRight', () => ScreenStore.cursorRight())
+        defineCursorKeys()
+        definePaintKeys()
         KeyDownBuilder.useKeys()
 
 
@@ -51,13 +50,13 @@ const Screen2 = {
     render() {
         console.log('Render Screen......... ', this.modeCycle)
         let result = h('div', { class: 'main' }, [
-            h('div', { class: 'toolbar' }, h(Toolbar, { onModeSwitch: (data) => this.modeSwitch(data) })),
-            h('div', { class: 'paletteColor' }, h(ColorPalette)),
-            h(GridBitmap),
-            h(Preview),
+            h('div', { class: 'toolbar' }, h(Toolbar, { key: this.modeCycle, onModeSwitch: (data) => this.modeSwitch(data) })),
+            h('div', { class: 'paletteColor' }, h(ColorPalette, { key: this.modeCycle })),
+            h(GridBitmap, { key: this.modeCycle }),
+            h(Preview, { key: this.modeCycle }),
             h('div', { class: 'emptyToolbarBackground' }, null),
             h('div', { class: 'empty' }, null),
-            h('div', { class: 'statusBar' }, h(StatusBar)),
+            h('div', { class: 'statusBar' }, h(StatusBar, { key: this.modeCycle }) ),
             h('div', { class: 'logoContainer' }, [ h('div', { class: 'mega65-logo' } )  ]  )
         ]);
         console.log('Render Screen End')

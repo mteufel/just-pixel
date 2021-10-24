@@ -2,7 +2,7 @@
 import { h } from 'vue'
 import BitmapStore from './BitmapStore'
 import { Char } from '../components/Char'
-import { createUUID } from '../utils'
+import { createUUID } from '../util/utils'
 import { CopyContext } from './CopyContext'
 
 const createPixelStore = () => {
@@ -58,20 +58,19 @@ const createPixelStore = () => {
         if (ScreenStore.isTakeOverColor()) {
             if (BitmapStore.isMCM()) {
 
-                if (BitmapStore.getBackgroundColorMCM().colorIndex == 0 &&
-                    BitmapStore.getForegroundColorMCM(memoryPosition).colorIndex==0  && BitmapStore.getForegroundColorMCM(ScreenStore.getMemoryPositionBefore()) != undefined &&
+                if (BitmapStore.getForegroundColorMCM(memoryPosition).colorIndex==0  && BitmapStore.getForegroundColorMCM(ScreenStore.getMemoryPositionBefore()) != undefined &&
                     BitmapStore.getForegroundColor2MCM(memoryPosition).colorIndex==0 && BitmapStore.getForegroundColor2MCM(ScreenStore.getMemoryPositionBefore()) != undefined &&
                     BitmapStore.getForegroundColor3MCM(memoryPosition).colorIndex==0 && BitmapStore.getForegroundColor3MCM(ScreenStore.getMemoryPositionBefore()) != undefined  ) {
 
-                    BitmapStore.setForegroundColorMCM(memoryPosition, BitmapStore.getForegroundColorMCM(ScreenStore.getMemoryPositionBefore()).colorIndex)
-                    BitmapStore.setForegroundColor2MCM(memoryPosition, BitmapStore.getForegroundColor2MCM(ScreenStore.getMemoryPositionBefore()).colorIndex)
-                    BitmapStore.setForegroundColor3MCM(memoryPosition, BitmapStore.getForegroundColor3MCM(ScreenStore.getMemoryPositionBefore()).colorIndex)
+                    BitmapStore.setForegroundColorMCM(memoryPosition, BitmapStore.getForegroundColorMCM(ScreenStore.getMemoryPositionBefore()))
+                    BitmapStore.setForegroundColor2MCM(memoryPosition, BitmapStore.getForegroundColor2MCM(ScreenStore.getMemoryPositionBefore()))
+                    BitmapStore.setForegroundColor3MCM(memoryPosition, BitmapStore.getForegroundColor3MCM(ScreenStore.getMemoryPositionBefore()))
                 }
             } else {
 
-                if (BitmapStore.getBackgroundColorHires().colorIndex == 0 &&
-                    BitmapStore.getForegroundColorHires(memoryPosition).colorIndex==0  && BitmapStore.getForegroundColorHires(ScreenStore.getMemoryPositionBefore()) != undefined ) {
+                if (BitmapStore.getForegroundColorHires(memoryPosition).colorIndex==0  && BitmapStore.getForegroundColorHires(ScreenStore.getMemoryPositionBefore()) != undefined ) {
 
+                    BitmapStore.setBackgroundColorHires(memoryPosition, BitmapStore.getBackgroundColorHires(ScreenStore.getMemoryPositionBefore()).colorIndex)
                     BitmapStore.setForegroundColorHires(memoryPosition, BitmapStore.getForegroundColorHires(ScreenStore.getMemoryPositionBefore()).colorIndex)
 
                 }
@@ -346,8 +345,8 @@ const createPixelStore = () => {
                     charY = charY - 1
                     cursorY = 7
                     secondMemoryPos=memoryPosition+(40*ScreenStore.getOffset())
-                    //charChange(memoryPosition)
-                    //BitmapStore.callSubscribers() // repaint the preview (show cursor)
+                    charChange(memoryPosition)
+                    BitmapStore.callSubscribers() // repaint the preview (show cursor)
                 }
             }
             refreshChar(memoryPosition,secondMemoryPos )
@@ -369,11 +368,11 @@ const createPixelStore = () => {
                     //console.log('333')
                     //screenOneCharDown()
                 } else {
-                    //console.log('eins weiter')
+//                    console.log('eins weiter')
                     cursorY = 0
                     charY = charY + 1
-                    //charChange(memoryPosition)
-                    //BitmapStore.callSubscribers() // repaint the preview (show cursor)
+                    charChange(memoryPosition)
+                    BitmapStore.callSubscribers() // repaint the preview (show cursor)
                     secondMemoryPos=memoryPosition-(40*ScreenStore.getOffset())
                 }
             }
@@ -393,8 +392,8 @@ const createPixelStore = () => {
                     charX = charX + 1
                     cursorX = 0
                     secondMemoryPos=memoryPosition-ScreenStore.getOffset()
-                    //charChange(memoryPosition)
-                    //BitmapStore.callSubscribers() // repaint the preview (show cursor)
+                    charChange(memoryPosition)
+                    BitmapStore.callSubscribers() // repaint the preview (show cursor)
                 } else {
                     cursorX = numPixels-1
                     //screenOneCharRight()
@@ -420,19 +419,20 @@ const createPixelStore = () => {
                     charX = charX - 1
                     cursorX = numPixels
                     secondMemoryPos=memoryPosition+ScreenStore.getOffset()
-                    //charChange(memoryPosition)
-                    //BitmapStore.callSubscribers() // repaint the preview (show cursor)
+                    charChange(memoryPosition)
+                    BitmapStore.callSubscribers() // repaint the preview (show cursor)
                 }
             }
             refreshChar(memoryPosition, secondMemoryPos )
         },
         actionNew: () => {
+            console.log('action new')
             lastAction = 'new'
             BitmapStore.clearBitmap()
             cursorX = 0
             cursorY = 0
             memoryPosition = 0
-            //BitmapStore.callSubscribers() // repaint the preview (show cursor)   // Fuer den FCM Modus im Moment noch abgeschalten
+            BitmapStore.callSubscribers() // repaint the preview (show cursor)   // Fuer den FCM Modus im Moment noch abgeschalten
             ScreenStore.refreshAll()
 
         },

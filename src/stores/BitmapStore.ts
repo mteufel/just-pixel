@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {colorMega65} from '../utils'
+import {colorMega65} from '../util/utils'
 import { Color } from '../components/palette/ColorPalette'
 import ColorPaletteStore from "./ColorPaletteStore";
 
@@ -18,7 +18,7 @@ const createBitmapStore = () => {
 
     let backgroundColorMCM : Color = null
 
-    let mode : number = 2           // 0 = Classic Hires Bitmaps C64
+    let mode : number = 1           // 0 = Classic Hires Bitmaps C64
                                     // 1 = Multicolor Bitmap
                                     // 2 = Full Color Mode
 
@@ -81,7 +81,7 @@ const createBitmapStore = () => {
                     colorRam.push(0)
                 }
                 if (BitmapStore.isMCM()) {
-                    BitmapStore.setBackgroundColorMCM(0)
+                    BitmapStore.setBackgroundColorMCM(ColorPaletteStore.defaultColors()[0])
                 }
 
             }
@@ -197,49 +197,38 @@ const createBitmapStore = () => {
             return BitmapStore.getColorByHexNumber(color)
         },
 
-        setBackgroundColorMCM: (bg) => {
-            backgroundColorMCM = BitmapStore.getColorByIndex(bg)
+        setBackgroundColorMCM: (bgColor : Color) => {
+            backgroundColorMCM = bgColor
 
         },
-        setForegroundColorMCM: (memoryPosition : number, fg : number) => {
-            let selColor = BitmapStore.getColorByIndex(fg)
-            //console.log('setForegroundColorMCM selColor ', { selColor } )
+        setForegroundColorMCM: (memoryPosition : number, selColor : Color) => {
+            console.log('setForegroundColorMCM ', selColor)
             let colorValue = BitmapStore.getColorFromScreenRam(memoryPosition)
-            //console.log('setForegroundColorMCM colorValue ', { colorValue } )
             let colorValueHexComplete = colorValue.toString(16)
             if (colorValueHexComplete === "0") {
                 colorValueHexComplete = "00"
             }
-            //let ColorValueVorne = colorValueHexComplete.substr(0,1)
-            let ColorValueVorne = selColor.colorIndexHex.toString(16)
+            let ColorValueVorne = selColor.colorIndex.toString(16)
             let ColorValueHinten = colorValueHexComplete.substr(1,1)
-            //console.log('setForegroundColorMCM colorValueHexComplete/vorne/hinten ', { colorValueHexComplete, ColorValueVorne, ColorValueHinten })
             let colorValueNeu = '0x'.concat(ColorValueVorne,ColorValueHinten)
-            //console.log('setForegroundColorMCM alt/neu ', { colorValueHexComplete, colorValueNeu })
             screenRam[memoryPosition/8] =  parseInt(colorValueNeu,16)
         },
 
-        setForegroundColor2MCM: (memoryPosition : number, fg : number) => {
-            let selColor = BitmapStore.getColorByIndex(fg)
-            //console.log('setForegroundColor2MCM selColor ', { selColor } )
+        setForegroundColor2MCM: (memoryPosition : number, selColor : Color) => {
             let colorValue = BitmapStore.getColorFromScreenRam(memoryPosition)
-            //console.log('setForegroundColor2MCM colorValue ', { colorValue } )
             let colorValueHexComplete = colorValue.toString(16)
-            //console.log('setForegroundColor2MCM colorValueHexComplete ',  colorValueHexComplete  )
             if (colorValueHexComplete === "0") {
                 colorValueHexComplete = "00"
             }
             let ColorValueVorne = colorValueHexComplete.substr(0,1)
-            //let ColorValueHinten = colorValueHexComplete.substr(1,1)
-            let ColorValueHinten = selColor.colorIndexHex.toString(16)
+            let ColorValueHinten = selColor.colorIndex.toString(16)
             let colorValueNeu = '0x'.concat(ColorValueVorne,ColorValueHinten)
-            //console.log('setForegroundColor2MCM alt/neu ', { colorValueHexComplete, colorValueNeu })
             screenRam[memoryPosition/8] =  parseInt(colorValueNeu,16)
         },
 
-        setForegroundColor3MCM: (memoryPosition : number, fg : number) => {
+        setForegroundColor3MCM: (memoryPosition : number, selColor : Color) => {
             // MCM Foreground color to be stored into Color RAM
-            colorRam[memoryPosition/8] = fg
+            colorRam[memoryPosition/8] = selColor.colorIndex
         },
 
 

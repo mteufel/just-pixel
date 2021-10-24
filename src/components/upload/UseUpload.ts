@@ -1,7 +1,7 @@
 // @ts-nocheck
 import {message} from 'ant-design-vue'
 import {UploadStore} from './UploadStore'
-import {uploadData} from "../../utils";
+import {uploadData} from "../../util/utils";
 
 export function useUpload(props) {
 

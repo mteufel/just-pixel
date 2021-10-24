@@ -208,7 +208,7 @@ const StatusBar = {
 
         },
         render() {
-
+            console.log('Render Statusbar.....')
             let statusBarContent = []
 
 
@@ -256,6 +256,7 @@ const StatusBar = {
 
             statusBarContent.push( h('div' ) )
             statusBarContent.push (h('div', null , this.text ) )
+            console.log('Render Statusbar..... End')
             return statusBarContent
 
     }

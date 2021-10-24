@@ -1,6 +1,6 @@
 // @ts-nocheck
 import {h, toRef, ref, onMounted} from 'vue'
-import { createUUID } from '../utils'
+import { createUUID } from '../util/utils'
 import ScreenStore from '../stores/ScreenStore'
 import BitmapStore from '../stores/BitmapStore'
 import {KeyDownBuilder} from "../builders/KeyDownBuilder";

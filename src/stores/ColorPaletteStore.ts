@@ -63,7 +63,8 @@ const createColorPaletteStore = () => {
             }
         },
         colors: () => colors,
-        setColor: (index, r, g, b) => colors[index] =  { color: 'color-' + index, colorIndex: index, r: r, g: g, b: b }
+        setColor: (index, r, g, b) => colors[index] =  { color: 'color-' + index, colorIndex: index, r: r, g: g, b: b },
+        defaultColors: () => defaultColors
     }
 }
 

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import ScreenStore from './ScreenStore'
-import {rgbToHex} from "../utils";
+import {rgbToHex} from "../util/utils";
 
 const createColorSelectionStore = () => {
     let visible = false

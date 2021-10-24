@@ -4,19 +4,9 @@ import ScreenStore from "../../stores/ScreenStore"
 import BitmapStore from "../../stores/BitmapStore"
 import {ColorSelectionModal, ColorSelectionStore} from "./ColorSelectionModal"
 
-import { getColr } from "../../utils"
+import { getColr } from "../../util/utils"
 import ColorPaletteStore from "../../stores/ColorPaletteStore";
 import {PaletteUpDownload} from "./PaletteUpDownload";
-
-type Color = {
-    color: string;
-    colorIndex: number;
-    colorIndexHex: number;
-    colorCodeHex: number;
-    r: number;
-    g: number;
-    b: number;
-}
 
 
 const ColorPalette = {
@@ -97,7 +87,6 @@ const ColorPalette = {
             let color = getColorByIndex(e.target.id)
             selectedColorIndex.value = e.target.id
             if (e.detail==2) {
-                console.log('y')
                 onColorEdit(color)
                 e.preventDefault()
                 return
@@ -148,18 +137,18 @@ const ColorPalette = {
                 // -----           MCM        ------
                 // ---------------------------------
                 if (ScreenStore.getSelectedColorPart()==='b') {
-                    BitmapStore.setBackgroundColorMCM(color.colorIndexHex)
+                    BitmapStore.setBackgroundColorMCM(color)
                     ScreenStore.refreshAll()
                 }
                 if (ScreenStore.getSelectedColorPart()==='f') {
-                    BitmapStore.setForegroundColorMCM(ScreenStore.getMemoryPosition(), color.colorIndexHex)
+                    BitmapStore.setForegroundColorMCM(ScreenStore.getMemoryPosition(), color)
                 }
                 if (ScreenStore.getSelectedColorPart()==='f2') {
-                    BitmapStore.setForegroundColor2MCM(ScreenStore.getMemoryPosition(), color.colorIndexHex)
+                    BitmapStore.setForegroundColor2MCM(ScreenStore.getMemoryPosition(), color)
                 }
 
                 if (ScreenStore.getSelectedColorPart()==='f3') {
-                    BitmapStore.setForegroundColor3MCM(ScreenStore.getMemoryPosition(), color.colorIndexHex)
+                    BitmapStore.setForegroundColor3MCM(ScreenStore.getMemoryPosition(), color)
                 }
 
             } else {
@@ -167,10 +156,10 @@ const ColorPalette = {
                 // -----         Hires       ------
                 // --------------------------------
                 if (ScreenStore.getSelectedColorPart()==='b') {
-                    BitmapStore.setBackgroundColorHires(ScreenStore.getMemoryPosition(), color.colorIndexHex)
+                    BitmapStore.setBackgroundColorHires(ScreenStore.getMemoryPosition(), color.colorIndex)
                 }
                 if (ScreenStore.getSelectedColorPart()==='f') {
-                    BitmapStore.setForegroundColorHires(ScreenStore.getMemoryPosition(), color.colorIndexHex)
+                    BitmapStore.setForegroundColorHires(ScreenStore.getMemoryPosition(), color.colorIndex)
                 }
             }
 
@@ -213,7 +202,7 @@ const ColorPalette = {
 
     },
     render() {
-        console.log('render color palette')
+        console.log('Render Color Palette.....')
         let result = []
         this.palette.forEach( color => {
             let css = 'color'
@@ -224,7 +213,7 @@ const ColorPalette = {
         })
         result.push(h(ColorSelectionModal, { onColorSelectionModal: data => this.onColorSelectionModal(data) }))
         result.push(h(PaletteUpDownload, { onReRender: () => this.reRenderColorPalette() }))
-        console.log('render color palette end')
+        console.log('Render Color Palette..... End')
         return result
     }
 
