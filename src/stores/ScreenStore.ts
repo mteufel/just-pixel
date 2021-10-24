@@ -37,6 +37,7 @@ const createPixelStore = () => {
 
 
     const refreshChar = (memPos, memPos2 = -1) => {
+        //console.log('refreshChar...', memPos, memPos2)
         subscribers.forEach( callFunction => {
             callFunction(memPos)
             if (memPos2 != -1 && memoryPosition % ScreenStore.getOffset() == 0) {
@@ -219,8 +220,6 @@ const createPixelStore = () => {
 
             }
             return pixels
-
-
         },
         createChar: (memoryIndex: number) => {
             if (BitmapStore.isFCM()) {
@@ -334,6 +333,7 @@ const createPixelStore = () => {
 
         },
         cursorUp: (screenOneCharUp) => {
+            let secondMemoryPos = -1
             cursorY = cursorY - 1
             if (cursorY == -1) {
                 memoryPositionBefore = memoryPosition
@@ -341,18 +341,19 @@ const createPixelStore = () => {
                 if ( memoryPosition < ScreenStore.getScreen()[0].props.memoryIndex  ) {
                     memoryPosition = memoryPosition + (40 * ScreenStore.getOffset())
                     cursorY = 0
-                    screenOneCharUp()
+                    //screenOneCharUp()
                 } else {
                     charY = charY - 1
                     cursorY = 7
-                    charChange(memoryPosition)
+                    secondMemoryPos=memoryPosition+(40*ScreenStore.getOffset())
+                    //charChange(memoryPosition)
                     //BitmapStore.callSubscribers() // repaint the preview (show cursor)
                 }
             }
-            refreshChar(memoryPosition, ( memoryPosition+(40*ScreenStore.getOffset()) ) )
+            refreshChar(memoryPosition,secondMemoryPos )
         },
         cursorDown: (screenOneCharDown) => {
-
+            let secondMemoryPos = -1
             cursorY = cursorY + 1
             if (cursorY == 8) {
                 memoryPositionBefore = memoryPosition
@@ -366,18 +367,20 @@ const createPixelStore = () => {
                     //console.log('cursorY=' + cursorY)
                     cursorY = 7
                     //console.log('333')
-                    screenOneCharDown()
+                    //screenOneCharDown()
                 } else {
                     //console.log('eins weiter')
                     cursorY = 0
                     charY = charY + 1
-                    charChange(memoryPosition)
+                    //charChange(memoryPosition)
                     //BitmapStore.callSubscribers() // repaint the preview (show cursor)
+                    secondMemoryPos=memoryPosition-(40*ScreenStore.getOffset())
                 }
             }
-            refreshChar(memoryPosition, (memoryPosition-(40*ScreenStore.getOffset()) ) )
+            refreshChar(memoryPosition,secondMemoryPos )
         },
         cursorRight: (screenOneCharRight) => {
+            let secondMemoryPos = -1
             let numPixels = 8
             memoryPositionBefore = memoryPosition
             if (BitmapStore.isMCM()) {
@@ -389,16 +392,19 @@ const createPixelStore = () => {
                     memoryPosition = memoryPosition + ScreenStore.getOffset()
                     charX = charX + 1
                     cursorX = 0
-                    charChange(memoryPosition)
+                    secondMemoryPos=memoryPosition-ScreenStore.getOffset()
+                    //charChange(memoryPosition)
                     //BitmapStore.callSubscribers() // repaint the preview (show cursor)
                 } else {
                     cursorX = numPixels-1
-                    screenOneCharRight()
+                    //screenOneCharRight()
+                    return
                 }
             }
-            refreshChar(memoryPosition, (memoryPosition-ScreenStore.getOffset()) )
+            refreshChar(memoryPosition,secondMemoryPos )
         },
         cursorLeft: (screenOneCharLeft) => {
+            let secondMemoryPos = -1
             let numPixels = 7
             memoryPositionBefore = memoryPosition
             if (BitmapStore.isMCM()) {
@@ -408,16 +414,17 @@ const createPixelStore = () => {
             if (cursorX == -1 ) {
                 if (charX == 1) {
                     cursorX = 0
-                    screenOneCharLeft()
+                    //screenOneCharLeft()
                 } else {
                     memoryPosition = memoryPosition - ScreenStore.getOffset()
                     charX = charX - 1
                     cursorX = numPixels
-                    charChange(memoryPosition)
+                    secondMemoryPos=memoryPosition+ScreenStore.getOffset()
+                    //charChange(memoryPosition)
                     //BitmapStore.callSubscribers() // repaint the preview (show cursor)
                 }
             }
-            refreshChar(memoryPosition, (memoryPosition+ScreenStore.getOffset()) )
+            refreshChar(memoryPosition, secondMemoryPos )
         },
         actionNew: () => {
             lastAction = 'new'
