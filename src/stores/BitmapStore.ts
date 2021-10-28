@@ -244,7 +244,7 @@ const createBitmapStore = () => {
                 // ======================================
 
                 // 0000-1f3f Bitmap data (8000 bytes)
-                // 1f40-2327 Screen RAM colors (1000 bytes)
+                // 1f40-2327 ScreenOld RAM colors (1000 bytes)
                 // 2828-270f Color RAM (1000 bytes)
                 // 2710 background color
                 // 2711-2721 Color Palette REDs   10001 - 10017
