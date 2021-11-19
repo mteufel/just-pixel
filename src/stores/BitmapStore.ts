@@ -198,7 +198,7 @@ const createBitmapStore = () => {
         },
 
         setBackgroundColorMCM: (bgColor : Color) => {
-            backgroundColorMCM = bgColor
+            backgroundColorMCM = bgColor;
 
         },
         setForegroundColorMCM: (memoryPosition : number, selColor : Color) => {

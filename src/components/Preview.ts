@@ -10,13 +10,13 @@ const Preview = {
         modeCycle: String
     },
     setup(props) {
-        //console.log('Preview Setup....................')
+        console.log('Preview Setup....................')
         //const modeCycle = toRef(props, 'modeCycle')
 
         const scaleFactor = ref(1)
 
 
-        const showCursor = ref(true)
+        const showCursor = ref(false)
         const clickAndPixel = ref(false)
         const takeOverColor = ref(true)
         const preview = ref(null)
@@ -132,6 +132,7 @@ function getBit(n, i) {
 }
 
 function paintPreviewCursor(ctx, scaleFactor, showCursor) {
+    console.log('paintPreviewCursor')
     let matrix = generateMatrix()
     let memPos = parseInt(ScreenStore.getMemoryPosition())
 
@@ -142,6 +143,8 @@ function paintPreviewCursor(ctx, scaleFactor, showCursor) {
     if (BitmapStore.isFCM()) {
         bytesPerChar = 64
     }
+    console.log('paintPreviewCursor bytesPerChar=', bytesPerChar)
+
 
     let cleanPreview = []
     cleanPreview.push(memPos - (40*bytesPerChar) - bytesPerChar)
@@ -158,6 +161,7 @@ function paintPreviewCursor(ctx, scaleFactor, showCursor) {
         }
 
     })
+
     if (showCursor) {
         paintPreviewWithCursor(ctx, scaleFactor, matrix, memPos)
     } else {
@@ -168,6 +172,7 @@ function paintPreviewCursor(ctx, scaleFactor, showCursor) {
 
 
 function paintPreviewComplete(ctx, scaleFactor) {
+    console.log('paintPreviewComplete')
     let bytesPerChar = 8
     if (BitmapStore.isFCM()) {
         bytesPerChar = 64
@@ -226,7 +231,7 @@ function paintPreviewFCM(ctx, scaleFactor, matrix, memoryPosition, withCursor = 
 }
 
 function paintPreviewMCM(ctx, scaleFactor, matrix, memoryPosition, withCursor = false) {
-    //console.log('paintPreviewMCM ', { ctx, scaleFactor, matrix, memoryPosition, withCursor } )
+    console.log('paintPreviewMCM ', { ctx, scaleFactor, matrix, memoryPosition, withCursor } )
     let pos = calculatePosition(matrix, memoryPosition)
     pos.x = memoryPosition - pos.posFrom
     let bg = BitmapStore.getBackgroundColorMCM()
@@ -244,6 +249,7 @@ function paintPreviewMCM(ctx, scaleFactor, matrix, memoryPosition, withCursor = 
             let binaryIndex5 = binary.substr(4,2)
             let binaryIndex4 = binary.substr(6,2)
             let arr = [binaryIndex7, binaryIndex6, binaryIndex5, binaryIndex4]
+            //console.log('binary', binary, arr)
 
             let color = BitmapStore.getBackgroundColorMCM()
             arr.forEach( pixelPattern => {
@@ -261,6 +267,7 @@ function paintPreviewMCM(ctx, scaleFactor, matrix, memoryPosition, withCursor = 
                         color = BitmapStore.getForegroundColor3MCM(memoryPosition)
                         break;
                 }
+                //console.log('color ', color)
                 r = color.r
                 g = color.g
                 b = color.b
@@ -364,6 +371,7 @@ function calculatePosition(matrix, memoryPosition) {
 }
 
 function setPixel(ctx, scaleFactor, x, y, r, g, b) {
+
     if (ctx.value == null) {
         console.trace();
         console.log(BitmapStore.dumpSubscribers())

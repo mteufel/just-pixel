@@ -5,6 +5,7 @@ import { UploadStore } from './UploadStore'
 import { UploadButton } from './UploadButton'
 import BitmapStore from '../../stores/BitmapStore'
 import ScreenStore from '../../stores/ScreenStore'
+import ColorPaletteStore from "../../stores/ColorPaletteStore";
 
 const FilesUploadModal = {
     setup() {
@@ -21,7 +22,7 @@ const FilesUploadModal = {
             BitmapStore.setBitmap(UploadStore.bitmap.slice(0,8000))
             BitmapStore.setScreenRam(UploadStore.bitmap.slice(8000,9000))
             BitmapStore.setColorRam(UploadStore.bitmap.slice(9000,10000))
-            BitmapStore.setBackgroundColorMCM(UploadStore.bitmap[10000])
+            BitmapStore.setBackgroundColorMCM(ColorPaletteStore.colors().find( color  => color.colorIndex===UploadStore.bitmap[10000]))
             ScreenStore.refreshAll()
             ScreenStore.setLastAction("uploaded")
             BitmapStore.callSubscribers()
