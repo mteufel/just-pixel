@@ -9,7 +9,7 @@
   "dependencies": {
     "vue": "^3.0.5",
     "vue-color-kit": "^1.0.5",
-    "ant-design-vue": "^2.2.2"
+    "ant-design-vue": "^3.0.0-alpha.15"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^1.2.5",

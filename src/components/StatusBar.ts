@@ -3,6 +3,7 @@ import {h, ref, onMounted} from 'vue'
 import ScreenStore from '../stores/ScreenStore'
 import BitmapStore from '../stores/BitmapStore'
 import EventHandlerStore from '../stores/EventHandlerStore'
+import { defineStatusbarKeys} from '../util/keys'
 
 const StatusBar = {
 
@@ -35,82 +36,11 @@ const StatusBar = {
         let cssForeground9 = ref('colorPixelBlock')
         let cssForeground0 = ref('colorPixelBlock')
 
-        let colorPicBackground = ref(BitmapStore.getColorByIndex(0))
         let colorPicForeground = ref(BitmapStore.getColorByIndex(0))
         let colorPicForeground2 = ref(BitmapStore.getColorByIndex(0))
         let colorPicForeground3 = ref(BitmapStore.getColorByIndex(0))
 
-        const statusBarKeyDownEventListener = (e) => {
-
-            if (ScreenStore.isDialogOpen()) {
-                return
-            }
-
-            e.preventDefault()
-            let s = ['b','f','f2','f3','f4','f5', 'f6', 'f7', 'f8', 'f9', 'f0']
-            let i = s.findIndex( m => m===ScreenStore.getSelectedColorPart())
-            if (i > s.length)
-                i=-1
-
-            if (e.key === 'ArrowRight' && e.altKey==true && e.shiftKey==false && e.ctrlKey==false  ) {
-                if ( ( BitmapStore.isMCM() &&  ScreenStore.getSelectedColorPart() === 'f3' ) ||
-                     ( BitmapStore.isFCM() &&  ScreenStore.getSelectedColorPart() === 'f6' ) ||
-                     ( !BitmapStore.isMCM() && !BitmapStore.isFCM() && ScreenStore.getSelectedColorPart() === 'f' ) ) {
-                    return
-                }
-
-                ScreenStore.setSelectedColorPart(s[i+1])
-                onColor( { target: { id: ScreenStore.getSelectedColorPart() }})
-            }
-
-            if (e.key === 'ArrowLeft' && e.altKey==true && e.shiftKey==false && e.ctrlKey==false) {
-                if ( ( BitmapStore.isFCM() &&  ScreenStore.getSelectedColorPart() === 'f' ) ||
-                     (ScreenStore.getSelectedColorPart() === 'b') ) {
-                    return
-                }
-
-                ScreenStore.setSelectedColorPart(s[i-1])
-                onColor( { target: { id: ScreenStore.getSelectedColorPart() }})
-
-            }
-
-            if (e.key === 'X' ) {
-                if (BitmapStore.isFCM()) {
-                    return
-                }
-
-                colorPicBackground.value = colorBackground.value
-                colorPicForeground.value = colorForeground.value
-                if (BitmapStore.isMCM()) {
-                    colorPicForeground2.value = colorForeground2.value
-                    colorPicForeground3.value = colorForeground3.value
-                }
-            }
-
-            if (e.key === 'x' ) {
-                if (BitmapStore.isFCM()) {
-                    return
-                }
-
-                if (BitmapStore.isMCM()) {
-                    BitmapStore.setBackgroundColorMCM(colorPicBackground.value.colorIndexHex)
-                    BitmapStore.setForegroundColorMCM(ScreenStore.getMemoryPosition(), colorPicForeground.value.colorIndexHex)
-                    BitmapStore.setForegroundColor2MCM(ScreenStore.getMemoryPosition(), colorPicForeground2.value.colorIndexHex)
-                    BitmapStore.setForegroundColor3MCM(ScreenStore.getMemoryPosition(), colorPicForeground3.value.colorIndexHex)
-
-                } else {
-                    BitmapStore.setBackgroundColorHires(ScreenStore.getMemoryPosition(), colorPicBackground.value.colorIndexHex)
-                    BitmapStore.setForegroundColorHires(ScreenStore.getMemoryPosition(), colorPicForeground.value.colorIndexHex)
-                }
-                ScreenStore.refreshChar()
-                ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
-
-            }
-
-        }
-
         onMounted(() => {
-            EventHandlerStore.addEventListener('my', 'keydown', statusBarKeyDownEventListener)
             refreshSelectedColors(ScreenStore.getMemoryPosition())
         })
 
@@ -197,6 +127,8 @@ const StatusBar = {
             ScreenStore.setSelectedColorPart(e.target.id)
         }
 
+        defineStatusbarKeys(onColor,  {colorPicForeground, colorPicForeground2, colorPicForeground3, colorForeground, colorForeground2, colorForeground3}  )
+
 
         return  { text, colorBackground,  cssBackground, colorForeground, cssForeground, colorForeground2, cssForeground2, colorForeground3, cssForeground3,
                  colorForeground4, cssForeground4, colorForeground5, cssForeground5, colorForeground6, cssForeground6,
@@ -204,7 +136,7 @@ const StatusBar = {
                  cssForeground8, colorForeground8,
                  cssForeground9, colorForeground9,
                  cssForeground0, colorForeground0,
-                 colorPicBackground, colorPicForeground, colorPicForeground2, colorPicForeground3, onColor }
+                 colorPicForeground, colorPicForeground2, colorPicForeground3, onColor }
 
         },
         render() {
@@ -221,7 +153,6 @@ const StatusBar = {
                 statusBarContent.push( h('div') )
                 statusBarContent.push( h('div') )
 
-                statusBarContent.push( h('div', createBlock('pb', this.colorPicBackground.r,this.colorPicBackground.g,this.colorPicBackground.b) ) )
                 statusBarContent.push( h('div', createBlock('pf', this.colorPicForeground.r,this.colorPicForeground.g,this.colorPicForeground.b) ) )
                 statusBarContent.push( h('div', createBlock('pf2', this.colorPicForeground2.r,this.colorPicForeground2.g,this.colorPicForeground2.b) ) )
                 statusBarContent.push( h('div', createBlock('pf3', this.colorPicForeground3.r,this.colorPicForeground3.g,this.colorPicForeground3.b) ) )

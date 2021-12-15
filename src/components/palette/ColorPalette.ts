@@ -7,6 +7,7 @@ import {ColorSelectionModal, ColorSelectionStore} from "./ColorSelectionModal"
 import { getColr } from "../../util/utils"
 import ColorPaletteStore from "../../stores/ColorPaletteStore";
 import {PaletteUpDownload} from "./PaletteUpDownload";
+import {defineColorPaletteKeys} from "../../util/keys";
 
 
 const ColorPalette = {
@@ -18,67 +19,6 @@ const ColorPalette = {
         // this makes sure that the color gets selected when moving inside palette
         watch(selectedColorIndex, (newValue : any, oldValue : any) => {
             onColorSelected({ target: { id: parseInt(newValue) } })
-        })
-
-        onMounted(() => {
-
-            window.addEventListener("keydown", function(e) {
-
-                if (ScreenStore.isDialogOpen()) {
-                    return
-                }
-
-                e.preventDefault()
-
-
-                if (e.key === 'ArrowRight' && e.altKey==false && e.shiftKey==false && e.ctrlKey==true  ) {
-                    if (selectedColorIndex.value == palette.value[palette.value.length-1].colorIndex)
-                        return
-                    selectedColorIndex.value = selectedColorIndex.value + 1
-                }
-
-                if (e.key === 'ArrowLeft' && e.altKey==false && e.shiftKey==false && e.ctrlKey==true) {
-                    if (selectedColorIndex.value == 0)
-                        return
-                    selectedColorIndex.value = selectedColorIndex.value - 1
-                }
-
-                if (e.key === 'ArrowDown' && e.altKey==false && e.shiftKey==false && e.ctrlKey==true) {
-                    let newIndex = selectedColorIndex.value + 6
-                    if (newIndex > palette.value.length - 1)
-                        return
-                    selectedColorIndex.value = newIndex
-                }
-
-                if (e.key === 'ArrowUp' && e.altKey==false && e.shiftKey==false && e.ctrlKey==true) {
-                    let newIndex = selectedColorIndex.value - 6
-                    if (newIndex < 0)
-                        return
-                    selectedColorIndex.value = newIndex
-                }
-
-                if (e.key === 'Enter') {
-                    onColorSelected({ target: { id: selectedColorIndex.value } })
-                }
-
-                /*
-                if (e.key === '1' && e.altKey==false && e.shiftKey==false && e.ctrlKey==true) {
-                    let color = getColorByIndex(selectedColorIndex.value)
-                    BitmapStore.setBackgroundColorHires(ScreenStore.getMemoryPosition(), color.colorIndexHex)
-                    ScreenStore.refreshChar()
-                    ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
-                }
-
-                if (e.key === '2' && e.altKey==false && e.shiftKey==false && e.ctrlKey==true) {
-                    let color = getColorByIndex(selectedColorIndex.value)
-                    BitmapStore.setForegroundColorHires(ScreenStore.getMemoryPosition(), color.colorIndexHex)
-                    ScreenStore.refreshChar()
-                    ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
-                }
-
-                 */
-
-            });
         })
 
 
@@ -197,6 +137,8 @@ const ColorPalette = {
             selectedColorIndex.value = selectedColorIndex.value+1
             selectedColorIndex.value = selectedColorIndex.value-1
         }
+
+        defineColorPaletteKeys( { selectedColorIndex, palette } )
 
         return { palette, selectedColorIndex, onColorSelected, getColorByIndex, onColorEdit, createBlock, onColorSelectionModal, reRenderColorPalette }
 

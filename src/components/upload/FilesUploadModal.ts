@@ -26,6 +26,8 @@ const FilesUploadModal = {
             ScreenStore.refreshAll()
             ScreenStore.setLastAction("uploaded")
             BitmapStore.callSubscribers()
+            ScreenStore.refreshChar()
+            ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
             UploadStore.toggle()
         }
 

@@ -132,7 +132,7 @@ function getBit(n, i) {
 }
 
 function paintPreviewCursor(ctx, scaleFactor, showCursor) {
-    console.log('paintPreviewCursor')
+    //console.log('paintPreviewCursor')
     let matrix = generateMatrix()
     let memPos = parseInt(ScreenStore.getMemoryPosition())
 
@@ -143,7 +143,7 @@ function paintPreviewCursor(ctx, scaleFactor, showCursor) {
     if (BitmapStore.isFCM()) {
         bytesPerChar = 64
     }
-    console.log('paintPreviewCursor bytesPerChar=', bytesPerChar)
+    //console.log('paintPreviewCursor bytesPerChar=', bytesPerChar)
 
 
     let cleanPreview = []
@@ -172,7 +172,7 @@ function paintPreviewCursor(ctx, scaleFactor, showCursor) {
 
 
 function paintPreviewComplete(ctx, scaleFactor) {
-    console.log('paintPreviewComplete')
+    //console.log('paintPreviewComplete')
     let bytesPerChar = 8
     if (BitmapStore.isFCM()) {
         bytesPerChar = 64
@@ -231,7 +231,7 @@ function paintPreviewFCM(ctx, scaleFactor, matrix, memoryPosition, withCursor = 
 }
 
 function paintPreviewMCM(ctx, scaleFactor, matrix, memoryPosition, withCursor = false) {
-    console.log('paintPreviewMCM ', { ctx, scaleFactor, matrix, memoryPosition, withCursor } )
+    //console.log('paintPreviewMCM ', { ctx, scaleFactor, matrix, memoryPosition, withCursor } )
     let pos = calculatePosition(matrix, memoryPosition)
     pos.x = memoryPosition - pos.posFrom
     let bg = BitmapStore.getBackgroundColorMCM()

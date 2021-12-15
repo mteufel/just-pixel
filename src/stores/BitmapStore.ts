@@ -202,7 +202,7 @@ const createBitmapStore = () => {
 
         },
         setForegroundColorMCM: (memoryPosition : number, selColor : Color) => {
-            console.log('setForegroundColorMCM ', selColor)
+            //console.log('setForegroundColorMCM ', selColor)
             let colorValue = BitmapStore.getColorFromScreenRam(memoryPosition)
             let colorValueHexComplete = colorValue.toString(16)
             if (colorValueHexComplete === "0") {
@@ -280,17 +280,18 @@ const createBitmapStore = () => {
                 })
                 bytes[idx] = BitmapStore.getBackgroundColorMCM()
                 idx++
-                defaultColors.forEach( color => {
+
+                ColorPaletteStore.defaultColors().forEach( color => {
                     let res = colorMega65(color)
                     bytes[idx] = res.r
                     idx++
                 })
-                defaultColors.forEach( color => {
+                ColorPaletteStore.defaultColors().forEach( color => {
                     let res = colorMega65(color)
                     bytes[idx] = res.g
                     idx++
                 })
-                defaultColors.forEach( color => {
+                ColorPaletteStore.defaultColors().forEach( color => {
                     let res = colorMega65(color)
                     bytes[idx] = res.b
                     idx++

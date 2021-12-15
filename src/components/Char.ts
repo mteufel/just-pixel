@@ -26,7 +26,7 @@ const Char = {
         return { memoryIndex, char, uuid }
     },
     render() {
-        console.log('Char Render')
+        //console.log('Char Render')
         let mcmExtension = ''
         if (BitmapStore.isMCM()) {
             mcmExtension = 'MCM'

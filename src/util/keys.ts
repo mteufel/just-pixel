@@ -3,6 +3,7 @@ import {KeyDownBuilder} from "../builders/KeyDownBuilder"
 import ScreenStore from "../stores/ScreenStore"
 import BitmapStore from "../stores/BitmapStore";
 import {CopyContext} from "../stores/CopyContext";
+import ColorPaletteStore from "../stores/ColorPaletteStore";
 
 const defineCursorKeys = () => {
     KeyDownBuilder.key('ArrowDown', () => ScreenStore.cursorDown())
@@ -18,9 +19,121 @@ const definePaintKeys = () => {
     KeyDownBuilder.key('3', () => BitmapStore.isFCM() ?  ScreenStore.paint('f3') : ScreenStore.paint('f2'))
     KeyDownBuilder.key('4', () => BitmapStore.isFCM() ?  ScreenStore.paint('f4') : ScreenStore.paint('f3'))
     KeyDownBuilder.key('c', () => doCopy())
+    KeyDownBuilder.key('#', () => dumpBytes())
     KeyDownBuilder.ctrl('v', () => doPaste())
+}
+
+const defineStatusbarKeys = (onColorFn, colorsHolder) => {
+    KeyDownBuilder.alt('ArrowRight', () => moveColorSelectorInStatusbar('ArrowRight', onColorFn))
+    KeyDownBuilder.alt('ArrowLeft', () => moveColorSelectorInStatusbar('ArrowLeft', onColorFn))
+    KeyDownBuilder.shift('x', () => rememberColors(colorsHolder))
+    KeyDownBuilder.key('x', () => acceptRememberedColors(colorsHolder))
+}
+
+const defineColorPaletteKeys = (context) => {
+    KeyDownBuilder.ctrl('ArrowRight', () => selectColorOnCursorKey('ArrowRight', context))
+    KeyDownBuilder.ctrl('ArrowLeft', () => selectColorOnCursorKey('ArrowLeft', context))
+    KeyDownBuilder.ctrl('ArrowDown', () => selectColorOnCursorKey('ArrowDown', context))
+    KeyDownBuilder.ctrl('ArrowUp', () => selectColorOnCursorKey('ArrowUp', context))
+}
 
 
+function moveColorSelectorInStatusbar(key, onColorFn) {
+    let s = ['b','f','f2','f3','f4','f5', 'f6', 'f7', 'f8', 'f9', 'f0']
+    let i = s.findIndex( m => m===ScreenStore.getSelectedColorPart())
+    if (i > s.length)
+        i=-1
+
+    if (key === 'ArrowRight') {
+        if ( ( BitmapStore.isMCM() &&  ScreenStore.getSelectedColorPart() === 'f3' ) ||
+            ( BitmapStore.isFCM() &&  ScreenStore.getSelectedColorPart() === 'f6' ) ||
+            ( !BitmapStore.isMCM() && !BitmapStore.isFCM() && ScreenStore.getSelectedColorPart() === 'f' ) ) {
+            return
+        }
+        ScreenStore.setSelectedColorPart(s[i+1])
+        onColorFn( { target: { id: ScreenStore.getSelectedColorPart() }})
+    }
+
+    if (key === 'ArrowLeft') {
+        if ( ( BitmapStore.isFCM() &&  ScreenStore.getSelectedColorPart() === 'f' ) ||
+            (ScreenStore.getSelectedColorPart() === 'b') ) {
+            return
+        }
+        ScreenStore.setSelectedColorPart(s[i-1])
+        onColorFn( { target: { id: ScreenStore.getSelectedColorPart() }})
+    }
+
+}
+
+
+function selectColorOnCursorKey(cursorKey, context) {
+
+    if (cursorKey === 'ArrowRight' ) {
+        if (context.selectedColorIndex.value == context.palette.value[context.palette.value.length-1].colorIndex)
+            return
+        context.selectedColorIndex.value = context.selectedColorIndex.value + 1
+    }
+
+    if (cursorKey === 'ArrowLeft') {
+        if (context.selectedColorIndex.value == 0)
+            return
+        context.selectedColorIndex.value = context.selectedColorIndex.value - 1
+    }
+
+    if (cursorKey === 'ArrowDown') {
+        let newIndex = context.selectedColorIndex.value + 6
+        if (newIndex > context.palette.value.length - 1)
+            return
+        context.selectedColorIndex.value = newIndex
+    }
+
+    if (cursorKey === 'ArrowUp') {
+        let newIndex = context.selectedColorIndex.value - 6
+        if (newIndex < 0)
+            return
+        context.selectedColorIndex.value = newIndex
+    }
+}
+
+
+
+function  acceptRememberedColors(colorsHolder) {
+
+    console.log('acceptRem ',colorsHolder)
+    // x (lowercase x) , takes the remembered colors to achtive char
+
+    if (BitmapStore.isFCM()) {
+        console.log('Remembering on FCM not yet implemented')
+        return
+    }
+
+    if (BitmapStore.isMCM()) {
+        BitmapStore.setForegroundColorMCM(ScreenStore.getMemoryPosition(), ColorPaletteStore.getColorByIndex( colorsHolder.colorPicForeground.value.colorIndex ))
+        BitmapStore.setForegroundColor2MCM(ScreenStore.getMemoryPosition(), ColorPaletteStore.getColorByIndex( colorsHolder.colorPicForeground2.value.colorIndex ))
+        BitmapStore.setForegroundColor3MCM(ScreenStore.getMemoryPosition(), ColorPaletteStore.getColorByIndex( colorsHolder.colorPicForeground3.value.colorIndex ))
+
+    } else {
+        console.log('Remembering on Hires not yet implemented')
+        //BitmapStore.setBackgroundColorHires(ScreenStore.getMemoryPosition(), cColorPaletteStore.getColorByIndex( colorsHolder.colorPicFBackround.value.colorIndex ))
+        //BitmapStore.setForegroundColorHires(ScreenStore.getMemoryPosition(), colorsHolder.colorPicForeground.value.colorIndex)
+    }
+    ScreenStore.refreshChar()
+    ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
+
+}
+
+function rememberColors(colorsHolder) {
+
+    // X (uppercase X) , remembers the colors of the active char
+
+    if (BitmapStore.isFCM()) {
+        return
+    }
+    colorsHolder.colorPicForeground.value = colorsHolder.colorForeground.value
+    if (BitmapStore.isMCM()) {
+        colorsHolder.colorPicForeground2.value = colorsHolder.colorForeground2.value
+        colorsHolder.colorPicForeground3.value = colorsHolder.colorForeground3.value
+    }
 }
 
 
@@ -97,4 +210,21 @@ function doPaste() {
 
 }
 
-export { defineCursorKeys, definePaintKeys }
+function dumpBytes() {
+
+    if (BitmapStore.isMCM()) {
+        console.log('------------------------------------')
+        console.log('Byte Dumper               Mode: MCM')
+        console.log('------------------------------------')
+        console.log('MemoryPosition: ', ScreenStore.getMemoryPosition())
+        console.log('Bitmap: ', BitmapStore.getBitmap().slice(ScreenStore.getMemoryPosition(),ScreenStore.getMemoryPosition()+8).join(','))
+        console.log('Screen-RAM: ', BitmapStore.getScreenRam().slice(ScreenStore.getMemoryPosition()/8,(ScreenStore.getMemoryPosition()+8)/8).join(','))
+        console.log('Color-RAM: ', BitmapStore.getColorRam().slice(ScreenStore.getMemoryPosition()/8,(ScreenStore.getMemoryPosition()+8)/8).join(','))
+
+    }
+
+
+
+}
+
+export { defineCursorKeys, definePaintKeys, defineStatusbarKeys, defineColorPaletteKeys }

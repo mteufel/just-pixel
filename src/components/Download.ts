@@ -3,6 +3,7 @@ import {h, onMounted, watch, ref } from 'vue'
 import {Modal, Input} from 'ant-design-vue'
 import {createBasicDialogStore} from '../stores/BasicDialogStore'
 import BitmapStore from '../stores/BitmapStore'
+import {KeyDownBuilder} from "../builders/KeyDownBuilder";
 
 const DownloadStore = createBasicDialogStore()
 DownloadStore.downloadFileName = null
@@ -18,19 +19,19 @@ const DownloadFileNameInput = {
         } )
 
         watch( downloadFileName, ( downloadFileName, previousDownloadFileName) => {
+            console.log('downloadFileName ', downloadFileName)
             DownloadStore.downloadFileName = downloadFileName
         })
 
         return { inputRef, downloadFileName }
     },
     render() {
-        return h(Input, { ref: "inputRef",
+        return h(Input, { onChange: (event) => this.downloadFileName = event.target.value,
+                          ref: "inputRef",
                           placeholder: 'Enter download filename',
-                          modelValue: this.downloadFileName,
-                          onKeyUp: event => this.downloadFileName = event.target.value } )
+                          modelValue: this.downloadFileName } )
     }
 }
-
 
 const Download = {
     setup() {
@@ -43,6 +44,7 @@ const Download = {
             BitmapStore.download(DownloadStore.downloadFileName)
             DownloadStore.toggle()
         }
+
 
 
         return { dialogVisible, okPressed }
