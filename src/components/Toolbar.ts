@@ -9,6 +9,7 @@ import { UploadStore } from './upload/UploadStore'
 import {NewModal, NewStore} from './NewModal';
 import {PaletteUpDownload, PaletteUpDownloadStore} from "./palette/PaletteUpDownload";
 import BitmapStore from "../stores/BitmapStore";
+import {ByteDumperModal} from "./ByteDumperModal";
 
 
 const Toolbar = {
@@ -34,7 +35,7 @@ const Toolbar = {
             h('div', { class:'toolbarIcon' } , h(UploadOutlined, { onClick: UploadStore.toggle }) ),
             h('div', { class:'toolbarIcon' } , h(QuestionOutlined, { onClick: HelpStore.toggle }) ),
             // ab hier die ganzen Dialog-Komponenten die potentiell aufgemacht werden können...
-            h('div', { } , [h(Help), h(Download), h(FilesUploadModal), h(NewModal)])
+            h('div', { } , [h(Help), h(Download), h(FilesUploadModal), h(NewModal), h(ByteDumperModal)])
         ]
 
         let resultFCM = [

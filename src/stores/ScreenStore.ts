@@ -144,6 +144,9 @@ const createPixelStore = () => {
             }
             gridMode = mode
         },
+        getStatusbarData: () => {
+            return { memPos: memoryPosition, charX: charX, charY: charY, pixelX: cursorX + 1, pixelY: cursorY + 1  }
+        },
         dumpBlinkingCursor: () => {
             console.log('p=' , 7-ScreenStore.getCursorX())
             console.log('x=' , cursorX)
@@ -351,6 +354,7 @@ const createPixelStore = () => {
                 }
             }
             refreshChar(memoryPosition,secondMemoryPos )
+            BitmapStore.callSubscribersCursorMove()
         },
         cursorDown: (screenOneCharDown) => {
             let secondMemoryPos = -1
@@ -378,6 +382,7 @@ const createPixelStore = () => {
                 }
             }
             refreshChar(memoryPosition,secondMemoryPos )
+            BitmapStore.callSubscribersCursorMove()
         },
         cursorRight: (screenOneCharRight) => {
             let secondMemoryPos = -1
@@ -402,6 +407,7 @@ const createPixelStore = () => {
                 }
             }
             refreshChar(memoryPosition,secondMemoryPos )
+            BitmapStore.callSubscribersCursorMove()
         },
         cursorLeft: (screenOneCharLeft) => {
             let secondMemoryPos = -1
@@ -425,6 +431,7 @@ const createPixelStore = () => {
                 }
             }
             refreshChar(memoryPosition, secondMemoryPos )
+            BitmapStore.callSubscribersCursorMove()
         },
         actionNew: () => {
             console.log('action new')
@@ -588,7 +595,7 @@ function onClick(e, doubleClick) {
     ScreenStore.setCursor(e.target.dataset.x, e.target.dataset.y, e.target.parentElement.dataset.charX, e.target.parentElement.dataset.charY)
     ScreenStore.refreshChar(oldMemPos)
     ScreenStore.refreshChar()
-    console.log(e.target)
+    BitmapStore.callSubscribersCursorMove()
    // ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
 
 

@@ -4,6 +4,7 @@ import ScreenStore from "../stores/ScreenStore"
 import BitmapStore from "../stores/BitmapStore";
 import {CopyContext} from "../stores/CopyContext";
 import ColorPaletteStore from "../stores/ColorPaletteStore";
+import {ByteDumperStore} from "../components/ByteDumperModal";
 
 const defineCursorKeys = () => {
     KeyDownBuilder.key('ArrowDown', () => ScreenStore.cursorDown())
@@ -18,9 +19,12 @@ const definePaintKeys = () => {
     KeyDownBuilder.key('2', () => BitmapStore.isFCM() ?  ScreenStore.paint('f2') : ScreenStore.paint('f'))
     KeyDownBuilder.key('3', () => BitmapStore.isFCM() ?  ScreenStore.paint('f3') : ScreenStore.paint('f2'))
     KeyDownBuilder.key('4', () => BitmapStore.isFCM() ?  ScreenStore.paint('f4') : ScreenStore.paint('f3'))
-    KeyDownBuilder.key('c', () => doCopy())
+    KeyDownBuilder.key('d', () => ScreenStore.dumpBlinkingCursor())
+    KeyDownBuilder.key('m', () => markArea())
     KeyDownBuilder.key('#', () => dumpBytes())
-    KeyDownBuilder.ctrl('v', () => doPaste())
+    KeyDownBuilder.key('e', () => exportArea())
+    KeyDownBuilder.ctrl('v', () => doCopy())
+    KeyDownBuilder.key('Delete', () => deleteCurrentChar())
 }
 
 const defineStatusbarKeys = (onColorFn, colorsHolder) => {
@@ -37,6 +41,9 @@ const defineColorPaletteKeys = (context) => {
     KeyDownBuilder.ctrl('ArrowUp', () => selectColorOnCursorKey('ArrowUp', context))
 }
 
+function exportArea() {
+    ByteDumperStore.toggle()
+}
 
 function moveColorSelectorInStatusbar(key, onColorFn) {
     let s = ['b','f','f2','f3','f4','f5', 'f6', 'f7', 'f8', 'f9', 'f0']
@@ -137,13 +144,17 @@ function rememberColors(colorsHolder) {
 }
 
 
-function doCopy() {
+function deleteCurrentChar() {
+    console.log('Delete')
+
+}
+
+function markArea() {
 
     let cc = ScreenStore.getCopyContext()
-    console.log('c .. ', cc)
     if ( cc.endMemPos > -1) {
-
-        // evt alte visuelle Markierung entfernen
+    // evt alte visuelle Markierung entfernen
+        let cc = ScreenStore.getCopyContext()
         let a = cc.startMemPos
         let e = cc.endMemPos
         ScreenStore.setCopyContext(CopyContext())
@@ -156,6 +167,9 @@ function doCopy() {
         cc.endMemPos = -1
         cc.endCharX = -1
         cc.endCharY = -1
+        ScreenStore.setCopyContext(cc)
+        ScreenStore.refreshChar(cc.startMemPos)
+        ScreenStore.refreshChar(cc.endMemPos)
     } else {
         cc.endMemPos = ScreenStore.getMemoryPosition()
         cc.endCharX = ScreenStore.getCharX()
@@ -189,7 +203,7 @@ function doCopy() {
 
 }
 
-function doPaste() {
+function doCopy() {
 
     console.log('jetzt wird eingefügt - copyable = ' , ScreenStore.getCopyContext().isCopyable())
 

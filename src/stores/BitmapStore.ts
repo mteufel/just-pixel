@@ -25,6 +25,8 @@ const createBitmapStore = () => {
 
     let subscribers : Function[] = []
 
+    let subscribersCursorMove : Function[] = []
+
     let foregroundColor1FCM : Color = ColorPaletteStore.colors()[0]
     let foregroundColor2FCM : Color = ColorPaletteStore.colors()[0]
     let foregroundColor3FCM : Color = ColorPaletteStore.colors()[0]
@@ -39,6 +41,10 @@ const createBitmapStore = () => {
 
     const callSubscribers = () => {
         subscribers.forEach( callFunction => callFunction())
+    }
+
+    const callSubscribersCursorMove = () => {
+        subscribersCursorMove.forEach( callFunction => callFunction())
     }
 
     return {
@@ -142,6 +148,7 @@ const createBitmapStore = () => {
             callSubscribers()
         },
         clearSubscribers: () => subscribers = [],
+        callSubscribersCursorMove: () => callSubscribersCursorMove(),
         getColorByIndex: (idx : number ) => ColorPaletteStore.colors().find( color  => color.colorIndex===idx),
         getColorByHexNumber: (hex : number) => ColorPaletteStore.colors().find( color => color.colorIndex===hex),
         getColorByName: (name : number ) => ColorPaletteStore.colors().find( color => color.color===name),
@@ -344,6 +351,9 @@ const createBitmapStore = () => {
         getColorRam: () => colorRam,
         subscribe: (fn : Function) => {
             subscribers.push(fn)
+        },
+        subscribeCursorMove: (fn : Function) => {
+            subscribersCursorMove.push(fn)
         },
         dumpSubscribers: () => console.log(subscribers),
         activateHiresBitmaps: () => mode = 0,

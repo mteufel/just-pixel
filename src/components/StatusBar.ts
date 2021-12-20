@@ -2,7 +2,7 @@
 import {h, ref, onMounted} from 'vue'
 import ScreenStore from '../stores/ScreenStore'
 import BitmapStore from '../stores/BitmapStore'
-import EventHandlerStore from '../stores/EventHandlerStore'
+import { Tooltip } from 'ant-design-vue'
 import { defineStatusbarKeys} from '../util/keys'
 
 const StatusBar = {
@@ -10,6 +10,9 @@ const StatusBar = {
     setup(context , { emit }) {
 
         let text = ref(null)
+        let textMemPos = ref(null)
+        let textChar = ref(null)
+        let textPixel = ref(null)
         ScreenStore.setSelectedColorPart('f')
 
         let colorBackground = ref(BitmapStore.getColorByIndex(0))
@@ -49,16 +52,32 @@ const StatusBar = {
             refreshSelectedColors(memoryPosition)
         } )
 
+        BitmapStore.subscribeCursorMove( () => {
+            statusbar()
+        });
+
+        const statusbar = () => {
+                let data = ScreenStore.getStatusbarData()
+                if (BitmapStore.isMCM()) {
+                    text.value = 'MULTICOLOR'
+                    textMemPos.value = data.memPos
+                    textChar.value = data.charX + '/' + data.charY + '\n$' + data.charX.toString(16) + '/$' + data.charY.toString(16)
+                    textPixel.value = data.pixelX + '/' + data.pixelY
+                } else if (BitmapStore.isFCM()) {
+                    text.value = 'FULL COLOR MODE'
+                } else {
+                    text.value = 'HIRES'
+                }
+        }
+
+
         const refreshSelectedColors = (memoryPosition) => {
             if (BitmapStore.isMCM()) {
-                text.value = 'MULTICOLOR'
                 colorBackground.value = BitmapStore.getBackgroundColorMCM()
                 colorForeground.value = BitmapStore.getForegroundColorMCM(memoryPosition)
                 colorForeground2.value = BitmapStore.getForegroundColor2MCM(memoryPosition)
                 colorForeground3.value = BitmapStore.getForegroundColor3MCM(memoryPosition)
             } else if (BitmapStore.isFCM()) {
-
-                text.value = 'FULL COLOR MODE'
                 colorForeground.value = BitmapStore.getForegroundColor1FCM();
                 colorForeground2.value = BitmapStore.getForegroundColor2FCM();
                 colorForeground3.value = BitmapStore.getForegroundColor3FCM();
@@ -69,12 +88,11 @@ const StatusBar = {
                 colorForeground8.value = BitmapStore.getForegroundColor8FCM();
                 colorForeground9.value = BitmapStore.getForegroundColor9FCM();
                 colorForeground0.value = BitmapStore.getForegroundColor0FCM();
-
             } else {
-                text.value = 'HIRES'
                 colorBackground.value = BitmapStore.getBackgroundColorHires(memoryPosition)
                 colorForeground.value = BitmapStore.getForegroundColorHires(memoryPosition)
             }
+            statusbar()
         }
 
         const onColor = (e) => {
@@ -130,7 +148,8 @@ const StatusBar = {
         defineStatusbarKeys(onColor,  {colorPicForeground, colorPicForeground2, colorPicForeground3, colorForeground, colorForeground2, colorForeground3}  )
 
 
-        return  { text, colorBackground,  cssBackground, colorForeground, cssForeground, colorForeground2, cssForeground2, colorForeground3, cssForeground3,
+        return  { text, textMemPos, textChar, textPixel,
+                 colorBackground,  cssBackground, colorForeground, cssForeground, colorForeground2, cssForeground2, colorForeground3, cssForeground3,
                  colorForeground4, cssForeground4, colorForeground5, cssForeground5, colorForeground6, cssForeground6,
                  cssForeground7, colorForeground7,
                  cssForeground8, colorForeground8,
@@ -186,7 +205,18 @@ const StatusBar = {
             }
 
             statusBarContent.push( h('div' ) )
-            statusBarContent.push (h('div', null , this.text ) )
+            statusBarContent.push( h('div' ) )
+
+            // here starts div number 12 with a wider width (see justpixel.css) - there are 6 divs in this size so much of information to show:
+            statusBarContent.push( h('div', null , h(Tooltip, { title: 'Mode'},  this.text  ) ) )
+            statusBarContent.push( h('div' ) )
+            statusBarContent.push( h('div', null , h(Tooltip, { title: 'Position in Memory'},  this.textMemPos  ) ) )
+            statusBarContent.push( h('div', null , h(Tooltip, { title: 'Character Position (x/y)'},  this.textChar  ) ) )
+            statusBarContent.push( h('div', null , h(Tooltip, { title: 'Pixel Position inside Character (x/y)'},  this.textPixel  ) ) )
+            statusBarContent.push( h('div' ) )
+
+           // statusBarContent.push( h(Tooltip, {}, h('div', null , this.text ) ) )
+           // statusBarContent.push (h('div', null , this.text ) )
             console.log('Render Statusbar..... End')
             return statusBarContent
 
