@@ -7,10 +7,10 @@ import {KeyDownBuilder} from "../builders/KeyDownBuilder";
 
 const createByteDumperStore = () => {
     let visible = ref(false)
-    let codeStyle = ref('acme-hex')
+    let codeStyle = ref('kick-ass')
     let code = ref('')
-    let codeStyles = [ { value: 'acme-dez', label: 'Assembler (ACME in dez)', disabled: false },
-                       { value: 'acme-hex', label: 'Assembler (ACME  in hex)' },
+    let codeStyles = [ { value: 'acme', label: 'ACME', disabled: false },
+                       { value: 'kick-ass', label: 'KickAss', disabled: false },
                        { value: 'basic', label: 'BASIC', disabled: false }]
     let subscribers = []
 
@@ -22,19 +22,22 @@ const createByteDumperStore = () => {
         if ( cc.endMemPos == -1 || (cc.startMemPos == -1 && cc.endMemPos == 99999999) ) {
             code.value = '\nThere are no pixels marked!\nThats why Byte Dumper cannot dump out code of the bytes!\n\nPlease set some pixels and mark an area, then Byte Dumper will make you happy!'
         } else {
-            if (codeStyle.value === 'acme-dez') {
-                code.value = '.by 255,255,3,2\n ok ok ok'
+            let result = {}
+            if (codeStyle.value === 'acme') {
+                result = ScreenStore.getCopyContext().dump(".by")
             }
 
-            if (codeStyle.value === 'acme-hex') {
-                code.value = 'todo'
-                console.log('acme-hex dump ', cc)
-                console.log('acme-hex dump 2 ', cc.getSourceIndexList())
+            if (codeStyle.value === 'kick-ass') {
+                result = ScreenStore.getCopyContext().dump(".byte")
+
             }
 
             if (codeStyle.value === 'basic') {
-                code.value = '10 DATA 255,255,3,2\nMarc Teufel'
+                result = ScreenStore.getCopyContext().dump("DATA", 0, 10)
             }
+            let codeText = ''
+            result.forEach( c => codeText = codeText + c + '\n' )
+            code.value = codeText
         }
 
 
@@ -55,7 +58,7 @@ const createByteDumperStore = () => {
             } else {
                 // Modal wird sichtbar, also Keybelegung fuer den Editor ausschalten
                 KeyDownBuilder.deactivateKeys()
-                changeCodeStyle('acme-hex')
+                changeCodeStyle('kick-ass')
             }
             ScreenStore.setDialogOpen(visible)
             subscribers.forEach( callFunction => callFunction())

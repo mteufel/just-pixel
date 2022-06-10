@@ -1,11 +1,13 @@
 // @ts-nocheck
 import {h, ref } from 'vue'
-import {Modal } from 'ant-design-vue'
+import {Modal, Space } from 'ant-design-vue'
 import { UploadStore } from './UploadStore'
 import { UploadButton } from './UploadButton'
 import BitmapStore from '../../stores/BitmapStore'
 import ScreenStore from '../../stores/ScreenStore'
-import ColorPaletteStore from "../../stores/ColorPaletteStore";
+import ColorPaletteStore from "../../stores/ColorPaletteStore"
+import PngToMcm from '../../stores/PngToMcm'
+
 
 const FilesUploadModal = {
     setup() {
@@ -15,20 +17,30 @@ const FilesUploadModal = {
         })
 
         const okPressed = () => {
-            console.log('Loaded ',  UploadStore.bitmap )
-            if (UploadStore.bitmap[10049]==1) {
-                BitmapStore.activateMulticolorBitmaps()
+
+            if (UploadStore.png != null) {
+                console.log('Png loaded ', UploadStore.png)
+                PngToMcm.setPng(UploadStore.png)
+                PngToMcm.convertToMcm()
+
+            } else {
+                console.log('Loaded ',  UploadStore.bitmap )
+                if (UploadStore.bitmap[10049]==1) {
+                    BitmapStore.activateMulticolorBitmaps()
+                }
+                BitmapStore.setBitmap(UploadStore.bitmap.slice(0,8000))
+                BitmapStore.setScreenRam(UploadStore.bitmap.slice(8000,9000))
+                BitmapStore.setColorRam(UploadStore.bitmap.slice(9000,10000))
+                BitmapStore.setBackgroundColorMCM(ColorPaletteStore.colors().find( color  => color.colorIndex===UploadStore.bitmap[10000]))
+                ScreenStore.refreshAll()
+                ScreenStore.setLastAction("uploaded")
+                BitmapStore.callSubscribers()
+                ScreenStore.refreshChar()
+                ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
+                UploadStore.toggle()
             }
-            BitmapStore.setBitmap(UploadStore.bitmap.slice(0,8000))
-            BitmapStore.setScreenRam(UploadStore.bitmap.slice(8000,9000))
-            BitmapStore.setColorRam(UploadStore.bitmap.slice(9000,10000))
-            BitmapStore.setBackgroundColorMCM(ColorPaletteStore.colors().find( color  => color.colorIndex===UploadStore.bitmap[10000]))
-            ScreenStore.refreshAll()
-            ScreenStore.setLastAction("uploaded")
-            BitmapStore.callSubscribers()
-            ScreenStore.refreshChar()
-            ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
-            UploadStore.toggle()
+
+
         }
 
 
@@ -41,7 +53,12 @@ const FilesUploadModal = {
             closable: true,
             destroyOnClose: true,
             onOk: this.okPressed,
-            title: 'Upload Bitmap' } , [ h(UploadButton, {  placeholder: 'Select Bitmap file', type: 'bitmap' })])
+            title: 'Upload Bitmap' } , h(Space, { direction: 'vertical' },
+                                       [
+                                           h(UploadButton, {  placeholder: 'Select pixels file', type: 'bitmap', accept: '.bin' }),
+                                           h(UploadButton, {  placeholder: 'Select png file', type: 'png', accept: '.png' })
+                                       ]))
+
     }
 }
 

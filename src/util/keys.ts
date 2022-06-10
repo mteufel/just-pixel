@@ -197,6 +197,7 @@ function markArea() {
 
 
     }
+    console.log('setCopyContext ', cc)
     ScreenStore.setCopyContext(cc)
     ScreenStore.refreshChar(cc.startMemPos)
     ScreenStore.refreshChar(cc.endMemPos)

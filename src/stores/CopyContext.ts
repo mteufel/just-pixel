@@ -1,5 +1,6 @@
 // @ts-nocheck
 import BitmapStore from "./BitmapStore";
+import ScreenStore from "./ScreenStore";
 
 const CopyContext = () => {
   console.log('Creating a new CopyContext')
@@ -37,10 +38,10 @@ const CopyContext = () => {
             } while ( cntX <= x)
 
             cntY++
-            console.log('new line=' + cntY +  ' mempos old=' + memPos)
+            //console.log('new line=' + cntY +  ' mempos old=' + memPos)
             //memPos = memPos + ((this.startCharY) * ( 8 *40) ) - ( x * 8)
             memPos = memPos + ( (8*40)  - ( x * 8))
-            console.log('new line=' + cntY +  ' startCharY=' + this.startCharY  + ' x=' + x + '  mempos new=' + memPos)
+            //console.log('new line=' + cntY +  ' startCharY=' + this.startCharY  + ' x=' + x + '  mempos new=' + memPos)
             cntX = 1
         }  while ( cntY <= y )
         return result
@@ -84,6 +85,57 @@ const CopyContext = () => {
           })
           return colorRam
       },
+      getLineNumber: function(incrementBy) {
+          console.log('xxx', this.lineNumberCnt)
+          if (incrementBy > 0) {
+              this.lineNumberCnt = this.lineNumberCnt +incrementBy
+          }
+          if (this.lineNumberCnt > 0) {
+              return this.lineNumberCnt + ' '
+          }
+          return ''
+      },
+      dump: function(command) {
+        dump(command, -1, -1)
+      },
+      dump: function(command, lineNumber, incrementBy) {
+
+
+          let lineNumberCnt = lineNumber
+          let counterFunction = function () {
+              console.log('xxx', lineNumberCnt)
+              if (incrementBy > 0) {
+                  lineNumberCnt = lineNumberCnt + incrementBy
+              }
+              if (lineNumberCnt > 0) {
+                  return lineNumberCnt + ' '
+              }
+              return ''
+          }
+
+          //BitmapStore.getBitmap(), ScreenStore.getMemoryPosition())
+          let bitmap = BitmapStore.getBitmap()
+
+          let sourceList : number[] = this.getSourceIndexList()
+          let l = this.getLineNumber
+          let result = []
+          // Bitmap
+          sourceList.forEach( function (value, index) {
+              let line = counterFunction() + command + ' ' + BitmapStore.getBitmap().slice(sourceList[index],sourceList[index]+8).join(',')
+              result.push(line)
+          })
+          // Screen
+          sourceList.forEach( function (value, index) {
+              let line = counterFunction() + command + ' ' + BitmapStore.getScreenRam().slice(sourceList[index]/8,(sourceList[index]+8)/8).join(',')
+              result.push(line)
+          })
+          // Color RAM
+          sourceList.forEach( function (value, index) {
+              let line = counterFunction() + command + ' ' + BitmapStore.getColorRam().slice(sourceList[index]/8,(sourceList[index]+8)/8).join(',')
+              result.push(line)
+          })
+          return result
+      }
 
 
   }

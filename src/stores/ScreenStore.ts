@@ -158,6 +158,11 @@ const createPixelStore = () => {
             console.log('memoryPosition=' , memoryPosition)
             console.log(BitmapStore.getScreenRam()[0])
             console.log(BitmapStore.getScreenRam()[0].toString(16))
+            console.log('CopyContext ', ScreenStore.getCopyContext())
+            console.log('CopyContext/SourceIndexList ', ScreenStore.getCopyContext().getSourceIndexList())
+            console.log('CopyContext/Dump Bytes (Basic) ', ScreenStore.getCopyContext().dump("DATA", 0, 10))
+            console.log('CopyContext/Dump Bytes (KickAss)', ScreenStore.getCopyContext().dump(".byte"))
+
         },
         build: (offset : number, screenSizeX : number, screenSizeY : number, x : number, y : number) => {
             sizeX = screenSizeX
@@ -176,7 +181,7 @@ const createPixelStore = () => {
                     //console.log('mod zugeschlagen --> memoryPosition=' + memoryPosition)
                     y++
                 }
-                screen.push( h(Char, {  key: createUUID(), memoryIndex: memPos, charX: (counter%screenSizeX)+1, charY: (Math.floor(counter/screenSizeY))+1 } ))
+                screen.push( h(Char, {  key: createUUID(), memoryIndex: memPos, charX: (counter%screenSizeX)+1, charY: (Math.floor(counter/screenSizeX))+1 } ))
                 memPos = memPos + offset
             }
             memoryPosition = offset * ( x + 40 * originalY )
@@ -590,7 +595,9 @@ const createPixelStore = () => {
 
 function onClick(e, doubleClick) {
     let oldMemPos = ScreenStore.getMemoryPosition()
-
+    console.log('click ', e)
+    console.log('click ', e.target)
+    console.log('click ', e.target.parentElement)
     ScreenStore.setMemoryPosition(e.target.dataset.memoryIndex)
     ScreenStore.setCursor(e.target.dataset.x, e.target.dataset.y, e.target.parentElement.dataset.charX, e.target.parentElement.dataset.charY)
     ScreenStore.refreshChar(oldMemPos)

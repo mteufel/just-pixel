@@ -1,4 +1,6 @@
 // @ts-nocheck
+import {PNG} from "pngjs/browser"
+
 const createUUID = () => {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         let r: number = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8)
@@ -53,6 +55,19 @@ function rgbToHex(r, g, b) {
     return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
 
+function rgbToRgbValue(r , g ,b) {
+    let value = r.toString(16) +  g.toString(16) + b.toString(16)
+    let rgbValue = parseInt(value, 16)
+    //console.log('rgbToRgbValue ', { r: r, g: g, b: b, value: rgbValue })
+    return rgbValue
+}
+
+function rgbValueToRgb(rgbValue) {
+    let r = rgbValue >> 16 & 0xFF;
+    let g = rgbValue >> 8 & 0xFF;
+    let b = rgbValue & 0xFF;
+    return { r: r, g: g, b: b }
+}
 
 function uploadData(file, resolver) {
     return new Promise(resolve => {
@@ -65,6 +80,7 @@ function uploadData(file, resolver) {
     })
 }
 
+
 function uploadDataLineByLine(file, resolver) {
     const reader = new FileReader()
     reader.readAsText(file)
@@ -74,6 +90,21 @@ function uploadDataLineByLine(file, resolver) {
     }
 }
 
+function uploadPng(file, resolver) {
+    return new Promise(resolve => {
+        const reader = new FileReader()
+        reader.readAsArrayBuffer(file)
+        reader.onload = (e) => {
+            let arrayBuffer = e.target.result
+            resolver(new PNG({}).parse(arrayBuffer, (err, image) => {
+                if (err != null) {
+                    console.log('error ', {err, image})
+                }
+
+            }).on("parsed", () => console.log('parsed ' ))) }
+    })
+}
 
 
-export { createUUID, colorMega65, getColr, hexToRgb, rgbToHex, uploadData, uploadDataLineByLine }
+
+export { createUUID, colorMega65, getColr, hexToRgb, rgbToHex, uploadData, uploadDataLineByLine, uploadPng, rgbToRgbValue, rgbValueToRgb }
