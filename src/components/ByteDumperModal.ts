@@ -2,13 +2,16 @@
 import {h, ref } from 'vue'
 import {Textarea, Modal, RadioGroup, RadioButton, Space, message} from 'ant-design-vue'
 import ScreenStore from "../stores/ScreenStore";
+import BitmapStore from "../stores/BitmapStore";
 import {KeyDownBuilder} from "../builders/KeyDownBuilder";
+import { pad } from "../util/utils.ts";
 
 
 const createByteDumperStore = () => {
     let visible = ref(false)
-    let codeStyle = ref('kick-ass')
+    let codeStyle = ref('')
     let code = ref('')
+    let title = "Byte Dumper"
     let codeStyles = [ { value: 'acme', label: 'ACME', disabled: false },
                        { value: 'kick-ass', label: 'KickAss', disabled: false },
                        { value: 'basic', label: 'BASIC', disabled: false }]
@@ -16,10 +19,13 @@ const createByteDumperStore = () => {
 
     let changeCodeStyle = (style) => {
         codeStyle.value = style
+        console.trace()
         console.log('new style: ', codeStyle.value)
 
         let cc = ScreenStore.getCopyContext()
-        if ( cc.endMemPos == -1 || (cc.startMemPos == -1 && cc.endMemPos == 99999999) ) {
+
+
+        if ( codeStyle.value != 'sprite-kick-ass' && ( cc.endMemPos == -1 || (cc.startMemPos == -1 && cc.endMemPos == 99999999) ) ) {
             code.value = '\nThere are no pixels marked!\nThats why Byte Dumper cannot dump out code of the bytes!\n\nPlease set some pixels and mark an area, then Byte Dumper will make you happy!'
         } else {
             let result = {}
@@ -29,6 +35,43 @@ const createByteDumperStore = () => {
 
             if (codeStyle.value === 'kick-ass') {
                 result = ScreenStore.getCopyContext().dump(".byte")
+
+            }
+
+            if (codeStyle.value === 'sprite-kick-ass') {
+                let startingPosition = ScreenStore.getMemoryPosition()
+                let value1, value2, value3
+                let r = []
+
+                // Row 1
+                for (let i = 0; i < 8 ; i++) {
+                    value1 = BitmapStore.getBitmap()[startingPosition+ i].toString(2)
+                    value2 = BitmapStore.getBitmap()[startingPosition+ 8 + i].toString(2)
+                    value3 = BitmapStore.getBitmap()[startingPosition+ 16 + i].toString(2)
+                    r.push(".byte %" + pad(value1,  8, "0") + ",%" + pad(value2,  8, "0")  + ",%" + pad(value3,  8, "0")  )
+                }
+                r.push(" ")
+
+                // Row 2
+                startingPosition = startingPosition + 320
+                for (let i = 0; i < 8 ; i++) {
+                    value1 = BitmapStore.getBitmap()[startingPosition+ i].toString(2)
+                    value2 = BitmapStore.getBitmap()[startingPosition+ 8 + i].toString(2)
+                    value3 = BitmapStore.getBitmap()[startingPosition+ 16 + i].toString(2)
+                    r.push(".byte %" + pad(value1,  8, "0") + ",%" + pad(value2,  8, "0")  + ",%" + pad(value3,  8, "0")  )
+                }
+                r.push(" ")
+
+                // Row 3
+                startingPosition = startingPosition + 320
+                for (let i = 0; i < 5 ; i++) {
+                    value1 = BitmapStore.getBitmap()[startingPosition+ i].toString(2)
+                    value2 = BitmapStore.getBitmap()[startingPosition+ 8 + i].toString(2)
+                    value3 = BitmapStore.getBitmap()[startingPosition+ 16 + i].toString(2)
+                    r.push(".byte %" + pad(value1,  8, "0") + ",%" + pad(value2,  8, "0")  + ",%" + pad(value3,  8, "0")  )
+                }
+
+                result = r
 
             }
 
@@ -49,6 +92,19 @@ const createByteDumperStore = () => {
     }
 
     return {
+        intoSpriteDumperMode: () => {
+            title = "Sprite Dumper"
+            codeStyles = [  { value: 'sprite-kick-ass', label: 'Sprite in KickAss-Format', disabled: false } ]
+            changeCodeStyle('sprite-kick-ass')
+        },
+        intoByteDumperMode: () => {
+            title = "Byte Dumper"
+            codeStyles = [ { value: 'acme', label: 'ACME', disabled: false },
+                { value: 'kick-ass', label: 'KickAss', disabled: false },
+                { value: 'basic', label: 'BASIC', disabled: false }]
+            changeCodeStyle('kick-ass')
+        },
+        getTitle: () => title,
         isVisible: () => visible.value,
         toggle: () => {
             visible.value = !visible.value
@@ -58,7 +114,6 @@ const createByteDumperStore = () => {
             } else {
                 // Modal wird sichtbar, also Keybelegung fuer den Editor ausschalten
                 KeyDownBuilder.deactivateKeys()
-                changeCodeStyle('kick-ass')
             }
             ScreenStore.setDialogOpen(visible)
             subscribers.forEach( callFunction => callFunction())
@@ -94,7 +149,7 @@ const ByteDumperModal = {
             closable: true,
             destroyOnClose: true,
             onOk: this.okPressed,
-            title: 'Byte Dumper' } , h ( Space, { class: 'width100', direction: 'vertical' },
+            title: ByteDumperStore.getTitle() } , h ( Space, { class: 'width100', direction: 'vertical' },
                                         h(RadioGroup, { value: ByteDumperStore.codeStyle(),
                                                         options: ByteDumperStore.codeStyles(),
                                                         onChange: (e) => ByteDumperStore.setCodeStyle(e.target.value),

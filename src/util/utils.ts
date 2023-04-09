@@ -105,6 +105,11 @@ function uploadPng(file, resolver) {
     })
 }
 
+function pad(num, padlen, padchar) {
+    let pad_char = typeof padchar !== 'undefined' ? padchar : '0';
+    let pad = new Array(1 + padlen).join(pad_char);
+    return (pad + num).slice(-pad.length);
+}
 
 
-export { createUUID, colorMega65, getColr, hexToRgb, rgbToHex, uploadData, uploadDataLineByLine, uploadPng, rgbToRgbValue, rgbValueToRgb }
+export { createUUID, colorMega65, getColr, hexToRgb, rgbToHex, uploadData, uploadDataLineByLine, uploadPng, rgbToRgbValue, rgbValueToRgb, pad }

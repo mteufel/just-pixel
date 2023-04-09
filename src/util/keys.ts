@@ -5,6 +5,7 @@ import BitmapStore from "../stores/BitmapStore";
 import {CopyContext} from "../stores/CopyContext";
 import ColorPaletteStore from "../stores/ColorPaletteStore";
 import {ByteDumperStore} from "../components/ByteDumperModal";
+import { pad } from "../util/utils"
 
 const defineCursorKeys = () => {
     KeyDownBuilder.key('ArrowDown', () => ScreenStore.cursorDown())
@@ -22,6 +23,7 @@ const definePaintKeys = () => {
     KeyDownBuilder.key('d', () => ScreenStore.dumpBlinkingCursor())
     KeyDownBuilder.key('m', () => markArea())
     KeyDownBuilder.key('#', () => dumpBytes())
+    KeyDownBuilder.key('s', () => exportSprite())
     KeyDownBuilder.key('e', () => exportArea())
     KeyDownBuilder.ctrl('v', () => doCopy())
     KeyDownBuilder.key('Delete', () => deleteCurrentChar())
@@ -42,6 +44,7 @@ const defineColorPaletteKeys = (context) => {
 }
 
 function exportArea() {
+    ByteDumperStore.intoByteDumperMode()
     ByteDumperStore.toggle()
 }
 
@@ -238,8 +241,14 @@ function dumpBytes() {
 
     }
 
-
-
 }
+
+function exportSprite() {
+    // Just move the cursor to the starting point, the exporter will export one full MCM Sprite 12+21 pixels wide
+    ByteDumperStore.intoSpriteDumperMode();
+    ByteDumperStore.toggle()
+}
+
+
 
 export { defineCursorKeys, definePaintKeys, defineStatusbarKeys, defineColorPaletteKeys }
