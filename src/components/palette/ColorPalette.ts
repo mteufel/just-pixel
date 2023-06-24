@@ -4,19 +4,10 @@ import ScreenStore from "../../stores/ScreenStore"
 import BitmapStore from "../../stores/BitmapStore"
 import {ColorSelectionModal, ColorSelectionStore} from "./ColorSelectionModal"
 
-import { getColr } from "../../utils"
+import { getColr } from "../../util/utils"
 import ColorPaletteStore from "../../stores/ColorPaletteStore";
 import {PaletteUpDownload} from "./PaletteUpDownload";
-
-type Color = {
-    color: string;
-    colorIndex: number;
-    colorIndexHex: number;
-    colorCodeHex: number;
-    r: number;
-    g: number;
-    b: number;
-}
+import {defineColorPaletteKeys} from "../../util/keys";
 
 
 const ColorPalette = {
@@ -30,74 +21,12 @@ const ColorPalette = {
             onColorSelected({ target: { id: parseInt(newValue) } })
         })
 
-        onMounted(() => {
-
-            window.addEventListener("keydown", function(e) {
-
-                if (ScreenStore.isDialogOpen()) {
-                    return
-                }
-
-                e.preventDefault()
-
-
-                if (e.key === 'ArrowRight' && e.altKey==false && e.shiftKey==false && e.ctrlKey==true  ) {
-                    if (selectedColorIndex.value == palette.value[palette.value.length-1].colorIndex)
-                        return
-                    selectedColorIndex.value = selectedColorIndex.value + 1
-                }
-
-                if (e.key === 'ArrowLeft' && e.altKey==false && e.shiftKey==false && e.ctrlKey==true) {
-                    if (selectedColorIndex.value == 0)
-                        return
-                    selectedColorIndex.value = selectedColorIndex.value - 1
-                }
-
-                if (e.key === 'ArrowDown' && e.altKey==false && e.shiftKey==false && e.ctrlKey==true) {
-                    let newIndex = selectedColorIndex.value + 6
-                    if (newIndex > palette.value.length - 1)
-                        return
-                    selectedColorIndex.value = newIndex
-                }
-
-                if (e.key === 'ArrowUp' && e.altKey==false && e.shiftKey==false && e.ctrlKey==true) {
-                    let newIndex = selectedColorIndex.value - 6
-                    if (newIndex < 0)
-                        return
-                    selectedColorIndex.value = newIndex
-                }
-
-                if (e.key === 'Enter') {
-                    onColorSelected({ target: { id: selectedColorIndex.value } })
-                }
-
-                /*
-                if (e.key === '1' && e.altKey==false && e.shiftKey==false && e.ctrlKey==true) {
-                    let color = getColorByIndex(selectedColorIndex.value)
-                    BitmapStore.setBackgroundColorHires(ScreenStore.getMemoryPosition(), color.colorIndexHex)
-                    ScreenStore.refreshChar()
-                    ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
-                }
-
-                if (e.key === '2' && e.altKey==false && e.shiftKey==false && e.ctrlKey==true) {
-                    let color = getColorByIndex(selectedColorIndex.value)
-                    BitmapStore.setForegroundColorHires(ScreenStore.getMemoryPosition(), color.colorIndexHex)
-                    ScreenStore.refreshChar()
-                    ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
-                }
-
-                 */
-
-            });
-        })
-
 
         const onColorSelected = (e : any) => {
 
             let color = getColorByIndex(e.target.id)
             selectedColorIndex.value = e.target.id
             if (e.detail==2) {
-                console.log('y')
                 onColorEdit(color)
                 e.preventDefault()
                 return
@@ -148,18 +77,18 @@ const ColorPalette = {
                 // -----           MCM        ------
                 // ---------------------------------
                 if (ScreenStore.getSelectedColorPart()==='b') {
-                    BitmapStore.setBackgroundColorMCM(color.colorIndexHex)
+                    BitmapStore.setBackgroundColorMCM(color)
                     ScreenStore.refreshAll()
                 }
                 if (ScreenStore.getSelectedColorPart()==='f') {
-                    BitmapStore.setForegroundColorMCM(ScreenStore.getMemoryPosition(), color.colorIndexHex)
+                    BitmapStore.setForegroundColorMCM(ScreenStore.getMemoryPosition(), color)
                 }
                 if (ScreenStore.getSelectedColorPart()==='f2') {
-                    BitmapStore.setForegroundColor2MCM(ScreenStore.getMemoryPosition(), color.colorIndexHex)
+                    BitmapStore.setForegroundColor2MCM(ScreenStore.getMemoryPosition(), color)
                 }
 
                 if (ScreenStore.getSelectedColorPart()==='f3') {
-                    BitmapStore.setForegroundColor3MCM(ScreenStore.getMemoryPosition(), color.colorIndexHex)
+                    BitmapStore.setForegroundColor3MCM(ScreenStore.getMemoryPosition(), color)
                 }
 
             } else {
@@ -167,10 +96,10 @@ const ColorPalette = {
                 // -----         Hires       ------
                 // --------------------------------
                 if (ScreenStore.getSelectedColorPart()==='b') {
-                    BitmapStore.setBackgroundColorHires(ScreenStore.getMemoryPosition(), color.colorIndexHex)
+                    BitmapStore.setBackgroundColorHires(ScreenStore.getMemoryPosition(), color.colorIndex)
                 }
                 if (ScreenStore.getSelectedColorPart()==='f') {
-                    BitmapStore.setForegroundColorHires(ScreenStore.getMemoryPosition(), color.colorIndexHex)
+                    BitmapStore.setForegroundColorHires(ScreenStore.getMemoryPosition(), color.colorIndex)
                 }
             }
 
@@ -209,11 +138,13 @@ const ColorPalette = {
             selectedColorIndex.value = selectedColorIndex.value-1
         }
 
+        defineColorPaletteKeys( { selectedColorIndex, palette } )
+
         return { palette, selectedColorIndex, onColorSelected, getColorByIndex, onColorEdit, createBlock, onColorSelectionModal, reRenderColorPalette }
 
     },
     render() {
-        console.log('render color palette')
+        console.log('Render Color Palette.....')
         let result = []
         this.palette.forEach( color => {
             let css = 'color'
@@ -224,6 +155,7 @@ const ColorPalette = {
         })
         result.push(h(ColorSelectionModal, { onColorSelectionModal: data => this.onColorSelectionModal(data) }))
         result.push(h(PaletteUpDownload, { onReRender: () => this.reRenderColorPalette() }))
+        console.log('Render Color Palette..... End')
         return result
     }
 

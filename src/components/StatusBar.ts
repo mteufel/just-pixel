@@ -2,13 +2,19 @@
 import {h, ref, onMounted} from 'vue'
 import ScreenStore from '../stores/ScreenStore'
 import BitmapStore from '../stores/BitmapStore'
-import EventHandlerStore from '../stores/EventHandlerStore'
+import { Tooltip } from 'ant-design-vue'
+import { defineStatusbarKeys} from '../util/keys'
+import bitmapStore from "../stores/BitmapStore";
 
 const StatusBar = {
 
     setup(context , { emit }) {
 
         let text = ref(null)
+        let textMemPos = ref(null)
+        let textChar = ref(null)
+        let textPixel = ref(null)
+        let textCoordPixel = ref(null)
         ScreenStore.setSelectedColorPart('f')
 
         let colorBackground = ref(BitmapStore.getColorByIndex(0))
@@ -35,82 +41,11 @@ const StatusBar = {
         let cssForeground9 = ref('colorPixelBlock')
         let cssForeground0 = ref('colorPixelBlock')
 
-        let colorPicBackground = ref(BitmapStore.getColorByIndex(0))
         let colorPicForeground = ref(BitmapStore.getColorByIndex(0))
         let colorPicForeground2 = ref(BitmapStore.getColorByIndex(0))
         let colorPicForeground3 = ref(BitmapStore.getColorByIndex(0))
 
-        const statusBarKeyDownEventListener = (e) => {
-
-            if (ScreenStore.isDialogOpen()) {
-                return
-            }
-
-            e.preventDefault()
-            let s = ['b','f','f2','f3','f4','f5', 'f6', 'f7', 'f8', 'f9', 'f0']
-            let i = s.findIndex( m => m===ScreenStore.getSelectedColorPart())
-            if (i > s.length)
-                i=-1
-
-            if (e.key === 'ArrowRight' && e.altKey==true && e.shiftKey==false && e.ctrlKey==false  ) {
-                if ( ( BitmapStore.isMCM() &&  ScreenStore.getSelectedColorPart() === 'f3' ) ||
-                     ( BitmapStore.isFCM() &&  ScreenStore.getSelectedColorPart() === 'f6' ) ||
-                     ( !BitmapStore.isMCM() && !BitmapStore.isFCM() && ScreenStore.getSelectedColorPart() === 'f' ) ) {
-                    return
-                }
-
-                ScreenStore.setSelectedColorPart(s[i+1])
-                onColor( { target: { id: ScreenStore.getSelectedColorPart() }})
-            }
-
-            if (e.key === 'ArrowLeft' && e.altKey==true && e.shiftKey==false && e.ctrlKey==false) {
-                if ( ( BitmapStore.isFCM() &&  ScreenStore.getSelectedColorPart() === 'f' ) ||
-                     (ScreenStore.getSelectedColorPart() === 'b') ) {
-                    return
-                }
-
-                ScreenStore.setSelectedColorPart(s[i-1])
-                onColor( { target: { id: ScreenStore.getSelectedColorPart() }})
-
-            }
-
-            if (e.key === 'X' ) {
-                if (BitmapStore.isFCM()) {
-                    return
-                }
-
-                colorPicBackground.value = colorBackground.value
-                colorPicForeground.value = colorForeground.value
-                if (BitmapStore.isMCM()) {
-                    colorPicForeground2.value = colorForeground2.value
-                    colorPicForeground3.value = colorForeground3.value
-                }
-            }
-
-            if (e.key === 'x' ) {
-                if (BitmapStore.isFCM()) {
-                    return
-                }
-
-                if (BitmapStore.isMCM()) {
-                    BitmapStore.setBackgroundColorMCM(colorPicBackground.value.colorIndexHex)
-                    BitmapStore.setForegroundColorMCM(ScreenStore.getMemoryPosition(), colorPicForeground.value.colorIndexHex)
-                    BitmapStore.setForegroundColor2MCM(ScreenStore.getMemoryPosition(), colorPicForeground2.value.colorIndexHex)
-                    BitmapStore.setForegroundColor3MCM(ScreenStore.getMemoryPosition(), colorPicForeground3.value.colorIndexHex)
-
-                } else {
-                    BitmapStore.setBackgroundColorHires(ScreenStore.getMemoryPosition(), colorPicBackground.value.colorIndexHex)
-                    BitmapStore.setForegroundColorHires(ScreenStore.getMemoryPosition(), colorPicForeground.value.colorIndexHex)
-                }
-                ScreenStore.refreshChar()
-                ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
-
-            }
-
-        }
-
         onMounted(() => {
-            EventHandlerStore.addEventListener('my', 'keydown', statusBarKeyDownEventListener)
             refreshSelectedColors(ScreenStore.getMemoryPosition())
         })
 
@@ -119,16 +54,33 @@ const StatusBar = {
             refreshSelectedColors(memoryPosition)
         } )
 
+        BitmapStore.subscribeCursorMove( () => {
+            statusbar()
+        });
+
+        const statusbar = () => {
+                let data = ScreenStore.getCoordinates()
+                if (BitmapStore.isMCM()) {
+                    text.value = 'MULTICOLOR'
+                    textMemPos.value = data.memPos
+                    textChar.value = data.charX + '/' + data.charY + '\n$' + data.charX.toString(16) + '/$' + data.charY.toString(16)
+                    textPixel.value = data.pixelX + '/' + data.pixelY
+                    textCoordPixel.value = data.coordX + '/' + data.coordY
+                } else if (BitmapStore.isFCM()) {
+                    text.value = 'FULL COLOR MODE'
+                } else {
+                    text.value = 'HIRES'
+                }
+        }
+
+
         const refreshSelectedColors = (memoryPosition) => {
             if (BitmapStore.isMCM()) {
-                text.value = 'MULTICOLOR'
                 colorBackground.value = BitmapStore.getBackgroundColorMCM()
                 colorForeground.value = BitmapStore.getForegroundColorMCM(memoryPosition)
                 colorForeground2.value = BitmapStore.getForegroundColor2MCM(memoryPosition)
                 colorForeground3.value = BitmapStore.getForegroundColor3MCM(memoryPosition)
             } else if (BitmapStore.isFCM()) {
-
-                text.value = 'FULL COLOR MODE'
                 colorForeground.value = BitmapStore.getForegroundColor1FCM();
                 colorForeground2.value = BitmapStore.getForegroundColor2FCM();
                 colorForeground3.value = BitmapStore.getForegroundColor3FCM();
@@ -139,12 +91,12 @@ const StatusBar = {
                 colorForeground8.value = BitmapStore.getForegroundColor8FCM();
                 colorForeground9.value = BitmapStore.getForegroundColor9FCM();
                 colorForeground0.value = BitmapStore.getForegroundColor0FCM();
-
             } else {
-                text.value = 'HIRES'
                 colorBackground.value = BitmapStore.getBackgroundColorHires(memoryPosition)
                 colorForeground.value = BitmapStore.getForegroundColorHires(memoryPosition)
+
             }
+            statusbar()
         }
 
         const onColor = (e) => {
@@ -197,14 +149,17 @@ const StatusBar = {
             ScreenStore.setSelectedColorPart(e.target.id)
         }
 
+        defineStatusbarKeys(onColor,  {colorPicForeground, colorPicForeground2, colorPicForeground3, colorForeground, colorForeground2, colorForeground3}  )
 
-        return  { text, colorBackground,  cssBackground, colorForeground, cssForeground, colorForeground2, cssForeground2, colorForeground3, cssForeground3,
+
+        return  { text, textMemPos, textChar, textPixel,
+                 colorBackground,  cssBackground, colorForeground, cssForeground, colorForeground2, cssForeground2, colorForeground3, cssForeground3,
                  colorForeground4, cssForeground4, colorForeground5, cssForeground5, colorForeground6, cssForeground6,
                  cssForeground7, colorForeground7,
                  cssForeground8, colorForeground8,
                  cssForeground9, colorForeground9,
                  cssForeground0, colorForeground0,
-                 colorPicBackground, colorPicForeground, colorPicForeground2, colorPicForeground3, onColor }
+                 colorPicForeground, colorPicForeground2, colorPicForeground3, onColor, textCoordPixel }
 
         },
         render() {
@@ -221,7 +176,6 @@ const StatusBar = {
                 statusBarContent.push( h('div') )
                 statusBarContent.push( h('div') )
 
-                statusBarContent.push( h('div', createBlock('pb', this.colorPicBackground.r,this.colorPicBackground.g,this.colorPicBackground.b) ) )
                 statusBarContent.push( h('div', createBlock('pf', this.colorPicForeground.r,this.colorPicForeground.g,this.colorPicForeground.b) ) )
                 statusBarContent.push( h('div', createBlock('pf2', this.colorPicForeground2.r,this.colorPicForeground2.g,this.colorPicForeground2.b) ) )
                 statusBarContent.push( h('div', createBlock('pf3', this.colorPicForeground3.r,this.colorPicForeground3.g,this.colorPicForeground3.b) ) )
@@ -254,8 +208,25 @@ const StatusBar = {
                 statusBarContent.push( h('div') )
             }
 
-            statusBarContent.push( h('div') )
-            statusBarContent.push (h('div', null, this.text ) )
+            statusBarContent.push( h('div' ) )
+            statusBarContent.push( h('div' ) )
+
+            // here starts div number 12 with a wider width (see justpixel.css) - there are 6 divs in this size so much of information to show:
+            statusBarContent.push( h('div', null , h(Tooltip, { title: 'Mode'},  this.text  ) ) )
+            statusBarContent.push( h('div' ) )
+            statusBarContent.push( h('div', null , h(Tooltip, { title: 'Position in memory'},  this.textMemPos  ) ) )
+            statusBarContent.push( h('div', null , h(Tooltip, { title: 'Character position (x/y)'},  this.textChar  ) ) )
+            statusBarContent.push( h('div', null , h(Tooltip, { title: 'Pixel Position inside character (x/y)'},  this.textPixel  ) ) )
+            if (BitmapStore.isMCM() && this.textCoordPixel != '-1/-1') {
+                statusBarContent.push( h('div', null , h(Tooltip, { title: 'Pixel Position inside coordinate system 160x200 (x/y)'},  this.textCoordPixel  ) ) )
+            } else {
+                statusBarContent.push( h('div' ) )
+            }
+
+
+           // statusBarContent.push( h(Tooltip, {}, h('div', null , this.text ) ) )
+           // statusBarContent.push (h('div', null , this.text ) )
+
             return statusBarContent
 
     }

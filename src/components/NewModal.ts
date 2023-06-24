@@ -46,7 +46,13 @@ const NewModal = {
         }
 
 
-        return { newVisible, selectedValue, okPressed }
+        const onChange = (event) => {
+            console.log('onChange called ', event)
+            selectedValue.value = event.target.value
+        }
+
+
+        return { newVisible, selectedValue, okPressed, onChange }
     },
     render() {
         return h(Modal, { onCancel: () => NewStore.toggle(),
@@ -54,8 +60,8 @@ const NewModal = {
             closable: true,
             destroyOnClose: true,
             onOk: this.okPressed,
-            title: 'New' } , h( Radio.Group, { defaultValue: this.selectedValue,
-                                               onChange: (event) => this.selectedValue = event.target.value },
+            title: 'New' } , h( Radio.Group, { defaultValue: this.selectedValue, value: this.selectedValue,
+                                               onChange: this.onChange },
                                                 [ h(Radio, { value: 0 }, 'Classic C64 Hires Bitmap'),
                                                   h("br"),
                                                   h(Radio, { value: 1 }, 'Classic C64 Multicolor Bitmap'),
@@ -65,7 +71,7 @@ const NewModal = {
     }
 }
 
-
+//onChange: (event) => this.selectedValue = event.target.value
 
 
 export { NewModal, NewStore }

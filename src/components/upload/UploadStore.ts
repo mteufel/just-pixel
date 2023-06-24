@@ -5,5 +5,6 @@ const UploadStore = createBasicDialogStore()
 
 UploadStore.bitmap = []
 UploadStore.colorRam = []
+UploadStore.png = null
 
 export { UploadStore }

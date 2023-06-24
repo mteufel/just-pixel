@@ -1,12 +1,13 @@
 // @ts-nocheck
 import {message} from 'ant-design-vue'
 import {UploadStore} from './UploadStore'
-import {uploadData} from "../../utils";
+import {uploadData, uploadPng} from "../../util/utils"
+
 
 export function useUpload(props) {
 
     let beforeUpload = (file, fileList) => {
-        console.log('beforeUpload ) ', file, fileList)
+        console.log('beforeUpload ', file, fileList)
         return false;
     }
 
@@ -27,6 +28,28 @@ export function useUpload(props) {
 
     }
 
+    if (props.type === 'png') {
+
+        beforeUpload = (file, fileList) => {
+            console.log('beforeUpload [' +  props.type + '] ) ', file, fileList)
+            if (endsWith(file.name, ".png")) {
+                return true
+            }
+            message.error( 'The file is not a .png file!'  )
+            return false
+        }
+
+    }
+
+    if (props.type === 'png') {
+        transformFile = (file) => {
+            console.log('transform aufgerufen ', file)
+            return uploadPng(file, (uploadedPng) => UploadStore.png = uploadedPng)
+        }
+    }
+
+
+
     if (props.type === 'bitmap') {
         transformFile = (file) => {
             return uploadData(file, (result) => UploadStore.bitmap = result )
@@ -43,6 +66,7 @@ export function useUpload(props) {
     return { beforeUpload, transformFile }
 
 }
+
 
 
 function endsWith(str, suffix) {

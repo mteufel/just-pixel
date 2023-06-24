@@ -10,13 +10,13 @@ const Preview = {
         modeCycle: String
     },
     setup(props) {
-        //console.log('Preview Setup....................')
-        const modeCycle = toRef(props, 'modeCycle')
+        console.log('Preview Setup....................')
+        //const modeCycle = toRef(props, 'modeCycle')
 
         const scaleFactor = ref(1)
 
 
-        const showCursor = ref(true)
+        const showCursor = ref(false)
         const clickAndPixel = ref(false)
         const takeOverColor = ref(true)
         const preview = ref(null)
@@ -24,12 +24,15 @@ const Preview = {
         BitmapStore.subscribe( () => {
 
 
-            if (ScreenStore.getLastAction() === 'new' || ScreenStore.getLastAction() === 'uploaded') {
-                //console.log('aaa')
+            if (ScreenStore.getLastAction() === 'new' || ScreenStore.getLastAction() === 'uploaded' || ScreenStore.getLastAction() === 'refresh-whole-preview' ) {
                 paintForTheFirstTime(preview, ctx, scaleFactor, showCursor)
                 ScreenStore.setLastAction('')
+
+            } else if(ScreenStore.getLastAction() === 'tools-use-move') {
+
+                // we do nothing
+
             }  else {
-                //console.log('bbb  ', ctx.value)
                 let matrix = generateMatrix()
                 paintPreview(ctx, scaleFactor.value, matrix, ScreenStore.getMemoryPosition())
                 paintPreviewCursor(ctx, scaleFactor.value, showCursor.value)
@@ -95,12 +98,12 @@ const Preview = {
 
 
         return  {
-            preview, scaleFactor, showCursor, clickAndPixel, takeOverColor, zoomIn, zoomOut, toggleCursor, toggleClickAndPixel, toggleTakeOverColor, modeCycle,ctx
+            preview, scaleFactor, showCursor, clickAndPixel, takeOverColor, zoomIn, zoomOut, toggleCursor, toggleClickAndPixel, toggleTakeOverColor, ctx
         }
 
     },
     render() {
-        //console.log('Preview Render.................... key ', this.modeCycle)
+        console.log('Render Preview..... ')
         const content = [
             h( Button.Group, {}, [
                 h(Button, { onClick: e => this.zoomIn() }, h(ZoomInOutlined)),
@@ -117,7 +120,8 @@ const Preview = {
                 onClick: e => {this.toggleTakeOverColor()} }, 'Take over colors from last char, if empty' )
         ]
         //console.log('preview render context...', this.ctx)
-        return h('div', { key: this.modeCycle} , [
+        console.log('Render Preview..... End')
+        return h('div', { class: 'previewContainer' } , [
                           h('canvas', { ref: 'preview', class: 'preview' }),
                           h('div', content)
                         ])
@@ -131,6 +135,7 @@ function getBit(n, i) {
 }
 
 function paintPreviewCursor(ctx, scaleFactor, showCursor) {
+    //console.log('paintPreviewCursor')
     let matrix = generateMatrix()
     let memPos = parseInt(ScreenStore.getMemoryPosition())
 
@@ -141,6 +146,8 @@ function paintPreviewCursor(ctx, scaleFactor, showCursor) {
     if (BitmapStore.isFCM()) {
         bytesPerChar = 64
     }
+    //console.log('paintPreviewCursor bytesPerChar=', bytesPerChar)
+
 
     let cleanPreview = []
     cleanPreview.push(memPos - (40*bytesPerChar) - bytesPerChar)
@@ -157,6 +164,7 @@ function paintPreviewCursor(ctx, scaleFactor, showCursor) {
         }
 
     })
+
     if (showCursor) {
         paintPreviewWithCursor(ctx, scaleFactor, matrix, memPos)
     } else {
@@ -167,12 +175,14 @@ function paintPreviewCursor(ctx, scaleFactor, showCursor) {
 
 
 function paintPreviewComplete(ctx, scaleFactor) {
+    //console.log('paintPreviewComplete')
     let bytesPerChar = 8
     if (BitmapStore.isFCM()) {
         bytesPerChar = 64
     }
     let matrix = generateMatrix()
    BitmapStore.getBitmap().forEach( (value, index) => {
+
         if (index%bytesPerChar==0) {
             paintPreview(ctx, scaleFactor, matrix, index)
         }
@@ -243,6 +253,7 @@ function paintPreviewMCM(ctx, scaleFactor, matrix, memoryPosition, withCursor = 
             let binaryIndex5 = binary.substr(4,2)
             let binaryIndex4 = binary.substr(6,2)
             let arr = [binaryIndex7, binaryIndex6, binaryIndex5, binaryIndex4]
+            //console.log('binary', binary, arr)
 
             let color = BitmapStore.getBackgroundColorMCM()
             arr.forEach( pixelPattern => {
@@ -260,6 +271,7 @@ function paintPreviewMCM(ctx, scaleFactor, matrix, memoryPosition, withCursor = 
                         color = BitmapStore.getForegroundColor3MCM(memoryPosition)
                         break;
                 }
+                //console.log('color ', color)
                 r = color.r
                 g = color.g
                 b = color.b
@@ -363,6 +375,7 @@ function calculatePosition(matrix, memoryPosition) {
 }
 
 function setPixel(ctx, scaleFactor, x, y, r, g, b) {
+
     if (ctx.value == null) {
         console.trace();
         console.log(BitmapStore.dumpSubscribers())

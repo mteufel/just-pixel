@@ -1,5 +1,6 @@
 // @ts-nocheck
 import ScreenStore from './ScreenStore'
+import {KeyDownBuilder} from "../builders/KeyDownBuilder";
 
 const createBasicDialogStore = () => {
     let visible = false
@@ -8,6 +9,14 @@ const createBasicDialogStore = () => {
         isVisible: () => visible,
         toggle: () => {
             visible = !visible
+            if (!visible) {
+                // Modal wird unsichtbar, also Keybelegung fuer den Editor anschalten
+                KeyDownBuilder.useKeys()
+            } else {
+                // Modal wird sichtbar, also Keybelegung fuer den Editor ausschalten
+                KeyDownBuilder.deactivateKeys()
+            }
+
             ScreenStore.setDialogOpen(visible)
             subscribers.forEach( callFunction => callFunction())
         },

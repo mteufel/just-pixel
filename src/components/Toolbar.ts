@@ -8,7 +8,11 @@ import { FilesUploadModal } from './upload/FilesUploadModal'
 import { UploadStore } from './upload/UploadStore'
 import {NewModal, NewStore} from './NewModal';
 import {PaletteUpDownload, PaletteUpDownloadStore} from "./palette/PaletteUpDownload";
-const svg = new URL('../mega65.svg', import.meta.url);
+import BitmapStore from "../stores/BitmapStore";
+import {ByteDumperModal} from "./ByteDumperModal";
+import {PasteModal} from "./PasteModal";
+
+
 
 const Toolbar = {
     setup(props, context) {
@@ -24,35 +28,31 @@ const Toolbar = {
         return { createNew }
     },
     render() {
-        return [
+        console.log('Render Toolbar..... ')
+
+        let resultClassic = [
+            h('div', { class:'toolbarIcon' } , h(PlusOutlined, { onClick: this.createNew }) ),
+            h('div', { class:'toolbarIcon' } , h(BorderInnerOutlined, { onClick: ScreenStore.actionGrid }) ),
+            h('div', { class:'toolbarIcon' } , h(DownloadOutlined, { onClick: DownloadStore.toggle }) ),
+            h('div', { class:'toolbarIcon' } , h(UploadOutlined, { onClick: UploadStore.toggle }) ),
+            h('div', { class:'toolbarIcon' } , h(QuestionOutlined, { onClick: HelpStore.toggle }) ),
+            // ab hier die ganzen Dialog-Komponenten die potentiell aufgemacht werden können...
+            h('div', { } , [h(Help), h(Download), h(FilesUploadModal), h(NewModal), h(ByteDumperModal), h(PasteModal)])
+        ]
+
+        let resultFCM = [
             h('div', { class:'toolbarIcon' } , h(PlusOutlined, { onClick: this.createNew }) ),
             h('div', { class:'toolbarIcon' } , h(BorderInnerOutlined, { onClick: ScreenStore.actionGrid }) ),
             h('div', { class:'toolbarIcon' } , h(DownloadOutlined, { onClick: DownloadStore.toggle }) ),
             h('div', { class:'toolbarIcon' } , h(UploadOutlined, { onClick: UploadStore.toggle }) ),
             h('div', { class:'toolbarIcon' } , h(BgColorsOutlined, { onClick: PaletteUpDownloadStore.toggle }) ),
             h('div', { class:'toolbarIcon' } , h(QuestionOutlined, { onClick: HelpStore.toggle }) ),
-            h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('div', { class:'toolbarIconOff' } , h(QuestionOutlined)),
-            h('img', { class:'mega65-logo', src: svg.href } ),
             // ab hier die ganzen Dialog-Komponenten die potentiell aufgemacht werden können...
-            h('div', { } , [h(Help), h(Download), h(FilesUploadModal), h(NewModal)])
+            h('div', { } , [h(Help), h(Download), h(FilesUploadModal), h(NewModal), h(ByteDumperModal), h(PasteModal)])
 
         ]
+        console.log('Render Toolbar..... End')
+        return BitmapStore.isFCM() ? resultFCM : resultClassic
     }
 }
 
