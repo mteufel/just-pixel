@@ -4,6 +4,7 @@ import ScreenStore from '../stores/ScreenStore'
 import BitmapStore from '../stores/BitmapStore'
 import { Tooltip } from 'ant-design-vue'
 import { defineStatusbarKeys} from '../util/keys'
+import bitmapStore from "../stores/BitmapStore";
 
 const StatusBar = {
 
@@ -13,6 +14,7 @@ const StatusBar = {
         let textMemPos = ref(null)
         let textChar = ref(null)
         let textPixel = ref(null)
+        let textCoordPixel = ref(null)
         ScreenStore.setSelectedColorPart('f')
 
         let colorBackground = ref(BitmapStore.getColorByIndex(0))
@@ -57,12 +59,13 @@ const StatusBar = {
         });
 
         const statusbar = () => {
-                let data = ScreenStore.getStatusbarData()
+                let data = ScreenStore.getCoordinates()
                 if (BitmapStore.isMCM()) {
                     text.value = 'MULTICOLOR'
                     textMemPos.value = data.memPos
                     textChar.value = data.charX + '/' + data.charY + '\n$' + data.charX.toString(16) + '/$' + data.charY.toString(16)
                     textPixel.value = data.pixelX + '/' + data.pixelY
+                    textCoordPixel.value = data.coordX + '/' + data.coordY
                 } else if (BitmapStore.isFCM()) {
                     text.value = 'FULL COLOR MODE'
                 } else {
@@ -91,6 +94,7 @@ const StatusBar = {
             } else {
                 colorBackground.value = BitmapStore.getBackgroundColorHires(memoryPosition)
                 colorForeground.value = BitmapStore.getForegroundColorHires(memoryPosition)
+
             }
             statusbar()
         }
@@ -155,11 +159,11 @@ const StatusBar = {
                  cssForeground8, colorForeground8,
                  cssForeground9, colorForeground9,
                  cssForeground0, colorForeground0,
-                 colorPicForeground, colorPicForeground2, colorPicForeground3, onColor }
+                 colorPicForeground, colorPicForeground2, colorPicForeground3, onColor, textCoordPixel }
 
         },
         render() {
-            console.log('Render Statusbar.....')
+
             let statusBarContent = []
 
 
@@ -210,14 +214,19 @@ const StatusBar = {
             // here starts div number 12 with a wider width (see justpixel.css) - there are 6 divs in this size so much of information to show:
             statusBarContent.push( h('div', null , h(Tooltip, { title: 'Mode'},  this.text  ) ) )
             statusBarContent.push( h('div' ) )
-            statusBarContent.push( h('div', null , h(Tooltip, { title: 'Position in Memory'},  this.textMemPos  ) ) )
-            statusBarContent.push( h('div', null , h(Tooltip, { title: 'Character Position (x/y)'},  this.textChar  ) ) )
-            statusBarContent.push( h('div', null , h(Tooltip, { title: 'Pixel Position inside Character (x/y)'},  this.textPixel  ) ) )
-            statusBarContent.push( h('div' ) )
+            statusBarContent.push( h('div', null , h(Tooltip, { title: 'Position in memory'},  this.textMemPos  ) ) )
+            statusBarContent.push( h('div', null , h(Tooltip, { title: 'Character position (x/y)'},  this.textChar  ) ) )
+            statusBarContent.push( h('div', null , h(Tooltip, { title: 'Pixel Position inside character (x/y)'},  this.textPixel  ) ) )
+            if (BitmapStore.isMCM() && this.textCoordPixel != '-1/-1') {
+                statusBarContent.push( h('div', null , h(Tooltip, { title: 'Pixel Position inside coordinate system 160x200 (x/y)'},  this.textCoordPixel  ) ) )
+            } else {
+                statusBarContent.push( h('div' ) )
+            }
+
 
            // statusBarContent.push( h(Tooltip, {}, h('div', null , this.text ) ) )
            // statusBarContent.push (h('div', null , this.text ) )
-            console.log('Render Statusbar..... End')
+
             return statusBarContent
 
     }

@@ -4,6 +4,8 @@ import BitmapStore from './BitmapStore'
 import { Char } from '../components/Char'
 import { createUUID } from '../util/utils'
 import { CopyContext } from './CopyContext'
+import {Screen} from "../components/Screen";
+import {ToolContext} from "./ToolContext";
 
 const createPixelStore = () => {
 
@@ -37,7 +39,7 @@ const createPixelStore = () => {
 
 
     const refreshChar = (memPos, memPos2 = -1) => {
-        //console.log('refreshChar...', memPos, memPos2)
+       // console.log('refreshChar...', memPos, memPos2)
         subscribers.forEach( callFunction => {
             callFunction(memPos)
             if (memPos2 != -1 && memoryPosition % ScreenStore.getOffset() == 0) {
@@ -94,6 +96,13 @@ const createPixelStore = () => {
                 return 64;
             return 8;
         },
+        calcMemoryPosition: (x: number, y: number ) => {
+            //console.log('calcMemoryPosition: x=' + x + ' y=' + y)
+            x = (x - 1) * 8
+            y = (y - 1) * 320
+            //console.log('calcMemoryPosition: result=', (x+y))
+            return x + y
+        },
         getMemoryPosition: () => parseInt(memoryPosition),
         setMemoryPosition: (newMemPos) => memoryPosition = parseInt(newMemPos),
         getMemoryPositionBefore: () => parseInt(memoryPositionBefore),
@@ -144,25 +153,58 @@ const createPixelStore = () => {
             }
             gridMode = mode
         },
-        getStatusbarData: () => {
-            return { memPos: memoryPosition, charX: charX, charY: charY, pixelX: cursorX + 1, pixelY: cursorY + 1  }
-        },
-        dumpBlinkingCursor: () => {
-            console.log('p=' , 7-ScreenStore.getCursorX())
-            console.log('x=' , cursorX)
-            console.log('y=' , cursorY)
-            console.log('charX=' , charX)
-            console.log('charY=' , charY)
-            console.log('cutX=' , cutX)
-            console.log('cutY=' , cutY)
-            console.log('memoryPosition=' , memoryPosition)
-            console.log(BitmapStore.getScreenRam()[0])
-            console.log(BitmapStore.getScreenRam()[0].toString(16))
-            console.log('CopyContext ', ScreenStore.getCopyContext())
-            console.log('CopyContext/SourceIndexList ', ScreenStore.getCopyContext().getSourceIndexList())
-            console.log('CopyContext/Dump Bytes (Basic) ', ScreenStore.getCopyContext().dump("DATA", 0, 10))
-            console.log('CopyContext/Dump Bytes (KickAss)', ScreenStore.getCopyContext().dump(".byte"))
+        calculateCoordinates(x: number, y: number) {
+            // this helper functions calculates the same object as 'getCoordinates' does but takes the given x and y coordinates as source
 
+            // memoryposition
+            // charX
+            // charY
+            // pixelX
+            // pixelY
+
+            let myMemPos = -1
+            let myCharX = -1
+            let myCharY = -1
+            let myPixelX = -1
+            let myPixelY = -1
+
+            if (BitmapStore.isMCM()) {
+                myCharX =  parseInt(x / 4)
+                if ((x/4) % 1 == 0) {
+                    myPixelX = ( parseInt(x / 4) * 4 ) / myCharX
+                } else {
+                    myPixelX = ( x - ( parseInt(x / 4) * 4 ) )
+                    if (myPixelX > 0) {
+                        myCharX = parseInt(x / 4) + 1
+                    }
+                }
+
+                myCharY = parseInt(y / 8)
+                if ((y/8) % 1 == 0) {
+                    myPixelY = ( parseInt(y / 8) * 8 ) / myCharY
+                } else {
+                    myPixelY = ( y - ( parseInt(y / 8) * 8 ) )
+                    if (myPixelY > 0) {
+                        myCharY = parseInt(y / 8) + 1
+                    }
+                }
+
+                myMemPos = this.calcMemoryPosition(myCharX, myCharY)
+
+
+            }
+            return  { memPos: myMemPos, charX: myCharX, charY: myCharY, pixelX: myPixelX, pixelY: myPixelY, coordX: x, coordY: y }
+
+
+        },
+        getCoordinates: () => {
+            let coordX = -1
+            let coordY = -1
+            if (BitmapStore.isMCM()) {
+                coordX = ( ( charX-1 ) * 4 ) + (cursorX + 1)
+                coordY = ( ( charY-1 ) * 8 ) + (cursorY + 1)
+            }
+            return { memPos: memoryPosition, charX: charX, charY: charY, pixelX: cursorX + 1, pixelY: cursorY + 1, coordX: coordX, coordY: coordY  }
         },
         build: (offset : number, screenSizeX : number, screenSizeY : number, x : number, y : number) => {
             sizeX = screenSizeX
@@ -255,12 +297,15 @@ const createPixelStore = () => {
                     if (showGridInPixels==false) {
                         pixelClass = 'pixelWithoutGrid'
                     }
-
-                    if (y == copyContext.endMemPos+7 && x == numPixels-1) {
-                        pixelClass = 'blinkingCursorEnd'
+                    if (copyContext.endMemPos > -1) {
+                        if (y == copyContext.endMemPos+7 && x == numPixels-1) {
+                            pixelClass = 'blinkingCursorEnd'
+                        }
                     }
-                    if (y == copyContext.startMemPos && x == 0) {
-                        pixelClass = 'blinkingCursorStart'
+                    if (copyContext.startMemPos > -1) {
+                        if (y == copyContext.startMemPos && x == 0) {
+                            pixelClass = 'blinkingCursorStart'
+                        }
                     }
 
 
@@ -326,6 +371,20 @@ const createPixelStore = () => {
                 refreshChar(memoryPosition)
             } else {
                 refreshChar(memPos, memPos2)
+            }
+        },
+        refreshAll2: () => {
+            let complete=8000
+            let step=8
+            if (BitmapStore.isFCM()) {
+                complete=64000
+                step=64
+            }
+            for (let i = 0; i < complete; i+=step) {
+                if (bitmap[i]+bitmap[i+1]+bitmap[i+2]+bitmap[i+3]+bitmap[i+4]+bitmap[i+5]+bitmap[i+6]+bitmap[i+7] > 0) {
+                    refreshChar(i)
+                }
+
             }
         },
         refreshAll: () => {
@@ -448,6 +507,8 @@ const createPixelStore = () => {
             BitmapStore.callSubscribers() // repaint the preview (show cursor)   // Fuer den FCM Modus im Moment noch abgeschalten
             ScreenStore.refreshAll()
 
+
+
         },
         actionGrid: () => {
             let mode : number = ScreenStore.getGridMode() + 1
@@ -506,6 +567,7 @@ const createPixelStore = () => {
 
 
             } else if (BitmapStore.isMCM()) {
+
                 // ----------------------------------------------------
                 //  Paint in MCM
                 // ----------------------------------------------------
@@ -514,10 +576,14 @@ const createPixelStore = () => {
                 let charPosition = 7-ScreenStore.getCursorX()
 
                 let binary = BitmapStore.getBinaryLine(index)
-                let binaryIndex7 = binary.substr(0,2)
-                let binaryIndex6 = binary.substr(2,2)
-                let binaryIndex5 = binary.substr(4,2)
-                let binaryIndex4 = binary.substr(6,2)
+                //let binaryIndex7 = binary.substr(0,2)
+                //let binaryIndex6 = binary.substr(2,2)
+                //let binaryIndex5 = binary.substr(4,2)
+                //let binaryIndex4 = binary.substr(6,2)
+                let binaryIndex7 = binary.substring(0,2)
+                let binaryIndex6 = binary.substring(2,4)
+                let binaryIndex5 = binary.substring(4,6)
+                let binaryIndex4 = binary.substring(6,8)
 
                 switch (colorPart) {
                     case "b":
@@ -596,31 +662,43 @@ const createPixelStore = () => {
 function onClick(e, doubleClick) {
     let oldMemPos = ScreenStore.getMemoryPosition()
     console.log('click ', e)
+    console.log('click ', doubleClick)
     console.log('click ', e.target)
     console.log('click ', e.target.parentElement)
+
+
     ScreenStore.setMemoryPosition(e.target.dataset.memoryIndex)
     ScreenStore.setCursor(e.target.dataset.x, e.target.dataset.y, e.target.parentElement.dataset.charX, e.target.parentElement.dataset.charY)
     ScreenStore.refreshChar(oldMemPos)
     ScreenStore.refreshChar()
-    BitmapStore.callSubscribersCursorMove()
-   // ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
 
 
-
-
-    if (ScreenStore.isClickAndPixel()) {
+    if (ToolContext.isActive() ) {
         if (doubleClick) {
-            ScreenStore.paint('b')
+            ToolContext.finish()
         } else {
-            ScreenStore.paint(ScreenStore.getSelectedColorPart())
+            ToolContext.doPreview()
+        }
+
+    } else {
+        BitmapStore.callSubscribersCursorMove()
+
+        if (ScreenStore.isClickAndPixel()) {
+            if (doubleClick) {
+                ScreenStore.paint('b')
+            } else {
+                ScreenStore.paint(ScreenStore.getSelectedColorPart())
+            }
         }
     }
+
+
 }
 
 function createPixel(memoryIndex, x, y, r, g, b, blink, pixelClass) {
-    let divAttributes = { onClick: (e) => onClick(e, false), onDblClick: (e) => onClick(e, true), 'data-memory-index': memoryIndex, 'data-x': x, 'data-y': y, class: pixelClass, style: 'background-color: rgb(' + r + ', ' + g + ', ' + b + ')' }
+    let divAttributes = { ondblclick: (e) => onClick(e, true), onClick: (e) => onClick(e, false), 'data-memory-index': memoryIndex, 'data-x': x, 'data-y': y, class: pixelClass, style: 'background-color: rgb(' + r + ', ' + g + ', ' + b + ')' }
     if (blink) {
-        divAttributes = { onClick: (e) => onClick(e, false), onDblClick: (e) => onClick(e, true), 'data-memory-index': memoryIndex, 'data-x': x, 'data-y': y, class: 'blinkingCursor', style: 'background-color: rgb(' + r + ', ' + g + ', ' + b + ')' }
+        divAttributes = { ondblclick: (e) => onClick(e, true), onClick: (e) => onClick(e, false), 'data-memory-index': memoryIndex, 'data-x': x, 'data-y': y, class: 'blinkingCursor', style: 'background-color: rgb(' + r + ', ' + g + ', ' + b + ')' }
     }
     return h('div', divAttributes )
 }

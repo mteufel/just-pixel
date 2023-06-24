@@ -24,12 +24,15 @@ const Preview = {
         BitmapStore.subscribe( () => {
 
 
-            if (ScreenStore.getLastAction() === 'new' || ScreenStore.getLastAction() === 'uploaded') {
-                //console.log('aaa')
+            if (ScreenStore.getLastAction() === 'new' || ScreenStore.getLastAction() === 'uploaded' || ScreenStore.getLastAction() === 'refresh-whole-preview' ) {
                 paintForTheFirstTime(preview, ctx, scaleFactor, showCursor)
                 ScreenStore.setLastAction('')
+
+            } else if(ScreenStore.getLastAction() === 'tools-use-move') {
+
+                // we do nothing
+
             }  else {
-                //console.log('bbb  ', ctx.value)
                 let matrix = generateMatrix()
                 paintPreview(ctx, scaleFactor.value, matrix, ScreenStore.getMemoryPosition())
                 paintPreviewCursor(ctx, scaleFactor.value, showCursor.value)
@@ -179,6 +182,7 @@ function paintPreviewComplete(ctx, scaleFactor) {
     }
     let matrix = generateMatrix()
    BitmapStore.getBitmap().forEach( (value, index) => {
+
         if (index%bytesPerChar==0) {
             paintPreview(ctx, scaleFactor, matrix, index)
         }

@@ -2,6 +2,8 @@
 import {colorMega65} from '../util/utils'
 import { Color } from '../components/palette/ColorPalette'
 import ColorPaletteStore from "./ColorPaletteStore";
+import ScreenStore from "./ScreenStore";
+import ColorSelectionStore from "./ColorSelectionStore";
 
 const createBitmapStore = () => {
 
@@ -209,14 +211,17 @@ const createBitmapStore = () => {
 
         },
         setForegroundColorMCM: (memoryPosition : number, selColor : Color) => {
-            //console.log('setForegroundColorMCM ', selColor)
             let colorValue = BitmapStore.getColorFromScreenRam(memoryPosition)
+            if (colorValue == undefined) {
+                colorValue=0
+            }
             let colorValueHexComplete = colorValue.toString(16)
             if (colorValueHexComplete === "0") {
                 colorValueHexComplete = "00"
             }
             let ColorValueVorne = selColor.colorIndex.toString(16)
-            let ColorValueHinten = colorValueHexComplete.substr(1,1)
+            //let ColorValueHinten = colorValueHexComplete.substr(1,1)
+            let ColorValueHinten = colorValueHexComplete.substring(1,2)
             let colorValueNeu = '0x'.concat(ColorValueVorne,ColorValueHinten)
             screenRam[memoryPosition/8] =  parseInt(colorValueNeu,16)
         },
@@ -397,7 +402,110 @@ const createBitmapStore = () => {
         getForegroundColor9FCM: () => foregroundColor9FCM,
         setForegroundColor9FCM: (color) => foregroundColor9FCM = color,
         getForegroundColor0FCM: () => foregroundColor0FCM,
-        setForegroundColor0FCM: (color) => foregroundColor0FCM = color
+        setForegroundColor0FCM: (color) => foregroundColor0FCM = color,
+
+        setPixel: (x: number, y: number, colorPart: String) => {
+            //console.log('setPixel x=' + x + ' y=' + y + ' colorPart=' + colorPart)
+            let coords = ScreenStore.calculateCoordinates(x, y)
+            let color = ColorSelectionStore.color()
+
+            if (BitmapStore.isMCM()) {
+
+
+
+                let pixelPattern = '00'
+                //let index = ScreenStore.getMemoryPosition() + ScreenStore.getCursorY()
+                //let charPosition = 7-ScreenStore.getCursorX()
+                let index = coords.memPos + (coords.pixelY-1)
+                let charPosition = 7 - (coords.pixelX-1)
+
+                let binary = BitmapStore.getBinaryLine(index)
+                //let binaryIndex7 = binary.substr(0,2)
+                //let binaryIndex6 = binary.substr(2,2)
+                //let binaryIndex5 = binary.substr(4,2)
+                //let binaryIndex4 = binary.substr(6,2)
+                let binaryIndex7 = binary.substring(0,2)
+                let binaryIndex6 = binary.substring(2,4)
+                let binaryIndex5 = binary.substring(4,6)
+                let binaryIndex4 = binary.substring(6,8)
+
+                switch (colorPart) {
+                    case "b":
+                        pixelPattern = '00'
+                        BitmapStore.setBackgroundColorMCM(color)
+                        break;
+                    case "f":
+                        pixelPattern = '01'
+                        BitmapStore.setForegroundColorMCM(coords.memPos, color)
+                        break;
+                    case "f2":
+                        pixelPattern = '10'
+                        BitmapStore.setForegroundColor2MCM(coords.memPos, color)
+                        break;
+                    case "f3":
+                        BitmapStore.setForegroundColor3MCM(coords.memPos, color)
+                        pixelPattern = '11'
+                }
+
+                switch (charPosition) {
+                    case 7:
+                        binaryIndex7 = pixelPattern
+                        break;
+                    case 6:
+                        binaryIndex6 = pixelPattern
+                        break;
+                    case 5:
+                        binaryIndex5 = pixelPattern
+                        break;
+                    case 4:
+                        binaryIndex4 = pixelPattern
+                        break;
+                }
+                let binaryNew = ''.concat(binaryIndex7 , binaryIndex6 , binaryIndex5 , binaryIndex4)
+                BitmapStore.setBinaryLine(index, binaryNew)
+                ScreenStore.doCharChange(coords.memPos)
+                ScreenStore.refreshChar(coords.memPos)
+                BitmapStore.callSubscribers()
+            }
+        },
+        bresenhamEllipse: () => {
+            // Source Wikipedia
+            let xm = 22
+            let ym = 36
+            let a = 4
+            let b = 10
+
+            let dx = 0
+            let dy = b
+            let a2 = a*a
+            let b2 = b*b
+            let err = b2-(2*b-1)*a2
+            let e2
+
+            do
+            {
+                BitmapStore.setPixel(xm + dx, ym + dy, 'f')
+                BitmapStore.setPixel(xm - dx, ym + dy, 'f')
+                BitmapStore.setPixel(xm - dx, ym - dy, 'f')
+                BitmapStore.setPixel(xm + dx, ym - dy, 'f')
+                e2 = 2*err
+                if (e2 <  (2 * dx + 1) * b2) { ++dx; err += (2 * dx + 1) * b2 }
+                if (e2 > -(2 * dy - 1) * a2) { --dy; err -= (2 * dy - 1) * a2 }
+            }
+            while (dy >= 0)
+
+            while (dx++ < a)
+            {
+                BitmapStore.setPixel(xm+dx, ym, 'f')
+                BitmapStore.setPixel(xm-dx, ym, 'f')
+            }
+
+        }
+
+
+
+
+
 
     }
 }

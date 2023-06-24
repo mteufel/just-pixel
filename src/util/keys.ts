@@ -2,16 +2,17 @@
 import {KeyDownBuilder} from "../builders/KeyDownBuilder"
 import ScreenStore from "../stores/ScreenStore"
 import BitmapStore from "../stores/BitmapStore";
-import {CopyContext} from "../stores/CopyContext";
 import ColorPaletteStore from "../stores/ColorPaletteStore";
 import {ByteDumperStore} from "../components/ByteDumperModal";
-import { pad } from "../util/utils"
+import {PasteStore} from "../components/PasteModal";
+import {ToolContext, ToolMode} from "../stores/ToolContext";
+import {CopyContext} from "../stores/CopyContext";
 
 const defineCursorKeys = () => {
-    KeyDownBuilder.key('ArrowDown', () => ScreenStore.cursorDown())
-    KeyDownBuilder.key('ArrowUp', () => ScreenStore.cursorUp())
-    KeyDownBuilder.key('ArrowLeft', () => ScreenStore.cursorLeft())
-    KeyDownBuilder.key('ArrowRight', () => ScreenStore.cursorRight())
+    KeyDownBuilder.key('ArrowDown', () => cursorDown())
+    KeyDownBuilder.key('ArrowUp', () => cursorUp())
+    KeyDownBuilder.key('ArrowLeft', () => cursorLeft())
+    KeyDownBuilder.key('ArrowRight', () => cursorRight())
     KeyDownBuilder.key('g', () => ScreenStore.actionGrid())
 }
 
@@ -20,13 +21,16 @@ const definePaintKeys = () => {
     KeyDownBuilder.key('2', () => BitmapStore.isFCM() ?  ScreenStore.paint('f2') : ScreenStore.paint('f'))
     KeyDownBuilder.key('3', () => BitmapStore.isFCM() ?  ScreenStore.paint('f3') : ScreenStore.paint('f2'))
     KeyDownBuilder.key('4', () => BitmapStore.isFCM() ?  ScreenStore.paint('f4') : ScreenStore.paint('f3'))
-    KeyDownBuilder.key('d', () => ScreenStore.dumpBlinkingCursor())
+    KeyDownBuilder.key('d', () => dump())
     KeyDownBuilder.key('m', () => markArea())
     KeyDownBuilder.key('#', () => dumpBytes())
     KeyDownBuilder.key('s', () => exportSprite())
     KeyDownBuilder.key('e', () => exportArea())
     KeyDownBuilder.ctrl('v', () => doCopy())
-    KeyDownBuilder.key('Delete', () => deleteCurrentChar())
+    KeyDownBuilder.shift('v', ()  => copyDialog())
+    KeyDownBuilder.key('l', () =>  useTool(ToolMode.LINE) )
+    KeyDownBuilder.key('c', () =>  useTool(ToolMode.CIRCLE) )
+    KeyDownBuilder.key('Delete', () => deleteKeyPressed())
 }
 
 const defineStatusbarKeys = (onColorFn, colorsHolder) => {
@@ -42,6 +46,32 @@ const defineColorPaletteKeys = (context) => {
     KeyDownBuilder.ctrl('ArrowDown', () => selectColorOnCursorKey('ArrowDown', context))
     KeyDownBuilder.ctrl('ArrowUp', () => selectColorOnCursorKey('ArrowUp', context))
 }
+
+function cursorUp() {
+    ScreenStore.cursorUp()
+    if (ToolContext.isActive()) {
+        ToolContext.doPreview()
+    }
+}
+function cursorDown() {
+    ScreenStore.cursorDown()
+    if (ToolContext.isActive()) {
+        ToolContext.doPreview()
+    }
+}
+function cursorLeft() {
+    ScreenStore.cursorLeft()
+    if (ToolContext.isActive()) {
+        ToolContext.doPreview()
+    }
+}
+function cursorRight() {
+    ScreenStore.cursorRight()
+    if (ToolContext.isActive()) {
+        ToolContext.doPreview()
+    }
+}
+
 
 function exportArea() {
     ByteDumperStore.intoByteDumperMode()
@@ -147,16 +177,62 @@ function rememberColors(colorsHolder) {
 }
 
 
-function deleteCurrentChar() {
-    console.log('Delete')
+function deleteKeyPressed() {
+
+    // Logic on delete key:
+    // If there is a Marker for a potentially CopyContext  --> remove the marker
+    // If there is no marker just remove the pixels in the current char
+    // otherwise remove all pixels in the char
+
+    if (ScreenStore.getCopyContext().hasMarker())  {
+        unmarkArea()
+        console.log('Delete key pressed ... unmarked existing copy context')
+    } else  {
+
+        BitmapStore.getBitmap()[ScreenStore.getMemoryPosition()] = 0
+        BitmapStore.getBitmap()[ScreenStore.getMemoryPosition() + 1] = 0
+        BitmapStore.getBitmap()[ScreenStore.getMemoryPosition() + 2] = 0
+        BitmapStore.getBitmap()[ScreenStore.getMemoryPosition() + 3] = 0
+        BitmapStore.getBitmap()[ScreenStore.getMemoryPosition() + 4] = 0
+        BitmapStore.getBitmap()[ScreenStore.getMemoryPosition() + 5] = 0
+        BitmapStore.getBitmap()[ScreenStore.getMemoryPosition() + 6] = 0
+        BitmapStore.getBitmap()[ScreenStore.getMemoryPosition() + 7] = 0
+        ScreenStore.refreshChar(ScreenStore.getMemoryPosition())
+        console.log('Delete key pressed ... removed current char')
+
+    }
 
 }
+
+function unmarkArea() {
+    let cc = ScreenStore.getCopyContext()
+    let a = cc.startMemPos
+    let e = cc.endMemPos
+    ScreenStore.setCopyContext(CopyContext())
+    ScreenStore.refreshChar(a)
+    ScreenStore.refreshChar(e)
+
+    cc.startMemPos = -1
+
+    cc.startCharX = -1
+    cc.startCharY = -1
+    cc.endMemPos = 999999
+    cc.endCharX = -1
+    cc.endCharY = -1
+    ScreenStore.setCopyContext(cc)
+    ScreenStore.refreshChar(cc.startMemPos)
+    ScreenStore.refreshChar(cc.endMemPos)
+
+
+}
+
 
 function markArea() {
 
     let cc = ScreenStore.getCopyContext()
+
     if ( cc.endMemPos > -1) {
-    // evt alte visuelle Markierung entfernen
+
         let cc = ScreenStore.getCopyContext()
         let a = cc.startMemPos
         let e = cc.endMemPos
@@ -173,34 +249,43 @@ function markArea() {
         ScreenStore.setCopyContext(cc)
         ScreenStore.refreshChar(cc.startMemPos)
         ScreenStore.refreshChar(cc.endMemPos)
+
+
+
     } else {
         cc.endMemPos = ScreenStore.getMemoryPosition()
         cc.endCharX = ScreenStore.getCharX()
         cc.endCharY = ScreenStore.getCharY()
         console.log('else .... ', cc)
-        if (cc.endMemPos < cc.startMemPos || cc.endCharX < cc.startCharX) {
+        if (cc.endMemPos < cc.startMemPos ) {
 
-            let cc = ScreenStore.getCopyContext()
-            cc.startMemPos = 999999
-            ScreenStore.setCopyContext(cc)
+            let sx = cc.startCharX
+            let sy = cc.startCharY
+            let smp = cc.startMemPos
+            let ex = cc.endCharX
+            let ey = cc.endCharY
+            let emp = cc.endMemPos
 
-
-            let x = cc
-            x.startMemPos = cc.endMemPos
-            x.startCharX = cc.endCharX
-            x.startCharY = cc.endCharY
-            x.endMemPos = cc.startMemPos
-            x.endCharX = cc.startCharX
-            x.endCharY = cc.startCharY
-            cc = x
-            ScreenStore.refreshAll()
+            if (cc.endCharX < cc.startCharX) {
+                cc.startCharX = ex
+                cc.startCharY = ey
+                cc.startMemPos = emp
+                cc.endCharX = sx
+                cc.endCharY = sy
+                cc.endMemPos = smp
+            } else {
+                unmarkArea()
+                cc.startCharX = sx
+                cc.startCharY = ey
+                cc.endCharX = ex
+                cc.endCharY = sy
+                cc.startMemPos = ScreenStore.calcMemoryPosition(cc.startCharX, cc.startCharY)
+                cc.endMemPos = ScreenStore.calcMemoryPosition(cc.endCharX, cc.endCharY)
+            }
         }
 
-
-
-
     }
-    console.log('setCopyContext ', cc)
+
     ScreenStore.setCopyContext(cc)
     ScreenStore.refreshChar(cc.startMemPos)
     ScreenStore.refreshChar(cc.endMemPos)
@@ -208,24 +293,7 @@ function markArea() {
 }
 
 function doCopy() {
-
-    console.log('jetzt wird eingefügt - copyable = ' , ScreenStore.getCopyContext().isCopyable())
-
-    let sourceIndex = ScreenStore.getCopyContext().getSourceIndexList()
-    let destIndex = ScreenStore.getCopyContext().getDestinationIndexList(ScreenStore.getMemoryPosition())
-    console.log('--> src ', sourceIndex )
-    console.log('--> dest ', destIndex )
-
-
-    BitmapStore.setBitmap ( ScreenStore.getCopyContext().copyBitmap(BitmapStore.getBitmap(), ScreenStore.getMemoryPosition()) )
-    BitmapStore.setScreenRam( ScreenStore.getCopyContext().copyScreenRam(BitmapStore.getScreenRam(), ScreenStore.getMemoryPosition()) )
-    if (BitmapStore.isMCM()) {
-        BitmapStore.setColorRam( ScreenStore.getCopyContext().copyColorRam(BitmapStore.getColorRam(), ScreenStore.getMemoryPosition()) )
-    }
-    ScreenStore.refreshAll()
-    BitmapStore.callSubscribers()
-
-
+    ScreenStore.getCopyContext().doCopy('normal')
 }
 
 function dumpBytes() {
@@ -243,10 +311,28 @@ function dumpBytes() {
 
 }
 
+function dump() {
+    console.log(' ==== Individual dump as debugging help ====')
+    console.log(ScreenStore.getCopyContext().getSourceIndexList())
+}
+
 function exportSprite() {
     // Just move the cursor to the starting point, the exporter will export one full MCM Sprite 12+21 pixels wide
     ByteDumperStore.intoSpriteDumperMode();
     ByteDumperStore.toggle()
+}
+
+function copyDialog() {
+    // All the rest happens in PasteModal
+    PasteStore.toggle()
+}
+
+function useTool(mode: ToolMode) {
+    if (ToolContext.isActive() == false) {
+        ToolContext.setMode(mode)
+    } else {
+        ToolContext.finish()
+    }
 }
 
 
