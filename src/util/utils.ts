@@ -2,6 +2,7 @@
 import {PNG} from "pngjs/browser"
 import BitmapStore from "../stores/BitmapStore"
 import { cloneDeep } from "lodash-es"
+import ScreenStore from "../stores/ScreenStore";
 
 const createUUID = () => {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -143,5 +144,13 @@ function deepCopy(o) {
     return cloneDeep(o)
 }
 
+function refreshComplete() {
+    ScreenStore.refreshAll()
+    ScreenStore.setLastAction('refresh-whole-preview' )
+    BitmapStore.callSubscribers()
+    ScreenStore.refreshChar()
+    ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
+}
 
-export { createUUID, colorMega65, getColr, hexToRgb, rgbToHex, uploadData, uploadDataLineByLine, uploadPng, rgbToRgbValue, rgbValueToRgb, pad, flipBitsHorizontally, deepCopy }
+
+export { createUUID, colorMega65, getColr, hexToRgb, rgbToHex, uploadData, uploadDataLineByLine, uploadPng, rgbToRgbValue, rgbValueToRgb, pad, flipBitsHorizontally, deepCopy, refreshComplete }

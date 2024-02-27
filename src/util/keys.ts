@@ -7,6 +7,7 @@ import {ByteDumperStore} from "../components/ByteDumperModal";
 import {PasteStore} from "../components/PasteModal";
 import {ToolContext, ToolMode} from "../stores/ToolContext";
 import {CopyContext} from "../stores/CopyContext";
+import {TextStore} from "../components/TextModal";
 
 const defineCursorKeys = () => {
     KeyDownBuilder.key('ArrowDown', () => cursorDown())
@@ -25,12 +26,15 @@ const definePaintKeys = () => {
     KeyDownBuilder.key('m', () => markArea())
     KeyDownBuilder.key('#', () => dumpBytes())
     KeyDownBuilder.key('s', () => exportSprite())
+    KeyDownBuilder.key('t', () => insertText())
     KeyDownBuilder.key('e', () => exportArea())
     KeyDownBuilder.ctrl('v', () => doCopy())
     KeyDownBuilder.shift('v', ()  => copyDialog())
     KeyDownBuilder.key('l', () =>  useTool(ToolMode.LINE) )
     KeyDownBuilder.key('c', () =>  useTool(ToolMode.CIRCLE) )
     KeyDownBuilder.key('Delete', () => deleteKeyPressed())
+    KeyDownBuilder.key('Escape', () => escapePressed() )
+
 }
 
 const defineStatusbarKeys = (onColorFn, colorsHolder) => {
@@ -333,6 +337,19 @@ function useTool(mode: ToolMode) {
     } else {
         ToolContext.finish()
     }
+}
+
+function escapePressed() {
+    console.log('Escape pressed')
+    if (ToolContext.isActive()) {
+        ToolContext.setMode(ToolMode.OFF)
+        ToolContext.finish()
+    }
+}
+
+function insertText() {
+    console.log('Jetzt Text')
+    TextStore.toggle()
 }
 
 

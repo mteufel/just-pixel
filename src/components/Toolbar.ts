@@ -11,6 +11,7 @@ import {PaletteUpDownload, PaletteUpDownloadStore} from "./palette/PaletteUpDown
 import BitmapStore from "../stores/BitmapStore";
 import {ByteDumperModal} from "./ByteDumperModal";
 import {PasteModal} from "./PasteModal";
+import {TextModal} from "./TextModal";
 
 
 
@@ -37,7 +38,7 @@ const Toolbar = {
             h('div', { class:'toolbarIcon' } , h(UploadOutlined, { onClick: UploadStore.toggle }) ),
             h('div', { class:'toolbarIcon' } , h(QuestionOutlined, { onClick: HelpStore.toggle }) ),
             // ab hier die ganzen Dialog-Komponenten die potentiell aufgemacht werden können...
-            h('div', { } , [h(Help), h(Download), h(FilesUploadModal), h(NewModal), h(ByteDumperModal), h(PasteModal)])
+            h('div', { } , [h(Help), h(Download), h(FilesUploadModal), h(NewModal), h(ByteDumperModal), h(PasteModal), h(TextModal)])
         ]
 
         let resultFCM = [
@@ -48,7 +49,7 @@ const Toolbar = {
             h('div', { class:'toolbarIcon' } , h(BgColorsOutlined, { onClick: PaletteUpDownloadStore.toggle }) ),
             h('div', { class:'toolbarIcon' } , h(QuestionOutlined, { onClick: HelpStore.toggle }) ),
             // ab hier die ganzen Dialog-Komponenten die potentiell aufgemacht werden können...
-            h('div', { } , [h(Help), h(Download), h(FilesUploadModal), h(NewModal), h(ByteDumperModal), h(PasteModal)])
+            h('div', { } , [h(Help), h(Download), h(FilesUploadModal), h(NewModal), h(ByteDumperModal), h(PasteModal), h(TextModal)])
 
         ]
         console.log('Render Toolbar..... End')

@@ -1,6 +1,6 @@
 import BitmapStore from "./BitmapStore";
 import ScreenStore from "./ScreenStore";
-import {deepCopy} from "../util/utils";
+import {deepCopy, refreshComplete} from "../util/utils";
 import {bresenhamLine, bresenhamEllipse, bresenhamCircle} from "../util/bresenham";
 
 enum ToolMode {
@@ -24,6 +24,12 @@ const createToolContext = () : ToolContext => {
     let bitmap : number[] = []
     let screenRam : number[] = []
     let colorRam : number[] = []
+
+    let bitmap_original : number[] = []
+    let screenRam_original : number[] = []
+    let colorRam_original : number[] = []
+
+
     let visited : number [] = []
     let x_start : number
     let y_start : number
@@ -32,9 +38,14 @@ const createToolContext = () : ToolContext => {
         let coords = ScreenStore.getCoordinates()
         x_start = coords.coordX
         y_start = coords.coordY
-        bitmap = deepCopy(BitmapStore.getBitmap())
-        screenRam = deepCopy(BitmapStore.getScreenRam())
-        colorRam = deepCopy(BitmapStore.getColorRam())
+        if (m != ToolMode.OFF) {
+            bitmap = deepCopy(BitmapStore.getBitmap())
+            screenRam = deepCopy(BitmapStore.getScreenRam())
+            colorRam = deepCopy(BitmapStore.getColorRam())
+            bitmap_original = deepCopy(BitmapStore.getBitmap())
+            screenRam_original = deepCopy(BitmapStore.getScreenRam())
+            colorRam_original = deepCopy(BitmapStore.getColorRam())
+        }
         mode = m
         visited = []
         visited.push(coords.memPos)
@@ -161,13 +172,16 @@ const createToolContext = () : ToolContext => {
 
         },
         finish: () => {
-            if (mode != ToolMode.OFF) {
+            if (mode == ToolMode.OFF) {
+                console.log('1')
+                BitmapStore.setBitmap(deepCopy(bitmap_original))
+                BitmapStore.setColorRam(deepCopy(colorRam_original))
+                BitmapStore.setScreenRam(deepCopy(screenRam_original))
+                refreshComplete()
+            } else {
+                console.log('2')
                 doSetMode(ToolMode.OFF)
-                ScreenStore.refreshAll()
-                ScreenStore.setLastAction('refresh-whole-preview' )
-                BitmapStore.callSubscribers()
-                ScreenStore.refreshChar()
-                ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
+                refreshComplete()
             }
         }
   }

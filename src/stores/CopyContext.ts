@@ -1,7 +1,7 @@
 // @ts-nocheck
 import BitmapStore from "./BitmapStore";
 import ScreenStore from "./ScreenStore";
-import {flipBitsHorizontally} from "../util/utils";
+import {flipBitsHorizontally, refreshComplete} from "../util/utils";
 
 const CopyContext = () => {
   console.log('Creating a new CopyContext')
@@ -216,8 +216,7 @@ const CopyContext = () => {
           if (BitmapStore.isMCM()) {
               BitmapStore.setColorRam( ScreenStore.getCopyContext().copyColorRam(BitmapStore.getColorRam(), ScreenStore.getMemoryPosition(), mode) )
           }
-          ScreenStore.refreshAll()
-          BitmapStore.callSubscribers()
+          refreshComplete()
 
       }
   }
