@@ -2,7 +2,7 @@
 import {h} from 'vue'
 import { PlusOutlined, BorderInnerOutlined, DownloadOutlined, UploadOutlined, QuestionOutlined, BgColorsOutlined } from '@ant-design/icons-vue'
 import ScreenStore from '../stores/ScreenStore'
-import {Help, HelpStore} from './Help'
+import Help from './Help.vue'
 import {Download, DownloadStore} from "./Download"
 import { FilesUploadModal } from './upload/FilesUploadModal'
 import { UploadStore } from './upload/UploadStore'
@@ -30,13 +30,12 @@ const Toolbar = {
     },
     render() {
         console.log('Render Toolbar..... ')
-
         let resultClassic = [
             h('div', { class:'toolbarIcon' } , h(PlusOutlined, { onClick: this.createNew }) ),
             h('div', { class:'toolbarIcon' } , h(BorderInnerOutlined, { onClick: ScreenStore.actionGrid }) ),
             h('div', { class:'toolbarIcon' } , h(DownloadOutlined, { onClick: DownloadStore.toggle }) ),
             h('div', { class:'toolbarIcon' } , h(UploadOutlined, { onClick: UploadStore.toggle }) ),
-            h('div', { class:'toolbarIcon' } , h(QuestionOutlined, { onClick: HelpStore.toggle }) ),
+            h('div', { class:'toolbarIcon' } , h(QuestionOutlined, { onClick: Help.helpStore.toggle }) ),
             // ab hier die ganzen Dialog-Komponenten die potentiell aufgemacht werden können...
             h('div', { } , [h(Help), h(Download), h(FilesUploadModal), h(NewModal), h(ByteDumperModal), h(PasteModal), h(TextModal)])
         ]
@@ -47,7 +46,7 @@ const Toolbar = {
             h('div', { class:'toolbarIcon' } , h(DownloadOutlined, { onClick: DownloadStore.toggle }) ),
             h('div', { class:'toolbarIcon' } , h(UploadOutlined, { onClick: UploadStore.toggle }) ),
             h('div', { class:'toolbarIcon' } , h(BgColorsOutlined, { onClick: PaletteUpDownloadStore.toggle }) ),
-            h('div', { class:'toolbarIcon' } , h(QuestionOutlined, { onClick: HelpStore.toggle }) ),
+            h('div', { class:'toolbarIcon' } , h(QuestionOutlined, { onClick: Help.helpStore.toggle }) ),
             // ab hier die ganzen Dialog-Komponenten die potentiell aufgemacht werden können...
             h('div', { } , [h(Help), h(Download), h(FilesUploadModal), h(NewModal), h(ByteDumperModal), h(PasteModal), h(TextModal)])
 

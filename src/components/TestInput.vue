@@ -1,7 +1,7 @@
 <template>
 
   <a-space direction="vertical">
-    <a-input v-model:value="value" placeholder="Basic usage" />
+    <a-input v-model:value="value" placeholder="Basic usagesdfsdfds" />
     <a-input v-model:value="value" placeholder="Basic usage 2" />
   </a-space>
   

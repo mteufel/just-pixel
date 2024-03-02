@@ -73,9 +73,8 @@ body, html {
     grid-column-gap: 7px;
     margin-top: 15px;
     align-items: start;
-
-
-
+    color: #aaaaaa;
+    font-size: 16px;
 }
 
 .logoContainer {
