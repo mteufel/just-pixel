@@ -15,7 +15,6 @@ const defineCursorKeys = () => {
     KeyDownBuilder.key('ArrowLeft', () => cursorLeft(), KeyDownBuilder.help("Cursor", 0, ["ArrowLeft"], "Moves the cursor one pixel to the left"))
     KeyDownBuilder.key('ArrowRight', () => cursorRight(), KeyDownBuilder.help("Cursor", 0, ["ArrowRight"], "Moves the cursor one pixel to the right"))
     KeyDownBuilder.key('g', () => ScreenStore.actionGrid(), KeyDownBuilder.help("Cursor", 0, ["g"], "Toggles the grid lines"))
-    console.log(KeyDownBuilder.keys())
 }
 
 const definePaintKeys = () => {
@@ -23,9 +22,9 @@ const definePaintKeys = () => {
     KeyDownBuilder.key('2', () => BitmapStore.isFCM() ?  ScreenStore.paint('f2') : ScreenStore.paint('f'), KeyDownBuilder.help("Paint", 0, ["2"], "MCM: Color 1 (lower Screen-Ram), FCM: Paint Color 2"))
     KeyDownBuilder.key('3', () => BitmapStore.isFCM() ?  ScreenStore.paint('f3') : ScreenStore.paint('f2'), KeyDownBuilder.help("Paint", 0, ["3"], "MCM: Color 2 (upper Screen-Ram), FCM: Paint Color 3"))
     KeyDownBuilder.key('4', () => BitmapStore.isFCM() ?  ScreenStore.paint('f4') : ScreenStore.paint('f3'), KeyDownBuilder.help("Paint", 0, ["4"], "MCM: Color 3 (Color-RAM), FCM: Paint Color 4"))
-    KeyDownBuilder.key('d', () => dump(), KeyDownBuilder.help("Paint", 0, ["d"], "Dump metadata about marked area on console.log"))
+    KeyDownBuilder.key('d', () => dump(), KeyDownBuilder.help("Paint", 0, ["d"], "Dump metadata about marked area on console.log (only for developers)"))
     KeyDownBuilder.key('m', () => markArea(), KeyDownBuilder.help("Paint", 0, ["m"], "Mark an area, press the key twice to define start and end of the area"))
-    KeyDownBuilder.key('#', () => dumpBytes(), KeyDownBuilder.help("Paint", 0, ["#"], "Dump bytes of the marked area on console.log"))
+    KeyDownBuilder.key('#', () => dumpBytes(), KeyDownBuilder.help("Paint", 0, ["#"], "Dump bytes of the actual char on console.log"))
     KeyDownBuilder.key('s', () => exportSprite(), KeyDownBuilder.help("Paint", 0, ["s"], "Export sprites (beginning at position where the cursor is)"))
     KeyDownBuilder.key('t', () => insertText(), KeyDownBuilder.help("Paint", 0, ["t"], "Text tool (not yet available)"))
     KeyDownBuilder.key('e', () => exportArea(), KeyDownBuilder.help("Paint", 0, ["e"], "Exports marked area to assembler code (byte instructions)"))
@@ -39,17 +38,17 @@ const definePaintKeys = () => {
 }
 
 const defineStatusbarKeys = (onColorFn, colorsHolder) => {
-    KeyDownBuilder.alt('ArrowRight', () => moveColorSelectorInStatusbar('ArrowRight', onColorFn))
-    KeyDownBuilder.alt('ArrowLeft', () => moveColorSelectorInStatusbar('ArrowLeft', onColorFn))
-    KeyDownBuilder.shift('x', () => rememberColors(colorsHolder))
-    KeyDownBuilder.key('x', () => acceptRememberedColors(colorsHolder))
+    KeyDownBuilder.alt('ArrowRight', () => moveColorSelectorInStatusbar('ArrowRight', onColorFn), KeyDownBuilder.help("StatusBar", 0, ["Alt", "ArrowRight"], "Move color selector in statusbar one to the right"))
+    KeyDownBuilder.alt('ArrowLeft', () => moveColorSelectorInStatusbar('ArrowLeft', onColorFn), KeyDownBuilder.help("StatusBar", 0, ["Alt", "ArrowLeft"], "Move color selector in statusbar one to the left"))
+    KeyDownBuilder.shift('x', () => rememberColors(colorsHolder), KeyDownBuilder.help("StatusBar", 0, ["Shift","x"], "Remember colors in the actual char"))
+    KeyDownBuilder.key('x', () => acceptRememberedColors(colorsHolder), KeyDownBuilder.help("StatusBar", 0, ["x"], "Take over remembered colors to the actual char"))
 }
 
 const defineColorPaletteKeys = (context) => {
-    KeyDownBuilder.ctrl('ArrowRight', () => selectColorOnCursorKey('ArrowRight', context))
-    KeyDownBuilder.ctrl('ArrowLeft', () => selectColorOnCursorKey('ArrowLeft', context))
-    KeyDownBuilder.ctrl('ArrowDown', () => selectColorOnCursorKey('ArrowDown', context))
-    KeyDownBuilder.ctrl('ArrowUp', () => selectColorOnCursorKey('ArrowUp', context))
+    KeyDownBuilder.ctrl('ArrowRight', () => selectColorOnCursorKey('ArrowRight', context), KeyDownBuilder.help("ColorPalette", 0, ["CTRL", "ArrowRight"], "Move color selector in color palette one to the right"))
+    KeyDownBuilder.ctrl('ArrowLeft', () => selectColorOnCursorKey('ArrowLeft', context), KeyDownBuilder.help("ColorPalette", 0, ["CTRL", "ArrowLeft"], "Move color selector in color palette one to the left"))
+    KeyDownBuilder.ctrl('ArrowDown', () => selectColorOnCursorKey('ArrowDown', context), KeyDownBuilder.help("ColorPalette", 0, ["CTRL", "ArrowDown"], "Move color selector in color palette one down"))
+    KeyDownBuilder.ctrl('ArrowUp', () => selectColorOnCursorKey('ArrowUp', context), KeyDownBuilder.help("ColorPalette", 0, ["CTRL", "ArrowUp"], "Move color selector in color palette one up"))
 }
 
 function cursorUp() {
@@ -318,7 +317,7 @@ function dumpBytes() {
 
 function dump() {
     console.log(' ==== Individual dump as debugging help ====')
-    console.log(ScreenStore.getCopyContext().getSourceIndexList())
+    console.log(KeyDownBuilder.getHelp())
 }
 
 function exportSprite() {

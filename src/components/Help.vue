@@ -7,33 +7,32 @@ export default {
 </script>
 
 <script setup>
-  import { ref } from 'vue'
-  import {KeyDownBuilder} from "../builders/KeyDownBuilder";
-  import { DownSquareOutlined, UpSquareOutlined, LeftSquareOutlined, RightSquareOutlined } from '@ant-design/icons-vue';
-  import { green } from '@ant-design/colors';
+import { ref } from 'vue'
+import {KeyDownBuilder} from "../builders/KeyDownBuilder";
+import { DownSquareOutlined, UpSquareOutlined, LeftSquareOutlined, RightSquareOutlined } from '@ant-design/icons-vue';
+import { green } from '@ant-design/colors';
 
-  const helpVisible = ref(HelpStore.isVisible())
-  HelpStore.subscribe( () => helpVisible.value = HelpStore.isVisible())
-  const helpData = ref(KeyDownBuilder.getHelp())
-  const iconStyle = ref("font-size: 1.5em; color: " + green[6])
+const helpVisible = ref(HelpStore.isVisible())
+HelpStore.subscribe( () => helpVisible.value = HelpStore.isVisible())
+const iconStyle = ref("font-size: 1.5em; color: " + green[6])
 
-  const columns = [
-    {
-      name: 'Group',
-      dataIndex: 'group',
-      key: 'group',
-    },
-    {
-      title: 'Key',
-      dataIndex: 'keys',
-      key: 'keys',
-    },
-    {
-      title: 'Action',
-      dataIndex: 'action',
-      key: 'action',
-    }
-  ];
+const columns = [
+  {
+    name: 'Group',
+    dataIndex: 'group',
+    key: 'group',
+  },
+  {
+    title: 'Key',
+    dataIndex: 'keys',
+    key: 'keys',
+  },
+  {
+    title: 'Action',
+    dataIndex: 'action',
+    key: 'action',
+  }
+];
 
 
 </script>
@@ -44,7 +43,7 @@ export default {
            :open=helpVisible
            @cancel="HelpStore.toggle()">
 
-    <a-table :columns="columns" :data-source="helpData" :pagination="{ pageSize: 7, defaultCurrent: 1 }">
+    <a-table :columns="columns" :data-source="KeyDownBuilder.getHelp()" :pagination="{ pageSize: 10 }">
       <template #headerCell="{ column }">
         <template v-if="column.key === 'group'">
         <span>
@@ -55,31 +54,17 @@ export default {
 
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'group'">
-            {{ record.group }}
+          {{ record.group }}
         </template>
         <template v-else-if="column.key === 'keys'">
         <span>
-          <template v-if="record.keys[0] === 'ArrowDown'">
-            <DownSquareOutlined :style="iconStyle"  />
-          </template>
-          <template v-else-if="record.keys[0] === 'ArrowUp'">
-            <UpSquareOutlined :style="iconStyle"  />
-          </template>
-          <template v-else-if="record.keys[0] === 'ArrowLeft'">
-            <LeftSquareOutlined :style="iconStyle"  />
-          </template>
-          <template v-else-if="record.keys[0] === 'ArrowRight'">
-            <RightSquareOutlined :style="iconStyle"  />
-          </template>
-          <template v-else>
-            <a-tag
-                v-for="tag in record.keys"
-                :key="keys"
-                :color="'green'"
-            >
-              {{ tag.toUpperCase() }}
-            </a-tag>
-          </template>
+            <template v-for="tag in record.keys" :key="keys">
+              <template v-if="tag==='ArrowDown'"><DownSquareOutlined :style="iconStyle"  /></template>
+              <template v-else-if="tag==='ArrowUp'"><UpSquareOutlined :style="iconStyle"  /></template>
+              <template v-else-if="tag==='ArrowLeft'"><LeftSquareOutlined :style="iconStyle"  /></template>
+              <template v-else-if="tag==='ArrowRight'"><RightSquareOutlined :style="iconStyle"  /></template>
+              <template v-else><a-tag :color="'green'">{{ tag.toUpperCase() }}</a-tag><br></template>
+            </template>
         </span>
         </template>
         <template v-else-if="column.key === 'action'">
