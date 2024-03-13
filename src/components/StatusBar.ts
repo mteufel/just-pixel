@@ -45,6 +45,10 @@ const StatusBar = {
         let colorPicForeground2 = ref(BitmapStore.getColorByIndex(0))
         let colorPicForeground3 = ref(BitmapStore.getColorByIndex(0))
 
+        let toolTipScreenUpper = ref("")
+        let toolTipScreenLower = ref("")
+        let toolTipColorRAM = ref("")
+
         onMounted(() => {
             refreshSelectedColors(ScreenStore.getMemoryPosition())
         })
@@ -80,6 +84,10 @@ const StatusBar = {
                 colorForeground.value = BitmapStore.getForegroundColorMCM(memoryPosition)
                 colorForeground2.value = BitmapStore.getForegroundColor2MCM(memoryPosition)
                 colorForeground3.value = BitmapStore.getForegroundColor3MCM(memoryPosition)
+                let temp = BitmapStore.getColorFromScreenRam(memoryPosition)
+                toolTipScreenUpper.value = "Screen-RAM (upper nibble): $" + temp.toString(16) + "/%" + + temp.toString(2) + " -> " + colorForeground.value.colorIndex + "/$" + colorForeground.value.colorIndex.toString(16) + "/" + colorForeground.value.color
+                toolTipScreenLower.value = "Screen-RAM (lower nibble): $" + temp.toString(16) + "/%" + + temp.toString(2) + " -> " + colorForeground2.value.colorIndex + "/$" + colorForeground2.value.colorIndex.toString(16) + "/" + colorForeground2.value.color
+                toolTipColorRAM.value = "Color-RAM $D800: " + colorForeground3.value.colorIndex + "/$" + colorForeground3.value.colorIndex.toString(16) + "/" + colorForeground3.value.color
             } else if (BitmapStore.isFCM()) {
                 colorForeground.value = BitmapStore.getForegroundColor1FCM();
                 colorForeground2.value = BitmapStore.getForegroundColor2FCM();
@@ -159,19 +167,21 @@ const StatusBar = {
                  cssForeground8, colorForeground8,
                  cssForeground9, colorForeground9,
                  cssForeground0, colorForeground0,
-                 colorPicForeground, colorPicForeground2, colorPicForeground3, onColor, textCoordPixel }
+                 colorPicForeground, colorPicForeground2, colorPicForeground3, onColor, textCoordPixel,
+                 toolTipColorRAM,
+                 toolTipScreenUpper,
+                 toolTipScreenLower}
 
         },
         render() {
 
             let statusBarContent = []
 
-
             if (BitmapStore.isMCM()) {
                 statusBarContent.push( h('div', { onClick: (e) => this.onColor(e) }, createBlock('b', this.colorBackground.r,this.colorBackground.g,this.colorBackground.b, this.cssBackground) ) )
-                statusBarContent.push( h('div', { onClick: (e) => this.onColor(e) }, createBlock('f', this.colorForeground.r,this.colorForeground.g,this.colorForeground.b, this.cssForeground) ) )
-                statusBarContent.push( h('div', { onClick: (e) => this.onColor(e) }, createBlock('f2', this.colorForeground2.r,this.colorForeground2.g,this.colorForeground2.b, this.cssForeground2) ) )
-                statusBarContent.push( h('div', { onClick: (e) => this.onColor(e) }, createBlock('f3', this.colorForeground3.r,this.colorForeground3.g,this.colorForeground3.b, this.cssForeground3) ) )
+                statusBarContent.push( h('div', { onClick: (e) => this.onColor(e) }, h(Tooltip, { title: this.toolTipScreenUpper},  createBlock('f', this.colorForeground.r,this.colorForeground.g,this.colorForeground.b, this.cssForeground)  ) ) )
+                statusBarContent.push( h('div', { onClick: (e) => this.onColor(e) }, h(Tooltip, { title: this.toolTipScreenLower},  createBlock('f2', this.colorForeground2.r,this.colorForeground2.g,this.colorForeground2.b, this.cssForeground2)  ) ) )
+                statusBarContent.push( h('div', { onClick: (e) => this.onColor(e) }, h(Tooltip, { title: this.toolTipColorRAM},  createBlock('f3', this.colorForeground3.r,this.colorForeground3.g,this.colorForeground3.b, this.cssForeground3)  ) ) )
 
                 statusBarContent.push( h('div') )
                 statusBarContent.push( h('div') )

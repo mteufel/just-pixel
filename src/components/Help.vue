@@ -43,7 +43,7 @@ const columns = [
            :open=helpVisible
            @cancel="HelpStore.toggle()">
 
-    <a-table :columns="columns" :data-source="KeyDownBuilder.getHelp()" :pagination="{ pageSize: 10 }">
+    <a-table :columns="columns" :data-source="KeyDownBuilder.getHelp()" :pagination="{ pageSize: 5 }">
       <template #headerCell="{ column }">
         <template v-if="column.key === 'group'">
         <span>

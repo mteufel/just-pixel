@@ -133,6 +133,13 @@ body, html {
     border-color: #333333
 }
 
+.color:hover {
+    border-style: dotted;
+    border-width: 2px;
+    border-color: #aaaaaa
+}
+
+
 .colorCursor {
     border: 1px solid transparent;
     box-sizing: border-box;
@@ -228,7 +235,7 @@ body, html {
     border-image-outset: 0px;
     border-image-repeat: repeat;
     border-image-source: url('selection.gif');
-    left: 100px;
+    left: 1200px;
     border-image-slice: 6;
     border-image-width: 2px;
     width: 20px;

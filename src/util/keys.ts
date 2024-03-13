@@ -8,6 +8,8 @@ import {PasteStore} from "../components/PasteModal";
 import {ToolContext, ToolMode} from "../stores/ToolContext";
 import {CopyContext} from "../stores/CopyContext";
 import {TextStore} from "../components/TextModal";
+import ReplaceColorsModal from "../components/ReplaceColorsModal.vue";
+import {notification} from "ant-design-vue";
 
 const defineCursorKeys = () => {
     KeyDownBuilder.key('ArrowDown', () => cursorDown(), KeyDownBuilder.help("Cursor", 0, ["ArrowDown"], "Moves the cursor one pixel down"))
@@ -24,8 +26,9 @@ const definePaintKeys = () => {
     KeyDownBuilder.key('4', () => BitmapStore.isFCM() ?  ScreenStore.paint('f4') : ScreenStore.paint('f3'), KeyDownBuilder.help("Paint", 0, ["4"], "MCM: Color 3 (Color-RAM), FCM: Paint Color 4"))
     KeyDownBuilder.key('d', () => dump(), KeyDownBuilder.help("Paint", 0, ["d"], "Dump metadata about marked area on console.log (only for developers)"))
     KeyDownBuilder.key('m', () => markArea(), KeyDownBuilder.help("Paint", 0, ["m"], "Mark an area, press the key twice to define start and end of the area"))
+    KeyDownBuilder.key('u', () => unmarkArea(), KeyDownBuilder.help("Paint", 0, ["u"], "Removes marked area"))
     KeyDownBuilder.key('#', () => dumpBytes(), KeyDownBuilder.help("Paint", 0, ["#"], "Dump bytes of the actual char on console.log"))
-    KeyDownBuilder.key('s', () => exportSprite(), KeyDownBuilder.help("Paint", 0, ["s"], "Export sprites (beginning at position where the cursor is)"))
+    KeyDownBuilder.key('s', () => exportSprite(), KeyDownBuilder.help("Paint", 0, ["s"], "Export sprite: move the cursor to the starting point, the exporter will export one full MCM Sprite 12x21 pixels wide"))
     KeyDownBuilder.key('t', () => insertText(), KeyDownBuilder.help("Paint", 0, ["t"], "Text tool (not yet available)"))
     KeyDownBuilder.key('e', () => exportArea(), KeyDownBuilder.help("Paint", 0, ["e"], "Exports marked area to assembler code (byte instructions)"))
     KeyDownBuilder.ctrl('v', () => doCopy(), KeyDownBuilder.help("Paint", 0, ["CTRL","v"], "Copy/Paste marked area"))
@@ -33,6 +36,7 @@ const definePaintKeys = () => {
     KeyDownBuilder.key('l', () =>  useTool(ToolMode.LINE) , KeyDownBuilder.help("Paint", 0, ["l"], "Paint a line"))
     KeyDownBuilder.key('c', () =>  useTool(ToolMode.CIRCLE) , KeyDownBuilder.help("Paint", 0, ["c"], "Paint a circle or ellipse"))
     KeyDownBuilder.key('Delete', () => deleteKeyPressed(), KeyDownBuilder.help("Paint", 0, ["Del"], "Clear actual char"))
+    KeyDownBuilder.key('r', () =>  replaceColors() , KeyDownBuilder.help("Paint", 0, ["r"], "Open a dialog to replace colors in the marked area"))
     KeyDownBuilder.key('Escape', () => escapePressed() )
 
 }
@@ -317,7 +321,7 @@ function dumpBytes() {
 
 function dump() {
     console.log(' ==== Individual dump as debugging help ====')
-    console.log(KeyDownBuilder.getHelp())
+    console.log(BitmapStore.getScreenRam()[0])
 }
 
 function exportSprite() {
@@ -350,6 +354,21 @@ function escapePressed() {
 function insertText() {
     console.log('Jetzt Text')
     TextStore.toggle()
+}
+
+function replaceColors() {
+    if (ScreenStore.getCopyContext().isCopyable()) {
+        ReplaceColorsModal.replaceColorStore.toggle()
+    } else {
+        notification.error({
+            message: 'No Area marked',
+            description:
+                'In order to open the replace color dialog, please mark an area.',
+            duration: 3,
+        })
+
+    }
+
 }
 
 

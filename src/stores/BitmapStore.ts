@@ -211,31 +211,46 @@ const createBitmapStore = () => {
 
         },
         setForegroundColorMCM: (memoryPosition : number, selColor : Color) => {
-            let colorValue = BitmapStore.getColorFromScreenRam(memoryPosition)
-            if (colorValue == undefined) {
-                colorValue=0
-            }
-            let colorValueHexComplete = colorValue.toString(16)
-            if (colorValueHexComplete === "0") {
-                colorValueHexComplete = "00"
-            }
-            let ColorValueVorne = selColor.colorIndex.toString(16)
-            //let ColorValueHinten = colorValueHexComplete.substr(1,1)
-            let ColorValueHinten = colorValueHexComplete.substring(1,2)
-            let colorValueNeu = '0x'.concat(ColorValueVorne,ColorValueHinten)
-            screenRam[memoryPosition/8] =  parseInt(colorValueNeu,16)
+
+            console.log("----------------------------------------")
+            console.log("-------------------setForegroundColorMCM")
+            console.log("start................ " ,   memoryPosition, selColor )
+            console.log("screen-ram-old/dez... " ,  BitmapStore.getColorFromScreenRam(memoryPosition))
+            console.log("screen-ram-old/hex... " ,  BitmapStore.getColorFromScreenRam(memoryPosition).toString(16))
+            let num = parseInt(BitmapStore.getColorFromScreenRam(memoryPosition).toString(16), 16)
+            //let low = (num & 0xF0) >> 4
+            let high = num & 0x0F
+            let low_new = selColor.colorIndex.toString(16)
+            let high_new = high
+            let result = "".concat(low_new.toString(16), high_new.toString(16))
+            console.log("num/low_new/high_new..", num.toString(16), low_new.toString(16), high_new.toString(16))
+            console.log("result hex............", result)
+            console.log("result dez............", parseInt(result,16))
+            screenRam[memoryPosition/8] =  parseInt(result,16)
+            console.log("----------------------------------------")
+
+
         },
 
         setForegroundColor2MCM: (memoryPosition : number, selColor : Color) => {
-            let colorValue = BitmapStore.getColorFromScreenRam(memoryPosition)
-            let colorValueHexComplete = colorValue.toString(16)
-            if (colorValueHexComplete === "0") {
-                colorValueHexComplete = "00"
-            }
-            let ColorValueVorne = colorValueHexComplete.substr(0,1)
-            let ColorValueHinten = selColor.colorIndex.toString(16)
-            let colorValueNeu = '0x'.concat(ColorValueVorne,ColorValueHinten)
-            screenRam[memoryPosition/8] =  parseInt(colorValueNeu,16)
+
+            console.log("----------------------------------------")
+            console.log("------------------setForegroundColor2MCM")
+            console.log("start................ " ,   memoryPosition, selColor )
+            console.log("screen-ram-old/dez... " ,  BitmapStore.getColorFromScreenRam(memoryPosition))
+            console.log("screen-ram-old/hex... " ,  BitmapStore.getColorFromScreenRam(memoryPosition).toString(16))
+            let num = parseInt(BitmapStore.getColorFromScreenRam(memoryPosition).toString(16), 16)
+            let low = (num & 0xF0) >> 4
+            //let high = num & 0x0F
+            let low_new = low
+            let high_new = selColor.colorIndex.toString(16)
+            let result = "".concat(low_new.toString(16), high_new.toString(16))
+            console.log("num/low_new/high_new..", num.toString(16), low_new.toString(16), high_new.toString(16))
+            console.log("result hex............", result)
+            console.log("result dez............", parseInt(result,16))
+            screenRam[memoryPosition/8] =  parseInt(result,16)
+            console.log("----------------------------------------")
+
         },
 
         setForegroundColor3MCM: (memoryPosition : number, selColor : Color) => {
