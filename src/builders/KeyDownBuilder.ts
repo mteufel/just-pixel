@@ -37,7 +37,15 @@ let keyDownBuilder = () => {
         clearKeys: () => keys = [],
         key: (key, fn, help) => addKey(key, false, false ,false, fn, help),
         alt: (key, fn, help) => addKey(key, true, false ,false, fn, help),
-        shift: (key, fn, help) => addKey(key.toUpperCase(), false, true ,false, fn, help),
+        shift: (key, fn, help) => {
+            if (key === "ArrowUp") {
+                addKey(key, false, true ,false, fn, help)
+            } else {
+                addKey(key.toUpperCase(), false, true ,false, fn, help)
+            }
+
+        },
+
         ctrl: (key, fn, help) => addKey(key, false, false ,true, fn, help),
         useKeys: () => activate(),
         deactivateKeys: () => deactivate(),

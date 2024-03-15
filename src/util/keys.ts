@@ -39,6 +39,9 @@ const definePaintKeys = () => {
     KeyDownBuilder.key('r', () =>  replaceColors() , KeyDownBuilder.help("Paint", 0, ["r"], "Open a dialog to replace colors in the marked area"))
     KeyDownBuilder.key('Escape', () => escapePressed() )
 
+    KeyDownBuilder.shift('ArrowUp', () => pixelMove(), KeyDownBuilder.help("Paint", 0, ["Shift", "ArrowUp"], "Move pixels in selection 1 pixel up"))
+
+
 }
 
 const defineStatusbarKeys = (onColorFn, colorsHolder) => {
@@ -366,6 +369,32 @@ function replaceColors() {
                 'In order to open the replace color dialog, please mark an area.',
             duration: 3,
         })
+
+    }
+
+}
+
+function pixelMove() {
+
+    if (ScreenStore.getCopyContext().isCopyable()) {
+        console.log('------------------pixel-move')
+        console.log('copy-context......', ScreenStore.getCopyContext())
+        console.log('source-list.......', ScreenStore.getCopyContext().getSourceIndexList('normal'))
+        let source = ScreenStore.getCopyContext().getSourceIndexList('normal')
+        let my_bitmap = []
+        source.forEach( s => {
+            let wert0 = BitmapStore.getBitmap()[s+0]
+            let wert1 = BitmapStore.getBitmap()[s+1]
+            let wert2 = BitmapStore.getBitmap()[s+2]
+            let wert3 = BitmapStore.getBitmap()[s+3]
+            let wert4 = BitmapStore.getBitmap()[s+3]
+            let wert5 = BitmapStore.getBitmap()[s+4]
+            let wert6 = BitmapStore.getBitmap()[s+5]
+            let wert7 = BitmapStore.getBitmap()[s+6]
+
+
+        })
+        console.log('data-copy.......', my_bitmap)
 
     }
 

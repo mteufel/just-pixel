@@ -66,7 +66,7 @@ const StatusBar = {
                 let data = ScreenStore.getCoordinates()
                 if (BitmapStore.isMCM()) {
                     text.value = 'MULTICOLOR'
-                    textMemPos.value = data.memPos
+                    textMemPos.value = data.memPos  + '\n' + (data.memPos + (+ data.pixelY - 1))
                     textChar.value = data.charX + '/' + data.charY + '\n$' + data.charX.toString(16) + '/$' + data.charY.toString(16)
                     textPixel.value = data.pixelX + '/' + data.pixelY
                     textCoordPixel.value = data.coordX + '/' + data.coordY
@@ -224,7 +224,7 @@ const StatusBar = {
             // here starts div number 12 with a wider width (see justpixel.css) - there are 6 divs in this size so much of information to show:
             statusBarContent.push( h('div', null , h(Tooltip, { title: 'Mode'},  this.text  ) ) )
             statusBarContent.push( h('div' ) )
-            statusBarContent.push( h('div', null , h(Tooltip, { title: 'Position in memory'},  this.textMemPos  ) ) )
+            statusBarContent.push( h('div', null , h(Tooltip, { title: 'Position in memory'},  this.textMemPos ) ) )
             statusBarContent.push( h('div', null , h(Tooltip, { title: 'Character position (x/y)'},  this.textChar  ) ) )
             statusBarContent.push( h('div', null , h(Tooltip, { title: 'Pixel Position inside character (x/y)'},  this.textPixel  ) ) )
             if (BitmapStore.isMCM() && this.textCoordPixel != '-1/-1') {
