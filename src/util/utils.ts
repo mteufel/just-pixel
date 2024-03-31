@@ -152,5 +152,8 @@ function refreshComplete() {
     ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
 }
 
+function isUndefined(x) {
+    return typeof x == "undefined";
+}
 
-export { createUUID, colorMega65, getColr, hexToRgb, rgbToHex, uploadData, uploadDataLineByLine, uploadPng, rgbToRgbValue, rgbValueToRgb, pad, flipBitsHorizontally, deepCopy, refreshComplete }
+export { isUndefined, createUUID, colorMega65, getColr, hexToRgb, rgbToHex, uploadData, uploadDataLineByLine, uploadPng, rgbToRgbValue, rgbValueToRgb, pad, flipBitsHorizontally, deepCopy, refreshComplete }

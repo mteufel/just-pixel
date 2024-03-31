@@ -13,6 +13,7 @@ import ColorPaletteStore from "../stores/ColorPaletteStore";
 import {GridBitmap} from "./GridBitmap";
 import {KeyDownBuilder} from "../builders/KeyDownBuilder";
 import {defineCursorKeys, definePaintKeys} from "../util/keys";
+import {autoload} from "../util/autoload";
 
 
 const Screen = {
@@ -36,14 +37,17 @@ const Screen = {
         }
 
         onMounted(() => {
-            ScreenStore.actionNew()
+            // if autoload is active (see autoload.ts for the bloody details) then load sample pixels
+            // otherweise make a clean screen
+            if (!autoload()) {
+                ScreenStore.actionNew()
+            }
         })
 
         KeyDownBuilder.clearKeys()
         defineCursorKeys()
         definePaintKeys()
         KeyDownBuilder.useKeys()
-
 
 
         return { modeCycle, modeSwitch}

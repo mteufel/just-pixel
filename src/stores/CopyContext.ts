@@ -2,6 +2,7 @@
 import BitmapStore from "./BitmapStore";
 import ScreenStore from "./ScreenStore";
 import {flipBitsHorizontally, refreshComplete} from "../util/utils";
+import bitmapStore from "./BitmapStore";
 
 const CopyContext = () => {
   console.log('Creating a new CopyContext')
@@ -166,6 +167,55 @@ const CopyContext = () => {
               return this.lineNumberCnt + ' '
           }
           return ''
+      },
+      toJSON: function() {
+          let result = []
+          /*
+            {
+              name: '?',
+              mode: 'mcm',
+                  bytes: [
+                        {  mempos: 0, bitmap: [ 0,0,1,0,0,0,0,4 ], screen: 154, color: 7 },
+                        {  mempos: 8, bitmap: [ 0,0,175,110,170,121,170,105 ], screen: 154, color: 7 },
+                        {  mempos: 320, bitmap: [ 1,2,5,1,4,0,0,0 ], screen: 154, color: 7 },
+                        {  mempos: 320, bitmap: [ 150,69,17,4,17,0,0,0 ], screen: 154, color: 7 },
+                    ]
+             }
+
+            {  mempos: BYTE_1, bitmap: [ BYTE_2 ], screen: BYTE_3, color: BYTE_4 },
+            {
+              name: 'REPLACE_1',
+              mode: 'REPLACE_2',
+                  bytes: [
+                        {  mempos: BYTE_1, bitmap: [ BYTE_2 ], screen: BYTE_3, color: BYTE_4 },
+                    ]
+             }
+
+
+          */
+
+
+          result.push ("// this file is a json representation of the marked pixels")
+          result.push ("{")
+          result.push ("   name: '???',")
+          result.push ("   mode: '" + BitmapStore.getModeAsText() +  "',")
+          result.push ("   bytes: [")
+
+          let sourceList = this.getSourceIndexList('normal')
+          sourceList.forEach( mempos => {
+                let idx = 0
+                if (mempos > 0) {
+                    idx = mempos/8
+                }
+                let bytes = BitmapStore.getBitmap().slice(mempos,mempos+8).join(',')
+                result.push ( "            {  mempos: " + mempos + ", bitmap: [ " + bytes + " ], screen: " + BitmapStore.getScreenRam()[idx]  + ", color: " + bitmapStore.getColorRam()[idx] +  " },")
+          })
+
+
+          result.push ("   ]")
+          result.push ("}")
+          return result
+
       },
       dump: function(command) {
         console.log('dump 1')

@@ -14,7 +14,8 @@ const createByteDumperStore = () => {
     let title = "Byte Dumper"
     let codeStyles = [ { value: 'acme', label: 'ACME', disabled: false },
                        { value: 'kick-ass', label: 'KickAss', disabled: false },
-                       { value: 'basic', label: 'BASIC', disabled: false }]
+                       { value: 'basic', label: 'BASIC', disabled: false },
+                        { value: 'json', label: 'JSON', disabled: false } ]
     let subscribers = []
 
     let changeCodeStyle = (style) => {
@@ -78,6 +79,13 @@ const createByteDumperStore = () => {
             if (codeStyle.value === 'basic') {
                 result = ScreenStore.getCopyContext().dump("DATA", 0, 10)
             }
+
+
+            if (codeStyle.value === 'json') {
+                result = ScreenStore.getCopyContext().toJSON()
+            }
+
+
             let codeText = ''
             result.forEach( c => codeText = codeText + c + '\n' )
             code.value = codeText
@@ -101,7 +109,8 @@ const createByteDumperStore = () => {
             title = "Byte Dumper"
             codeStyles = [ { value: 'acme', label: 'ACME', disabled: false },
                 { value: 'kick-ass', label: 'KickAss', disabled: false },
-                { value: 'basic', label: 'BASIC', disabled: false }]
+                { value: 'json', label: 'JSON', disabled: false }
+            ]
             changeCodeStyle('kick-ass')
         },
         getTitle: () => title,
