@@ -1,5 +1,6 @@
 import ScreenStore from "../stores/ScreenStore";
 import BitmapStore from "../stores/BitmapStore";
+import {CopyContext} from "../stores/CopyContext";
 
 export { autoload }
 
@@ -27,6 +28,18 @@ const autoload = () => {
                     cnt++
                 })
             })
+
+            ScreenStore.setCopyContext(CopyContext())
+            ScreenStore.refreshChar(pixels.marker.startMemPos)
+            ScreenStore.refreshChar(pixels.marker.endMemPos)
+            let cc = ScreenStore.getCopyContext()
+            cc.startMemPos = pixels.marker.startMemPos
+            cc.endMemPos = pixels.marker.endMemPos
+            cc.startCharX = pixels.marker.startCharX
+            cc.startCharY = pixels.marker.startCharY
+            cc.endCharX = pixels.marker.endCharX
+            cc.endCharY = pixels.marker.endCharY
+
             BitmapStore.activateMulticolorBitmaps()
             ScreenStore.refreshAll()
             ScreenStore.setLastAction("uploaded")
@@ -49,6 +62,7 @@ const pixels = [
     {
         name: 'simple',
         mode: 'mcm',
+        marker: {startMemPos:0,endMemPos:328,startCharX:1,startCharY:1,endCharX:2,endCharY:2},
         bytes: [
                     {  mempos: 0, bitmap: [ 0,0,1,0,0,0,0,4 ], screen: 154, color: 7 },
                     {  mempos: 8, bitmap: [ 0,0,175,110,170,121,170,105 ], screen: 154, color: 7 },

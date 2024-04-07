@@ -13,6 +13,16 @@ const CopyContext = () => {
       endMemPos: 99999999,
       endCharX: -1,
       endCharY: -1,
+      getMarker: function() {
+          return {
+              startMemPos: this.startMemPos,
+              endMemPos: this.endMemPos,
+              startCharX: this.startCharX,
+              startCharY: this.startCharY,
+              endCharX: this.endCharX,
+              endCharY: this.endCharY
+          }
+      },
       hasMarker: function() {
             if (this.startMemPos > -1 ) {
                 return true
@@ -199,6 +209,7 @@ const CopyContext = () => {
           result.push ("{")
           result.push ("   name: '???',")
           result.push ("   mode: '" + BitmapStore.getModeAsText() +  "',")
+          result.push ("   marker: " + JSON.stringify(this.getMarker()).replace(/"([^"]+)":/g, '$1:'))
           result.push ("   bytes: [")
 
           let sourceList = this.getSourceIndexList('normal')
@@ -217,7 +228,7 @@ const CopyContext = () => {
           return result
 
       },
-      dump: function(command) {
+      easyDump: function(command) {
         console.log('dump 1')
         this.dump(command, -1, -1)
       },
