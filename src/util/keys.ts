@@ -10,6 +10,14 @@ import {CopyContext} from "../stores/CopyContext";
 import {TextStore} from "../components/TextModal";
 import ReplaceColorsModal from "../components/ReplaceColorsModal.vue";
 import {notification} from "ant-design-vue";
+import {toBinary, arrayRotate} from "../util/utils"
+
+enum DIRECTION {
+    UP = "UP",
+    DOWN = "DOWN",
+    LEFT = "LEFT",
+    RIGHT = "RIGHT",
+}
 
 const defineCursorKeys = () => {
     KeyDownBuilder.key('ArrowDown', () => cursorDown(), KeyDownBuilder.help("Cursor", 0, ["ArrowDown"], "Moves the cursor one pixel down"))
@@ -39,7 +47,9 @@ const definePaintKeys = () => {
     KeyDownBuilder.key('r', () =>  replaceColors() , KeyDownBuilder.help("Paint", 0, ["r"], "Open a dialog to replace colors in the marked area"))
     KeyDownBuilder.key('Escape', () => escapePressed() )
 
-    KeyDownBuilder.shift('ArrowUp', () => pixelMove(), KeyDownBuilder.help("Paint", 0, ["Shift", "ArrowUp"], "Move pixels in selection 1 pixel up"))
+    KeyDownBuilder.shift('ArrowUp', () => pixelMove(DIRECTION.UP), KeyDownBuilder.help("Paint", 0, ["Shift", "ArrowUp"], "Move pixels in selection 1 pixel up"))
+    KeyDownBuilder.shift('ArrowLeft', () => pixelMove(DIRECTION.LEFT), KeyDownBuilder.help("Paint", 0, ["Shift", "ArrowLeft"], "Move pixels in selection 1 pixel to the left"))
+    KeyDownBuilder.shift('ArrowRight', () => pixelMove(DIRECTION.RIGHT), KeyDownBuilder.help("Paint", 0, ["Shift", "ArrowRight"], "Move pixels in selection 1 pixel to the right"))
 
 
 }
@@ -374,27 +384,34 @@ function replaceColors() {
 
 }
 
-function pixelMove() {
+function pixelMove(direction) {
 
     if (ScreenStore.getCopyContext().isCopyable()) {
-        console.log('------------------pixel-move')
+        console.log('=================== pixel-move ======= START')
+        console.log('direction.........', direction)
+
+        let doRight = false
+        if (direction == DIRECTION.RIGHT) {
+            doRight = true
+        }
         console.log('copy-context......', ScreenStore.getCopyContext())
-        console.log('source-list.......', ScreenStore.getCopyContext().getSourceIndexList('normal'))
-        let source = ScreenStore.getCopyContext().getSourceIndexList('normal')
-        let my_bitmap = []
-        source.forEach( s => {
-            let wert0 = BitmapStore.getBitmap()[s+0]
-            let wert1 = BitmapStore.getBitmap()[s+1]
-            let wert2 = BitmapStore.getBitmap()[s+2]
-            let wert3 = BitmapStore.getBitmap()[s+3]
-            let wert4 = BitmapStore.getBitmap()[s+3]
-            let wert5 = BitmapStore.getBitmap()[s+4]
-            let wert6 = BitmapStore.getBitmap()[s+5]
-            let wert7 = BitmapStore.getBitmap()[s+6]
 
 
-        })
-        console.log('data-copy.......', my_bitmap)
+        let memPos = 0
+        for (let i = 0; i < 8; i++) {
+            let arr = toBinary( BitmapStore.getBitmap()[memPos+i]).split("")
+            arrayRotate( arr, 2, doRight )
+            let newValue = parseInt ( arr.join(""), 2)
+            BitmapStore.getBitmap()[memPos+i] = newValue
+        }
+        //ScreenStore.refreshAll()
+        ScreenStore.setLastAction("uploaded")
+        BitmapStore.callSubscribers()
+        ScreenStore.refreshChar()
+        ScreenStore.doCharChange(memPos)  // Memory Position 0
+
+        console.log('=================== pixel-move ======= END')
+
 
     }
 

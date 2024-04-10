@@ -1,0 +1,15 @@
+x geht nach rechts
+y nach unten
+
+wir starten by x=1 und y=1 und holen uns alle mempos für die aktuelle zeile (y)
+konvertieren diese in ein binary array
+
+
+{
+   name: '???',
+   mode: 'mcm',
+   marker: {startMemPos:968,endMemPos:968,startCharX:2,startCharY:4,endCharX:2,endCharY:4}
+   bytes: [
+            {  mempos: 968, bitmap: [ 3,2,5,1,4,0,0,0 ], screen: 154, color: 7 },
+   ]
+}

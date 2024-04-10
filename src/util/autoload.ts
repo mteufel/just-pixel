@@ -9,9 +9,9 @@ const autoloadActive = true;
 
 const autoload = () => {
     if (autoloadActive) {
-        let pixels = getPixelsByName('simple')
-        console.log('autoload.... =================================')
-        console.log('autoload.... ', pixels)
+        let pixels = getPixelsByName('one_char')
+        //console.log('autoload.... =================================')
+        //console.log('autoload.... ', pixels)
 
         if (pixels?.mode === 'mcm') {
             pixels.bytes.forEach( by => {
@@ -47,7 +47,7 @@ const autoload = () => {
             ScreenStore.refreshChar()
             ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
         }
-        console.log('autoload.... =================================')
+        //console.log('autoload.... =================================')
     } else {
         console.log('autoload deactivated =========================')
     }
@@ -70,5 +70,14 @@ const pixels = [
                     {  mempos: 328, bitmap: [ 150,69,17,4,17,0,0,0 ], screen: 154, color: 7 }
         ]
     },
+    {
+        name: 'one_char',
+        mode: 'mcm',
+        marker: {startMemPos:0,endMemPos:0,startCharX:1,startCharY:1,endCharX:1,endCharY:1},
+        bytes: [
+            {  mempos: 0, bitmap: [ 3,2,5,1,4,0,0,0 ], screen: 154, color: 7 },
+        ]
+    }
+
 
 ]

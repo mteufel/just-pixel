@@ -209,7 +209,7 @@ const CopyContext = () => {
           result.push ("{")
           result.push ("   name: '???',")
           result.push ("   mode: '" + BitmapStore.getModeAsText() +  "',")
-          result.push ("   marker: " + JSON.stringify(this.getMarker()).replace(/"([^"]+)":/g, '$1:'))
+          result.push ("   marker: " + JSON.stringify(this.getMarker()).replace(/"([^"]+)":/g, '$1:') +  ",")
           result.push ("   bytes: [")
 
           let sourceList = this.getSourceIndexList('normal')

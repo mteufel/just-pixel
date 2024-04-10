@@ -156,4 +156,15 @@ function isUndefined(x) {
     return typeof x == "undefined";
 }
 
-export { isUndefined, createUUID, colorMega65, getColr, hexToRgb, rgbToHex, uploadData, uploadDataLineByLine, uploadPng, rgbToRgbValue, rgbValueToRgb, pad, flipBitsHorizontally, deepCopy, refreshComplete }
+function toBinary(d) {
+    return  pad(Number(d).toString(2),8,'0')
+}
+
+function arrayRotate(arr, count, reverse) {
+    for (let i = 0; i < count; i++) {
+        if (reverse) arr.unshift(arr.pop());
+        else arr.push(arr.shift());
+    }
+    return arr;
+}
+export { arrayRotate, toBinary, isUndefined, createUUID, colorMega65, getColr, hexToRgb, rgbToHex, uploadData, uploadDataLineByLine, uploadPng, rgbToRgbValue, rgbValueToRgb, pad, flipBitsHorizontally, deepCopy, refreshComplete }

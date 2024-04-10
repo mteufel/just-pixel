@@ -38,7 +38,7 @@ let keyDownBuilder = () => {
         key: (key, fn, help) => addKey(key, false, false ,false, fn, help),
         alt: (key, fn, help) => addKey(key, true, false ,false, fn, help),
         shift: (key, fn, help) => {
-            if (key === "ArrowUp") {
+            if (key === "ArrowUp" || key === "ArrowDown" || key === "ArrowLeft" || key === "ArrowRight" ) {
                 addKey(key, false, true ,false, fn, help)
             } else {
                 addKey(key.toUpperCase(), false, true ,false, fn, help)
