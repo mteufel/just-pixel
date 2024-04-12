@@ -1,7 +1,7 @@
 // @ts-nocheck
 import BitmapStore from "./BitmapStore";
 import ScreenStore from "./ScreenStore";
-import {flipBitsHorizontally, refreshComplete} from "../util/utils";
+import {calculateMempos, flipBitsHorizontally, refreshComplete} from "../util/utils";
 import bitmapStore from "./BitmapStore";
 
 const CopyContext = () => {
@@ -41,9 +41,6 @@ const CopyContext = () => {
           }
           return false
       },
-      calculateMemPos: function(memPos: number, x: number, y: number) {
-          return memPos + ( (y-1) * (40*8) + (x-1) * 8 )
-      },
       calculateIndexList: function(memPosToStart : number, mode: string) {
             let result = []
             let x = ( this.endCharX - this.startCharX ) + 1    // width in chars
@@ -56,7 +53,7 @@ const CopyContext = () => {
             if (mode === 'normal') {
                 do {
                     do {
-                        result.push(this.calculateMemPos(memPosToStart, cntX, cntY))
+                        result.push( memPosToStart + calculateMempos(cntX, cntY))
                         cntX++
                     } while ( cntX <= x)
                     cntY++
@@ -69,7 +66,7 @@ const CopyContext = () => {
                 cntX = 1
                 do {
                     do {
-                        result.push(this.calculateMemPos(memPosToStart, cntX, cntY))
+                        result.push( memPosToStart + calculateMempos(cntX, cntY))
                         cntX++
                     } while ( cntX <= x )
 
@@ -83,7 +80,7 @@ const CopyContext = () => {
               let cntY = 1
               do {
                   do {
-                      result.push(this.calculateMemPos(memPosToStart, cntX, cntY))
+                      result.push( memPosToStart + calculateMempos(cntX, cntY))
                       cntX--
                   } while ( cntX > 0)
                   cntY++

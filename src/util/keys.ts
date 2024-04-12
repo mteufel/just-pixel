@@ -10,7 +10,7 @@ import {CopyContext} from "../stores/CopyContext";
 import {TextStore} from "../components/TextModal";
 import ReplaceColorsModal from "../components/ReplaceColorsModal.vue";
 import {notification} from "ant-design-vue";
-import {toBinary, arrayRotate} from "../util/utils"
+import {toBinary, arrayRotate, calculateMempos, calculateXY} from "../util/utils"
 
 enum DIRECTION {
     UP = "UP",
@@ -394,21 +394,57 @@ function pixelMove(direction) {
         if (direction == DIRECTION.RIGHT) {
             doRight = true
         }
-        console.log('copy-context......', ScreenStore.getCopyContext())
 
+        let cc = ScreenStore.getCopyContext()
+        console.log('copy-context......', cc)
+
+        let memPosCache = []
+        // get mempos per axis to move
+        for (let x = 1; x < cc.endCharX+1; x++) {
+            memPosCache.push( calculateMempos(x, 1) )
+        }
+
+        // create a byte array for all pixels in this axis (line by line)
+        let bits = []
+        memPosCache.forEach( memPos => {
+           bits = bits.concat( toBinary( BitmapStore.getBitmap()[memPos]).split("") )
+        } )
+        console.log(bits)
+        // move the line 1 pixel
+       arrayRotate( bits, 2, doRight )
+        console.log(bits)
+        // get the bytes out of the line and return them back into the bitmap
+        memPosCache.forEach( memPos => {
+            let calc = calculateXY(memPos)
+            console.log(calc)
+            for (let x = 0; x < 7; x++) {
+                BitmapStore.getBitmap()[memPos] = bits[calc.z + x]
+            }
+            ScreenStore.setLastAction("uploaded")
+            BitmapStore.callSubscribers()
+            ScreenStore.refreshChar()
+            ScreenStore.doCharChange(memPos)  // Memory Position 0
+        })
+
+        /*
+
+
+            for (let i = 0; i < 8; i++) {
+                let arr = toBinary( BitmapStore.getBitmap()[memPos+i]).split("")
+                arrayRotate( arr, 2, doRight )
+                let newValue = parseInt ( arr.join(""), 2)
+                BitmapStore.getBitmap()[memPos+i] = newValue
+            }
 
         let memPos = 0
-        for (let i = 0; i < 8; i++) {
-            let arr = toBinary( BitmapStore.getBitmap()[memPos+i]).split("")
-            arrayRotate( arr, 2, doRight )
-            let newValue = parseInt ( arr.join(""), 2)
-            BitmapStore.getBitmap()[memPos+i] = newValue
-        }
+
         //ScreenStore.refreshAll()
         ScreenStore.setLastAction("uploaded")
         BitmapStore.callSubscribers()
         ScreenStore.refreshChar()
         ScreenStore.doCharChange(memPos)  // Memory Position 0
+
+         */
 
         console.log('=================== pixel-move ======= END')
 

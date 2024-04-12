@@ -9,7 +9,7 @@ const autoloadActive = true;
 
 const autoload = () => {
     if (autoloadActive) {
-        let pixels = getPixelsByName('one_char')
+        let pixels = getPixelsByName('simple')
         //console.log('autoload.... =================================')
         //console.log('autoload.... ', pixels)
 
@@ -64,8 +64,8 @@ const pixels = [
         mode: 'mcm',
         marker: {startMemPos:0,endMemPos:328,startCharX:1,startCharY:1,endCharX:2,endCharY:2},
         bytes: [
-                    {  mempos: 0, bitmap: [ 0,0,1,0,0,0,0,4 ], screen: 154, color: 7 },
-                    {  mempos: 8, bitmap: [ 0,0,175,110,170,121,170,105 ], screen: 154, color: 7 },
+                    {  mempos: 0, bitmap: [ 1,0,1,0,0,0,0,4 ], screen: 154, color: 7 },
+                    {  mempos: 8, bitmap: [ 1,0,175,110,170,121,170,105 ], screen: 154, color: 7 },
                     {  mempos: 320, bitmap: [ 1,2,5,1,4,0,0,0 ], screen: 154, color: 7 },
                     {  mempos: 328, bitmap: [ 150,69,17,4,17,0,0,0 ], screen: 154, color: 7 }
         ]
