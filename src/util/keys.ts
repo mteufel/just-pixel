@@ -10,14 +10,7 @@ import {CopyContext} from "../stores/CopyContext";
 import {TextStore} from "../components/TextModal";
 import ReplaceColorsModal from "../components/ReplaceColorsModal.vue";
 import {notification} from "ant-design-vue";
-import {toBinary, arrayRotate, calculateMempos, calculateXY, refreshComplete} from "../util/utils"
-
-enum DIRECTION {
-    UP = "UP",
-    DOWN = "DOWN",
-    LEFT = "LEFT",
-    RIGHT = "RIGHT",
-}
+import {DIRECTION, movePixels} from "./pixelmover";
 
 const defineCursorKeys = () => {
     KeyDownBuilder.key('ArrowDown', () => cursorDown(), KeyDownBuilder.help("Cursor", 0, ["ArrowDown"], "Moves the cursor one pixel down"))
@@ -48,6 +41,7 @@ const definePaintKeys = () => {
     KeyDownBuilder.key('Escape', () => escapePressed() )
 
     KeyDownBuilder.shift('ArrowUp', () => pixelMove(DIRECTION.UP), KeyDownBuilder.help("Paint", 0, ["Shift", "ArrowUp"], "Move pixels in selection 1 pixel up"))
+    KeyDownBuilder.shift('ArrowDown', () => pixelMove(DIRECTION.DOWN), KeyDownBuilder.help("Paint", 0, ["Shift", "ArrowDown"], "Move pixels in selection 1 pixel down"))
     KeyDownBuilder.shift('ArrowLeft', () => pixelMove(DIRECTION.LEFT), KeyDownBuilder.help("Paint", 0, ["Shift", "ArrowLeft"], "Move pixels in selection 1 pixel to the left"))
     KeyDownBuilder.shift('ArrowRight', () => pixelMove(DIRECTION.RIGHT), KeyDownBuilder.help("Paint", 0, ["Shift", "ArrowRight"], "Move pixels in selection 1 pixel to the right"))
 
@@ -385,89 +379,7 @@ function replaceColors() {
 }
 
 function pixelMove(direction) {
-
-    if (ScreenStore.getCopyContext().isCopyable()) {
-        console.log('=================== pixel-move ======= START')
-        console.log('direction.........', direction)
-
-        let doRight = false
-        if (direction == DIRECTION.RIGHT) {
-            doRight = true
-        }
-
-        let cc = ScreenStore.getCopyContext()
-        console.log('copy-context......', cc)
-
-        let memPosCache = []
-        // get mempos per axis to move
-        for (let x = 1; x < cc.endCharX+1; x++) {
-            memPosCache.push( calculateMempos(x, 1) )
-        }
-
-        // create a byte array for all pixels in this axis (line by line)
-        let bits = []
-        memPosCache.forEach( memPos => {
-           bits = bits.concat( toBinary( BitmapStore.getBitmap()[memPos]).split("") )
-        } )
-        console.log(bits)
-        // move the line 1 pixel
-       arrayRotate( bits, 2, doRight )
-        console.log(bits)
-        // get the bytes out of the line and return them back into the bitmap
-        memPosCache.forEach( memPos => {
-            let calc = calculateXY(memPos)
-            let neu = bits.slice(calc.z, calc.z + 8)
-            neu = parseInt(neu.join(""),2)
-            BitmapStore.getBitmap()[memPos] = neu
-        })
-
-        // create a byte array for all pixels in this axis (line by line)
-         bits = []
-        memPosCache.forEach( memPos => {
-            bits = bits.concat( toBinary( BitmapStore.getBitmap()[memPos+1]).split("") )
-        } )
-        console.log(bits)
-        // move the line 1 pixel
-        arrayRotate( bits, 2, doRight )
-        console.log(bits)
-        // get the bytes out of the line and return them back into the bitmap
-        memPosCache.forEach( memPos => {
-            let calc = calculateXY(memPos)
-            let neu = bits.slice(calc.z, calc.z + 8)
-            neu = parseInt(neu.join(""),2)
-            BitmapStore.getBitmap()[memPos+1] = neu
-        })
-
-
-        refreshComplete()
-
-            /*
-
-
-                for (let i = 0; i < 8; i++) {
-                    let arr = toBinary( BitmapStore.getBitmap()[memPos+i]).split("")
-                    arrayRotate( arr, 2, doRight )
-                    let newValue = parseInt ( arr.join(""), 2)
-                    BitmapStore.getBitmap()[memPos+i] = newValue
-                }
-
-            let memPos = 0
-
-            //ScreenStore.refreshAll()
-            ScreenStore.setLastAction("uploaded")
-            BitmapStore.callSubscribers()
-            ScreenStore.refreshChar()
-            ScreenStore.doCharChange(memPos)  // Memory Position 0
-
-             */
-
-        console.log('=================== pixel-move ======= END')
-
-
-    }
-
+    movePixels(direction)
 }
-
-
 
 export { defineCursorKeys, definePaintKeys, defineStatusbarKeys, defineColorPaletteKeys }
