@@ -84,7 +84,9 @@ function moveY(cc, memPosCache, doDown, xPos) {
     let bits_3 = []
     let bits_4 = []
     memPosCache.forEach( memPos => {
+        console.log('memPos....', memPos)
         for (let i = 0; i < 8; i++) {
+            console.log('binary original....', toBinary(BitmapStore.getBitmap()[memPos + i]))
             let binary = toBinary(BitmapStore.getBitmap()[memPos + i]).split("")
             bits_1 = bits_1.concat(binary[0])
             bits_1 = bits_1.concat(binary[1])
