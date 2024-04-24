@@ -117,7 +117,7 @@ const Preview = {
                 onClick: e => {this.toggleClickAndPixel()} }, 'Set Pixel on mouse click (double click sets background pixel)' ),
             h('p', ' '),
             h(Checkbox, { checked: this.takeOverColor,
-                onClick: e => {this.toggleTakeOverColor()} }, 'Take over colors from last char, if empty' )
+                onClick: e => {this.toggleTakeOverColor()} }, 'Take over colors from last char, if empty' ),
         ]
         //console.log('preview render context...', this.ctx)
         console.log('Render Preview..... End')

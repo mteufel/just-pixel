@@ -332,7 +332,6 @@ const createPixelStore = () => {
                                 color = BitmapStore.getForegroundColor3MCM(memoryIndex)
                                 break
                         }
-
                         pixels.push (createPixel( memoryIndex, x, yy, color.r,color.g,color.b, doBlink, pixelClass))
 
                     } else {

@@ -48,7 +48,7 @@ const CopyContext = () => {
              let cntX = 1
              let cntY = 1
 
-            console.log('calculateIndexList : in=', { mode, memPosToStart, x, y } )
+            //console.log('calculateIndexList : in=', { mode, memPosToStart, x, y } )
 
             if (mode === 'normal') {
                 do {
@@ -89,7 +89,7 @@ const CopyContext = () => {
           }
 
 
-          console.log('calculateIndexList : out=', result )
+          //console.log('calculateIndexList : out=', result )
           return result
       },
       getSourceIndexList: function(mode: string) {

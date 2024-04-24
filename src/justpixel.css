@@ -257,13 +257,36 @@ body, html {
 }
 
 
-.preview {
-    background-color: #000000;
-}
+
 
 .byteDumperCodeStyle {
     font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
 }
 .width100 {
     width: 100%
+}
+
+.importImagePreview {
+    width: 50%;
+}
+.importImageControls {
+    width: 50%;
+    height:500px;
+    overflow:scroll;
+}
+
+
+.img-wrapper {
+    height: 200px;
+    width: 320px;
+    border-color: #000000;
+    background-color: #000000;
+    position: relative;
+    overflow-x:auto;
+    overflow-y:auto;
+}
+
+.img-wrapper > img {
+    display: inline-block;
+    position: relative;
 }

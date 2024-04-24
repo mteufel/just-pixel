@@ -13,6 +13,7 @@ import {ByteDumperModal} from "./ByteDumperModal";
 import {PasteModal} from "./PasteModal";
 import {TextModal} from "./TextModal";
 import ReplaceColorsModal from "./ReplaceColorsModal.vue";
+import ImportImageModal from "./ImportImageModal.vue";
 
 
 
@@ -38,7 +39,7 @@ const Toolbar = {
             h('div', { class:'toolbarIcon' } , h(UploadOutlined, { onClick: UploadStore.toggle }) ),
             h('div', { class:'toolbarIcon' } , h(QuestionOutlined, { onClick: Help.helpStore.toggle }) ),
             // ab hier die ganzen Dialog-Komponenten die potentiell aufgemacht werden können...
-            h('div', { } , [h(Help), h(Download), h(FilesUploadModal), h(NewModal), h(ByteDumperModal), h(PasteModal), h(TextModal), h(ReplaceColorsModal)])
+            h('div', { } , [h(Help), h(Download), h(FilesUploadModal), h(NewModal), h(ByteDumperModal), h(PasteModal), h(TextModal), h(ReplaceColorsModal), h(ImportImageModal)])
         ]
 
         let resultFCM = [

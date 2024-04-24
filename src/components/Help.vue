@@ -21,16 +21,25 @@ const columns = [
     name: 'Group',
     dataIndex: 'group',
     key: 'group',
+    width: '125px'
   },
   {
     title: 'Key',
-    dataIndex: 'keys',
-    key: 'keys',
+    dataIndex: 'keys1',
+    key: 'keys1',
+    width: '100px'
+  },
+  {
+    title: 'Key',
+    dataIndex: 'keys2',
+    key: 'keys2',
+    width: '100px'
   },
   {
     title: 'Action',
     dataIndex: 'action',
     key: 'action',
+    idth: '500px'
   }
 ];
 
@@ -39,11 +48,12 @@ const columns = [
 
 <template>
   <a-modal title="Help"
+           width="1000px"
            :closable="true"
            :open=helpVisible
-           @cancel="HelpStore.toggle()">
+            @cancel="HelpStore.toggle()">
 
-    <a-table :columns="columns" :data-source="KeyDownBuilder.getHelp()" :pagination="{ pageSize: 5 }">
+    <a-table :columns="columns" :data-source="KeyDownBuilder.getHelp()" :scroll="{ y: 500 }" :pagination="false">
       <template #headerCell="{ column }">
         <template v-if="column.key === 'group'">
         <span>
@@ -56,10 +66,18 @@ const columns = [
         <template v-if="column.key === 'group'">
           {{ record.group }}
         </template>
-        <template v-else-if="column.key === 'keys'">
+        <template v-else-if="column.key === 'keys1'">
         <span>
-            <template v-for="tag in record.keys" :key="keys">
-              <template v-if="tag==='ArrowDown'"><DownSquareOutlined :style="iconStyle"  /></template>
+            <template v-for="tag in record.keys" :key="keys1">
+              <template v-if=" ['Shift', 'Alt', 'Ctrl', 'SHIFT', 'ALT', 'CTRL'].indexOf(tag) != -1"><a-tag :color="'green'">{{ tag.toUpperCase() }}</a-tag></template>
+            </template>
+        </span>
+        </template>
+        <template v-else-if="column.key === 'keys2'">
+        <span>
+            <template v-for="tag in record.keys" :key="keys2">
+              <template v-if=" ['Shift', 'Alt', 'Ctrl', 'SHIFT', 'ALT', 'CTRL'].indexOf(tag) != -1"></template>
+              <template v-else-if="tag==='ArrowDown'"><DownSquareOutlined :style="iconStyle"  /></template>
               <template v-else-if="tag==='ArrowUp'"><UpSquareOutlined :style="iconStyle"  /></template>
               <template v-else-if="tag==='ArrowLeft'"><LeftSquareOutlined :style="iconStyle"  /></template>
               <template v-else-if="tag==='ArrowRight'"><RightSquareOutlined :style="iconStyle"  /></template>
@@ -76,7 +94,7 @@ const columns = [
     </a-table>
     <br>
     <a-tag color="#108ee9"><a href="https://github.com/mteufel/just-pixel" target="_blank">Source on Github</a></a-tag>
-    <a-tag color="cyan">(c) 2020-2024 Marc Teufel (Seytan/Reflex/APS)</a-tag>
+    <br><br>(c) 2020-2024 Marc Teufel (Seytan/Reflex/APS)
 
   </a-modal>
 </template>

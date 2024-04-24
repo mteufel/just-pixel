@@ -54,10 +54,8 @@ const FilesUploadModal = {
             destroyOnClose: true,
             onOk: this.okPressed,
             title: 'Upload Bitmap' } , h(Space, { direction: 'vertical' },
-                                       [
-                                           h(UploadButton, {  placeholder: 'Select pixels file', type: 'bitmap', accept: '.bin' }),
-                                           h(UploadButton, {  placeholder: 'Select png file', type: 'png', accept: '.png' })
-                                       ]))
+                                       h(UploadButton, {  placeholder: 'Select pixels file', type: 'bitmap', accept: '.bin' })
+                                       ))
 
     }
 }

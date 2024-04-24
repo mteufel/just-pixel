@@ -176,18 +176,6 @@ function calculateMempos(x, y) {
     return  ( (y-1) * (40*8) + (x-1) * 8 )
 }
 
-function calculateXY(mempos) {
-    // remember this is 0-based
-    // x --->
-    // y |
-    //   V
-    // z ---> position in line array
-    let y = parseInt(mempos/320)
-    let x = (mempos - (y * 320) ) / 8
-    let z = x * 8
-    return { x: x, y: y, z: z }
-}
-
-export { calculateXY, calculateMempos, arrayRotate, toBinary, isUndefined, createUUID, colorMega65,
+export { calculateMempos, arrayRotate, toBinary, isUndefined, createUUID, colorMega65,
          getColr, hexToRgb, rgbToHex, uploadData, uploadDataLineByLine, uploadPng, rgbToRgbValue,
          rgbValueToRgb, pad, flipBitsHorizontally, deepCopy, refreshComplete }

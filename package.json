@@ -14,7 +14,8 @@
     "lodash-es": "4.17.21",
     "pngjs": "7.0.0",
     "vue": "3.4.21",
-    "vue-color-kit": "1.0.6"
+    "vue-color-kit": "1.0.6",
+    "jimp": "0.22.12"
   },
   "devDependencies": {
     "@types/lodash-es": "4.17.12",

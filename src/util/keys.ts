@@ -11,6 +11,7 @@ import {TextStore} from "../components/TextModal";
 import ReplaceColorsModal from "../components/ReplaceColorsModal.vue";
 import {notification} from "ant-design-vue";
 import {DIRECTION, movePixels} from "./pixelmover";
+import ImportImageModal from "../components/ImportImageModal.vue";
 
 const defineCursorKeys = () => {
     KeyDownBuilder.key('ArrowDown', () => cursorDown(), KeyDownBuilder.help("Cursor", 0, ["ArrowDown"], "Moves the cursor one pixel down"))
@@ -30,8 +31,8 @@ const definePaintKeys = () => {
     KeyDownBuilder.key('u', () => unmarkArea(), KeyDownBuilder.help("Paint", 0, ["u"], "Removes marked area"))
     KeyDownBuilder.key('#', () => dumpBytes(), KeyDownBuilder.help("Paint", 0, ["#"], "Dump bytes of the actual char on console.log"))
     KeyDownBuilder.key('s', () => exportSprite(), KeyDownBuilder.help("Paint", 0, ["s"], "Export sprite: move the cursor to the starting point, the exporter will export one full MCM Sprite 12x21 pixels wide"))
-    KeyDownBuilder.key('t', () => insertText(), KeyDownBuilder.help("Paint", 0, ["t"], "Text tool (not yet available)"))
-    KeyDownBuilder.key('e', () => exportArea(), KeyDownBuilder.help("Paint", 0, ["e"], "Exports marked area to assembler code (byte instructions)"))
+    KeyDownBuilder.key('i', () => importImage(), KeyDownBuilder.help("Paint", 0, ["i"], "Import from Image (powered by RetroPixels)"))
+    KeyDownBuilder.key('e', () => exportArea(), KeyDownBuilder.help("Paint", 0, ["e"], "Exports marked area to assembler code (byte instructions) or to a JSON structure"))
     KeyDownBuilder.ctrl('v', () => doCopy(), KeyDownBuilder.help("Paint", 0, ["CTRL","v"], "Copy/Paste marked area"))
     KeyDownBuilder.shift('v', ()  => copyDialog(), KeyDownBuilder.help("Paint", 0, ["SHIFT","v"], "Copy/Pasted marked area with mirror (dialog)"))
     KeyDownBuilder.key('l', () =>  useTool(ToolMode.LINE) , KeyDownBuilder.help("Paint", 0, ["l"], "Paint a line"))
@@ -328,7 +329,11 @@ function dumpBytes() {
 
 function dump() {
     console.log(' ==== Individual dump as debugging help ====')
-    console.log(BitmapStore.getScreenRam()[0])
+    console.log(BitmapStore.getBitmap())
+
+
+
+
 }
 
 function exportSprite() {
@@ -356,6 +361,10 @@ function escapePressed() {
         ToolContext.setMode(ToolMode.OFF)
         ToolContext.finish()
     }
+}
+
+function importImage() {
+    ImportImageModal.importImageStore.toggle()
 }
 
 function insertText() {

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import ScreenStore from "../stores/ScreenStore";
-import {arrayRotate, calculateMempos, calculateXY, refreshComplete, toBinary} from "./utils";
+import {arrayRotate, calculateMempos, toBinary} from "./utils";
 import BitmapStore from "../stores/BitmapStore";
 
 enum DIRECTION {
@@ -39,16 +39,24 @@ function movePixelsLeftRight(direction:DIRECTION) {
             // move the line 1 pixel
             arrayRotate( bits, 2, doRight )
             // get the bytes out of the line and return them back into the bitmap
-            memPosCache.forEach( memPos => {
-                let calc = calculateXY(memPos)
-                let neu = bits.slice(calc.z, calc.z + 8)
+            memPosCache.forEach( (memPos, idx) => {
+                let start = idx * 8
+                let neu = bits.slice(start, start + 8)
                 neu = parseInt(neu.join(""),2)
                 BitmapStore.getBitmap()[memPos+i] = neu
             })
         }
 
     }
-    refreshComplete()
+
+    cc.getSourceIndexList('normal').forEach( memPos => {
+        ScreenStore.doCharChange(memPos)
+        ScreenStore.refreshChar(memPos)
+    })
+    ScreenStore.setLastAction('refresh-whole-preview' )
+    BitmapStore.callSubscribers()
+
+
 }
 
 function movePixelsUpDown(direction) {
@@ -68,7 +76,14 @@ function movePixelsUpDown(direction) {
         memPosCache = []
     }
 
-    refreshComplete()
+    cc.getSourceIndexList('normal').forEach( memPos => {
+        ScreenStore.doCharChange(memPos)
+        ScreenStore.refreshChar(memPos)
+    })
+    ScreenStore.setLastAction('refresh-whole-preview' )
+    BitmapStore.callSubscribers()
+
+
 
 }
 function moveY(cc, memPosCache, doDown, xPos) {
@@ -76,17 +91,17 @@ function moveY(cc, memPosCache, doDown, xPos) {
     for (let y = cc.startCharY; y < cc.endCharY+1; y++) {
         memPosCache.push( calculateMempos(xPos, y) )
     }
-    console.log('xPos...........', xPos)
-    console.log('memPosCache....', memPosCache)
+    //console.log('xPos...........', xPos)
+    //console.log('memPosCache....', memPosCache)
 
     let bits_1 = []
     let bits_2 = []
     let bits_3 = []
     let bits_4 = []
     memPosCache.forEach( memPos => {
-        console.log('memPos....', memPos)
+        //console.log('memPos....', memPos)
         for (let i = 0; i < 8; i++) {
-            console.log('binary original....', toBinary(BitmapStore.getBitmap()[memPos + i]))
+            //console.log('binary original....', toBinary(BitmapStore.getBitmap()[memPos + i]))
             let binary = toBinary(BitmapStore.getBitmap()[memPos + i]).split("")
             bits_1 = bits_1.concat(binary[0])
             bits_1 = bits_1.concat(binary[1])
@@ -100,7 +115,7 @@ function moveY(cc, memPosCache, doDown, xPos) {
     })
 
     let all = [ bits_1, bits_2, bits_3, bits_4 ]
-    console.log('all....', all)
+    //console.log('all....', all)
     let counter = 0
     all.forEach( (bits) => {
         arrayRotate(bits, 2, doDown)
@@ -121,6 +136,10 @@ function moveY(cc, memPosCache, doDown, xPos) {
         })
         counter = counter + 2
     })
+
+
+
+
 }
 
 
