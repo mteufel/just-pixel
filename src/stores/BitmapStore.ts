@@ -1,6 +1,6 @@
 // @ts-nocheck
 import {colorMega65} from '../util/utils'
-import { Color } from '../components/palette/ColorPalette'
+import { Color } from '../modals/palette/ColorPalette'
 import ColorPaletteStore from "./ColorPaletteStore";
 import ScreenStore from "./ScreenStore";
 import ColorSelectionStore from "./ColorSelectionStore";

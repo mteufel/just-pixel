@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import {Color, defaultColors} from "../components/palette/ColorPalette";
+import {Color, defaultColors} from "../modals/palette/ColorPalette";
 import BitmapStore from "./BitmapStore";
 
 const createColorPaletteStore = () => {

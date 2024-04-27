@@ -2,7 +2,7 @@
 import {h, ref } from 'vue'
 import {Radio, Modal, Tex, Textarea} from 'ant-design-vue'
 import {createBasicDialogStore} from '../stores/BasicDialogStore'
-import {ByteDumperStore} from "./ByteDumperModal";
+import {ByteDumperStore} from "../modals/ByteDumperModal";
 import TestInput from "./TestInput.vue";
 
 

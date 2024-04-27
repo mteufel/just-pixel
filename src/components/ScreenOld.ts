@@ -3,11 +3,11 @@ import {h, onMounted, ref } from 'vue'
 import BitmapStore from '../stores/BitmapStore'
 import ScreenStore from '../stores/ScreenStore'
 import {Toolbar} from './Toolbar'
-import {ColorPalette} from './palette/ColorPalette'
+import {ColorPalette} from '../modals/palette/ColorPalette'
 import {StatusBar} from './StatusBar'
 import {Preview} from './Preview'
 import { createUUID } from '../util/utils'
-import {NewStore} from './NewModal';
+import {NewStore} from '../modals/NewModal';
 import {CopyContext} from '../stores/CopyContext';
 import ColorPaletteStore from "../stores/ColorPaletteStore";
 import {GridBitmap} from "./GridBitmap";

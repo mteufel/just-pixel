@@ -2,18 +2,18 @@
 import {h} from 'vue'
 import { PlusOutlined, BorderInnerOutlined, DownloadOutlined, UploadOutlined, QuestionOutlined, BgColorsOutlined } from '@ant-design/icons-vue'
 import ScreenStore from '../stores/ScreenStore'
-import Help from './Help.vue'
+import Help from '../modals/Help.vue'
 import {Download, DownloadStore} from "./Download"
-import { FilesUploadModal } from './upload/FilesUploadModal'
-import { UploadStore } from './upload/UploadStore'
-import {NewModal, NewStore} from './NewModal';
-import {PaletteUpDownload, PaletteUpDownloadStore} from "./palette/PaletteUpDownload";
+import { FilesUploadModal } from '../modals/upload/FilesUploadModal'
+import { UploadStore } from '../modals/upload/UploadStore'
+import {NewModal, NewStore} from '../modals/NewModal';
+import {PaletteUpDownload, PaletteUpDownloadStore} from "../modals/palette/PaletteUpDownload";
 import BitmapStore from "../stores/BitmapStore";
-import {ByteDumperModal} from "./ByteDumperModal";
-import {PasteModal} from "./PasteModal";
+import {ByteDumperModal} from "../modals/ByteDumperModal";
+import {PasteModal} from "../modals/PasteModal";
 import {TextModal} from "./TextModal";
-import ReplaceColorsModal from "./ReplaceColorsModal.vue";
-import ImportImageModal from "./ImportImageModal.vue";
+import ReplaceColorsModal from "../modals/ReplaceColorsModal.vue";
+import ImportImageModal from "../modals/ImportImageModal.vue";
 
 
 

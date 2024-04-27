@@ -1,7 +1,7 @@
 import BitmapStore from "./BitmapStore";
 import ScreenStore from "./ScreenStore";
 import {deepCopy, refreshComplete} from "../util/utils";
-import {bresenhamLine, bresenhamEllipse, bresenhamCircle} from "../util/bresenham";
+import {bresenhamLine, bresenhamEllipse, bresenhamCircle} from "../helpers/bresenham";
 
 enum ToolMode {
     OFF = "OFF",

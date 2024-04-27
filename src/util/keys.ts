@@ -3,15 +3,15 @@ import {KeyDownBuilder} from "../builders/KeyDownBuilder"
 import ScreenStore from "../stores/ScreenStore"
 import BitmapStore from "../stores/BitmapStore";
 import ColorPaletteStore from "../stores/ColorPaletteStore";
-import {ByteDumperStore} from "../components/ByteDumperModal";
-import {PasteStore} from "../components/PasteModal";
+import {ByteDumperStore} from "../modals/ByteDumperModal";
+import {PasteStore} from "../modals/PasteModal";
 import {ToolContext, ToolMode} from "../stores/ToolContext";
 import {CopyContext} from "../stores/CopyContext";
 import {TextStore} from "../components/TextModal";
-import ReplaceColorsModal from "../components/ReplaceColorsModal.vue";
+import ReplaceColorsModal from "../modals/ReplaceColorsModal.vue";
 import {notification} from "ant-design-vue";
-import {DIRECTION, movePixels} from "./pixelmover";
-import ImportImageModal from "../components/ImportImageModal.vue";
+import {DIRECTION, movePixels} from "../helpers/pixelmover";
+import ImportImageModal from "../modals/ImportImageModal.vue";
 
 const defineCursorKeys = () => {
     KeyDownBuilder.key('ArrowDown', () => cursorDown(), KeyDownBuilder.help("Cursor", 0, ["ArrowDown"], "Moves the cursor one pixel down"))

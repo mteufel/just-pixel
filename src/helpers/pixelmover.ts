@@ -1,6 +1,6 @@
 // @ts-nocheck
 import ScreenStore from "../stores/ScreenStore";
-import {arrayRotate, calculateMempos, toBinary} from "./utils";
+import {arrayRotate, calculateMempos, toBinary} from "../util/utils";
 import BitmapStore from "../stores/BitmapStore";
 
 enum DIRECTION {
