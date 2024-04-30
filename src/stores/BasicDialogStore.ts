@@ -8,7 +8,6 @@ const createBasicDialogStore = () => {
     return {
         isVisible: () => visible,
         toggle: () => {
-            console.log('toggle called ', visible)
             visible = !visible
             if (!visible) {
                 // Modal wird unsichtbar, also Keybelegung fuer den Editor anschalten

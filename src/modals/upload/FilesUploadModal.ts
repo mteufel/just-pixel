@@ -18,27 +18,20 @@ const FilesUploadModal = {
 
         const okPressed = () => {
 
-            if (UploadStore.png != null) {
-                console.log('Png loaded ', UploadStore.png)
-                PngToMcm.setPng(UploadStore.png)
-                PngToMcm.convertToMcm()
-
-            } else {
-                console.log('Loaded ',  UploadStore.bitmap )
-                if (UploadStore.bitmap[10049]==1) {
-                    BitmapStore.activateMulticolorBitmaps()
-                }
-                BitmapStore.setBitmap(UploadStore.bitmap.slice(0,8000))
-                BitmapStore.setScreenRam(UploadStore.bitmap.slice(8000,9000))
-                BitmapStore.setColorRam(UploadStore.bitmap.slice(9000,10000))
-                BitmapStore.setBackgroundColorMCM(ColorPaletteStore.colors().find( color  => color.colorIndex===UploadStore.bitmap[10000]))
-                ScreenStore.refreshAll()
-                ScreenStore.setLastAction("uploaded")
-                BitmapStore.callSubscribers()
-                ScreenStore.refreshChar()
-                ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
-                UploadStore.toggle()
+            console.log('Loaded ',  UploadStore.bitmap )
+            if (UploadStore.bitmap[10049]==1) {
+                BitmapStore.activateMulticolorBitmaps()
             }
+            BitmapStore.setBitmap(UploadStore.bitmap.slice(0,8000))
+            BitmapStore.setScreenRam(UploadStore.bitmap.slice(8000,9000))
+            BitmapStore.setColorRam(UploadStore.bitmap.slice(9000,10000))
+            BitmapStore.setBackgroundColorMCM(ColorPaletteStore.colors().find( color  => color.colorIndex===UploadStore.bitmap[10000]))
+            ScreenStore.refreshAll()
+            ScreenStore.setLastAction("uploaded")
+            BitmapStore.callSubscribers()
+            ScreenStore.refreshChar()
+            ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
+            UploadStore.toggle()
 
 
         }

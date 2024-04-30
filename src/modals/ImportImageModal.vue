@@ -7,107 +7,93 @@ export default {
 </script>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { UploadOutlined } from '@ant-design/icons-vue';
 import 'jimp/browser/lib/jimp.js';
-import {GraphicModes} from "../helpers/retropixels-core/profiles/GraphicModes"
-import Quantizer from "../helpers/retropixels-core/conversion/Quantizer";
-import {ColorSpaces} from "../helpers/retropixels-core/profiles/ColorSpaces";
-import Converter from "../helpers/retropixels-core/conversion/Converter";
-import OrderedDither from "../helpers/retropixels-core/conversion/OrderedDither";
-import {Palettes} from "../helpers/retropixels-core/profiles/Palettes";
+import {PREPARATION, convert, prepare} from "../helpers/importer/util";
+import BitmapStore from "../stores/BitmapStore";
+import ScreenStore from "../stores/ScreenStore";
+import {convertBitmap, convertColorram, convertScreenram} from "../helpers/importer/io/C64Layout";
+import ColorPaletteStore from "../stores/ColorPaletteStore";
 
-
-
-
+const uploadedFile = ref(null)  // this one holds the original uploaded picture
+const uploadedImage = ref(null) // and this is the one which holds the original picture after cropping
+const pixelImage = ref(null)    // this is the preview picture as a result of cropping and converting
 
 const original = ref(null)
-const dest = ref(null)
-const aaa = ref(null)
+const preview = ref(null)
+
+const brightness = ref(0)
+
+const colorspace = ref('yuv')
+const dithering = ref('bayer4x4')
+const ditheringStrengthDisabled = ref(false)
+const ditheringStrength = ref(32)
+const crop = ref('fit')
+
 
 const importImageVisible = ref(ImportImageStore.isVisible())
-ImportImageStore.subscribe( () => {
-  importImageVisible.value = ImportImageStore.isVisible()
-} )
+ImportImageStore.subscribe( () =>  importImageVisible.value = ImportImageStore.isVisible()  )
 
-function resizeToTargetSize(jimpImage, pixelImage) {
-  const result = jimpImage.clone();
-  result.resize(pixelImage.mode.width, pixelImage.mode.height);
-  return result;
+
+const refreshPixels = async (preparation) => {
+  if (preparation) {
+    await prepare(uploadedFile, uploadedImage, crop, brightness)
+  }
+  const image = await uploadedImage.value.getBase64Async(Jimp.MIME_JPEG);
+  original.value = image
+  pixelImage.value = convert(uploadedImage, preview, colorspace, dithering, ditheringStrength)
 }
 
-function getImageDataFromPixelImage(pixelImage, palette) {
-  if (pixelImage === undefined) {
-    return new ImageData(1, 1);
-  }
-  const imageWidth = pixelImage.mode.width * pixelImage.mode.pixelWidth;
-  const imageData = new ImageData(imageWidth, pixelImage.mode.height);
-  for (let y = 0; y < pixelImage.mode.height; y += 1) {
-    for (let x = 0; x < pixelImage.mode.width; x += 1) {
-      const paletteIndex = pixelImage.peek(x, y);
-      const pixelValue = paletteIndex !== undefined ? palette.colors[paletteIndex] : [0, 0, 0, 0];
-      for (let xx = 0; xx < pixelImage.mode.pixelWidth; xx += 1) {
-        const index = y * 4 * imageWidth + x * pixelImage.mode.pixelWidth * 4 + xx * 4;
-        const [r, g, b] = pixelValue;
-        imageData.data[index] = r;
-        imageData.data[index + 1] = g;
-        imageData.data[index + 2] = b;
-        imageData.data[index + 3] = 0xff;
+watch(uploadedFile, async () => await refreshPixels(PREPARATION.YES) )
+watch(crop, async () => await refreshPixels(PREPARATION.YES) )
+watch(brightness, async () => await refreshPixels(PREPARATION.YES)  )
+watch(colorspace, async () => await refreshPixels(PREPARATION.NO)  )
+
+watch(ditheringStrength, async () => await refreshPixels(PREPARATION.NO)  )
+watch(dithering, () => {
+      ditheringStrengthDisabled.value = false
+      if (dithering.value === 'none') {
+        ditheringStrengthDisabled.value = true
       }
-    }
-  }
-  return imageData;
-}
-
-const graphicMode = GraphicModes.bitmap
-console.log(graphicMode)
+    pixelImage.value = convert(uploadedImage, preview, colorspace, dithering, ditheringStrength)
+    console.log(pixelImage.value)
+})
 
 
 const okPressed = () => {
+
+  BitmapStore.activateMulticolorBitmaps()
+  BitmapStore.setBitmap(convertBitmap(pixelImage.value))
+  BitmapStore.setScreenRam(convertScreenram(pixelImage.value,2,1))
+  BitmapStore.setColorRam(convertColorram(pixelImage.value,3))
+  BitmapStore.setBackgroundColorMCM((ColorPaletteStore.colors().find( color  => color.colorIndex===pixelImage.value.colorMaps[0].getNonEmpty(0, 0))))
+  ScreenStore.refreshAll()
+  ScreenStore.setLastAction("uploaded")
+  BitmapStore.callSubscribers()
+  ScreenStore.refreshChar()
+  ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
+
   ImportImageStore.toggle()
+
 }
 
-const handleChange = (file, fileList) => {
-  console.log('beforeUpload ', file, fileList )
-
-  new Promise(resolve => {
+const fileUpload = (file) => {
+  new Promise( () => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
       Jimp.read(reader.result)
           .then(async jimpImage => {
-
-            const coveredImage = await jimpImage.cover(320,200);
-            const myImage = await coveredImage.getBase64Async(Jimp.MIME_JPEG);
-            original.value = myImage
-            console.log('aaaa')
-
-            const defaultQuantizer = new Quantizer(Palettes.colodore, ColorSpaces.yuv);
-            const defaultConverter = new Converter(defaultQuantizer);
-            const defaultDitherer = new OrderedDither(OrderedDither.presets["bayer4x4"], 64);
-
-            const newPixelImage = GraphicModes.bitmap([false,false])
-            const resizedImage = resizeToTargetSize(jimpImage, newPixelImage);
-            defaultDitherer.dither(resizedImage.bitmap);
-            defaultConverter.convert(resizedImage.bitmap, newPixelImage);
-            console.log('result... ', newPixelImage)
-            dest.value = newPixelImage
-            var ctx = aaa.value.getContext('2d');
-            ctx.putImageData(getImageDataFromPixelImage(newPixelImage, Palettes.colodore), 0, 0);
-
+            uploadedFile.value = jimpImage;
           })
           .catch(err => {
             console.log(err)
           });
     }
-
   })
   return false;
-
-
-
 }
-
 
 </script>
 
@@ -115,12 +101,12 @@ const handleChange = (file, fileList) => {
 <template>
   <a-modal title="Import Image"
            :closable="true"
-           width="1000px"
+           width="1200px"
            :open=importImageVisible
            @cancel="ImportImageStore.toggle()">
     <template #footer>
       <a-space>
-        <a-upload :before-upload="handleChange" :multiple="false" :show-upload-list="false" :list-type="picture">
+        <a-upload :before-upload="fileUpload" :multiple="false" :show-upload-list="false">
           <a-button key="upload">
             <UploadOutlined />
             Upload
@@ -130,22 +116,107 @@ const handleChange = (file, fileList) => {
       </a-space>
     </template>
     <a-flex :vertical="false">
-      <div class="importImagePreview">
+
+      <div class="previews">
         <a-flex :vertical="true">
           <div>Original</div>
-          <div class="img-wrapper" ><img :src="original" /></div>
+          <div class="img-wrapper"><img :src="original" /></div>
           <div>Preview</div>
-          <div class="img-wrapper" ><canvas width="320" height="200"  class="preview" ref="aaa"></canvas></div>
-
-
-
+          <div class="canvas-wrapper"><canvas width="320" height="200" ref="preview"></canvas></div>
         </a-flex>
-
       </div>
 
-      <div class="importImageControls">
-          TODO Controls
+      <div class="controls">
+        <div class="grid-container">
+          <div>Cropping</div>
+          <div>
+            <a-radio-group v-model:value="crop" button-style="solid">
+              <a-radio-button value="crop">crop</a-radio-button>
+              <a-radio-button value="fill">fill</a-radio-button>
+              <a-radio-button value="fit">fit</a-radio-button>
+            </a-radio-group>
+          </div>
+          <div>Brightness</div>
+          <div>
+            <a-slider :min="-1.0" :max="1.0" :step="0.05" v-model:value="brightness" />
+          </div>
+          <div>Colorspace</div>
+          <div>
+            <a-radio-group v-model:value="colorspace" button-style="solid">
+              <a-radio-button value="rgb">rgb</a-radio-button>
+              <a-radio-button value="yuv">yuv</a-radio-button>
+              <a-radio-button value="xyz">xyz</a-radio-button>
+              <a-radio-button value="rainbow">rainbow</a-radio-button>
+            </a-radio-group>
+          </div>
+          <div>Dithering</div>
+          <div>
+            <a-row>
+              <a-col flex="350px">
+                <a-radio-group v-model:value="dithering" button-style="solid">
+                  <a-radio-button value="none">none</a-radio-button>
+                  <a-radio-button value="bayer2x2">bayer2x2</a-radio-button>
+                  <a-radio-button value="bayer4x4">bayer4x4</a-radio-button>
+                  <a-radio-button value="bayer8x8">bayer8x8</a-radio-button>
+                </a-radio-group>
+              </a-col>
+              <a-col flex="250px">
+                <a-slider :min="0" :max="64" v-model:value="ditheringStrength" :disabled="ditheringStrengthDisabled" />
+              </a-col>
+            </a-row>
+          </div>
+        </div>
+
       </div>
     </a-flex>
   </a-modal>
 </template>
+
+<style>
+
+  .previews {
+    width: 375px;
+  }
+
+  .controls {
+    width: 800px;
+    height:500px;
+    overflow:scroll;
+  }
+
+  .img-wrapper {
+    height: 200px;
+    width: 320px;
+    border-color: #000000;
+    background-color: #000000;
+    position: relative;
+    overflow-x:auto;
+    overflow-y:auto;
+  }
+
+  .img-wrapper > img {
+    display: inline-block;
+    position: relative;
+  }
+
+  .canvas-wrapper {
+    height: 200px;
+    width: 320px;
+    border-color: #000000;
+    background-color: #000000;
+  }
+
+  .grid-container {
+    display: grid;
+    grid-template-columns: 125px auto;
+    grid-auto-rows: 50px;
+    row-gap: 0px;
+    column-gap: 5px;
+  }
+
+  .grid-container div {
+    align-items: center;
+    vertical-align: top;
+  }
+
+</style>

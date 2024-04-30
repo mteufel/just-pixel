@@ -1,11 +1,11 @@
 /**
- Copyright (c) 2015 Michel de Bree
+ Copyright (c) 2015 Michel de Bree and (c) 2024 Marc Teufel
  https://github.com/micheldebree/retropixels
  */
 
 import Palette from '../model/Palette'
+import {Color} from "../../../modals/palette/ColorPalette";
 
-// https://sourceforge.net/projects/deniseem/
 const colodore = new Palette([
     [0, 0, 0, 0xff], // black
     [0xff, 0xff, 0xff, 0xff], // white
@@ -82,9 +82,58 @@ const PALette = new Palette([
     [0xa3, 0xa3, 0xa3, 0xff] // light gray
 ])
 
+const JustPixelPalette = new Palette([
+    [0, 0, 0, 0xff], // black
+    [0xff, 0xff, 0xff, 0xff], // white
+    [0x68, 0x37, 0x2b, 0xff], // red
+    [0x70, 0xa4, 0xb2, 0xff], // cyan
+    [0x6f, 0x3d, 0x86, 0xff], // purple
+    [0x58, 0x85, 0x43, 0xff], // green
+    [0x35, 0x28, 0x79, 0xff], // blue
+    [0xb8, 0xc7, 0x6f, 0xff], // yellow
+    [0x6f, 0x4f, 0x25, 0xff], // orange
+    [0x43, 0x39, 0x00, 0xff], // brown
+    [0x9a, 0x67, 0x59, 0xff], // light red
+    [0x44, 0x44, 0x44, 0xff], // dark gray
+    [0x6c, 0x6c, 0x6c, 0xff], // medium gray
+    [0x9a, 0xd2, 0x84, 0xff], // light green
+    [0x6c, 0x5e, 0xb5, 0xff], // light blue
+    [0x94, 0x95, 0x95, 0xff] // light gray
+])
+
+
+const toJustPixel = (pal: Palette) => {
+
+    const r = 0
+    const g = 1
+    const b = 2
+
+    let colors : Color[] = [
+        { color: 'black',       colorIndex: 0, r: pal.colors[0][r], g: pal.colors[0][g], b: pal.colors[0][b] },
+        { color: 'white',       colorIndex: 1, r: pal.colors[1][r], g: pal.colors[1][g], b: pal.colors[1][b] },
+        { color: 'red',         colorIndex: 2, r: pal.colors[2][r], g: pal.colors[2][g], b: pal.colors[2][b] },
+        { color: 'cyan',        colorIndex: 3, r: pal.colors[3][r], g: pal.colors[3][g], b: pal.colors[3][b] },
+        { color: 'purple',      colorIndex: 4, r: pal.colors[4][r], g: pal.colors[4][g], b: pal.colors[4][b] },
+        { color: 'green',       colorIndex: 5, r: pal.colors[5][r], g: pal.colors[5][g], b: pal.colors[5][b] },
+        { color: 'blue',        colorIndex: 6, r: pal.colors[6][r], g: pal.colors[6][g], b: pal.colors[6][b] },
+        { color: 'yellow',      colorIndex: 7, r: pal.colors[7][r], g: pal.colors[7][g], b: pal.colors[7][b] },
+        { color: 'orange',      colorIndex: 8, r: pal.colors[8][r], g: pal.colors[8][g], b: pal.colors[8][b] },
+        { color: 'brown',       colorIndex: 9, r: pal.colors[9][r], g: pal.colors[9][g], b: pal.colors[9][b] },
+        { color: 'light red',   colorIndex: 10, r: pal.colors[10][r], g: pal.colors[10][g], b: pal.colors[10][b] },
+        { color: 'dark grey',   colorIndex: 11, r: pal.colors[11][r], g: pal.colors[11][g], b: pal.colors[11][b] },
+        { color: 'grey',        colorIndex: 12, r: pal.colors[12][r], g: pal.colors[12][g], b: pal.colors[12][b] },
+        { color: 'light green', colorIndex: 13, r: pal.colors[13][r], g: pal.colors[13][g], b: pal.colors[13][b] },
+        { color: 'light blue',  colorIndex: 14, r: pal.colors[14][r], g: pal.colors[14][g], b: pal.colors[14][b] },
+        { color: 'light grey',  colorIndex: 15, r: pal.colors[15][r], g: pal.colors[15][g], b: pal.colors[15][b] },
+    ]
+    return colors
+}
+
 export const Palettes = {
     pepto,
     colodore,
     deekay,
-    PALette
+    PALette,
+    JustPixelPalette,
+    toJustPixel
 }

@@ -43,6 +43,9 @@ const columns = [
   }
 ];
 
+const okPressed = () => {
+  console.log('okv p')
+}
 
 </script>
 
@@ -51,7 +54,9 @@ const columns = [
            width="1000px"
            :closable="true"
            :open=helpVisible
-            @cancel="HelpStore.toggle()">
+            @cancel="HelpStore.toggle()"
+            :okButtonProps="{ style: { display: 'none' } }"
+            :cancelButtonProps="{ type: 'primary'}">
 
     <a-table :columns="columns" :data-source="KeyDownBuilder.getHelp()" :scroll="{ y: 500 }" :pagination="false">
       <template #headerCell="{ column }">

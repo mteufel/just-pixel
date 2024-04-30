@@ -80,6 +80,19 @@ export const okLab: ColorSpace = (pixel: number[]): number[] => {
     ]
 }
 
+export const byString = (s: string) => {
+   switch(s) {
+       case 'yuv':
+           return ColorSpaces.yuv;
+       case 'rgb':
+           return ColorSpaces.rgb;
+       case 'rainbow':
+           return ColorSpaces.rainbow;
+       case 'xyz':
+           return ColorSpaces.oklab;
+   }
+}
+
 export const ColorSpaces = {
     rgb,
     yuv,
@@ -87,5 +100,6 @@ export const ColorSpaces = {
     ycbcr: yCbCr,
     xyz,
     lab,
-    oklab: okLab
+    oklab: okLab,
+    byString
 }
