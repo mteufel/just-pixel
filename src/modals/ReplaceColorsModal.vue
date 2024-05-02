@@ -13,6 +13,7 @@ import BitmapStore from "../stores/BitmapStore";
 import {createUUID} from "../util/utils";
 import ColorPaletteStore from "../stores/ColorPaletteStore";
 import {cloneDeep} from "lodash-es";
+import ColorPalette from "../components/ColorPalette.vue";
 
   const replaceColorVisible = ref(ReplaceColorStore.isVisible())
   ReplaceColorStore.subscribe( () => {
@@ -125,10 +126,9 @@ const selectColorToReplace = (record) => {
   Object.assign(data.value.filter(item => record.key === item.key)[0], selection.value);
 }
 
-const changeColor = (event) => {
+const changeColor = (selectedColor) => {
   let oldKey = selection.value.key
   let toReplace = cloneDeep(selection)
-  let selectedColor = ColorPaletteStore.colors()[event.target.id]
   toReplace.value.replaceColor = selectedColor
   toReplace.value.replaceColorStyle = { "background-color": 'rgb(' + selectedColor.r + ',' + selectedColor.g + ',' + selectedColor.b + ')' }
   toReplace.value.key = createUUID()
@@ -164,9 +164,7 @@ const changeColor = (event) => {
               </a-table>
             </a-col>
             <a-col flex="auto">
-              <div class="paletteColor" style="vertical-align: middle">
-                <div v-for="col in colors"  class="color" :id="col.colorIndex" :style="col.style" @click="(event) => changeColor(event)" />
-              </div>
+                <ColorPalette :multi-selection="false" @selection-changed="changeColor"/>
             </a-col>
         </a-row>
   </a-modal>

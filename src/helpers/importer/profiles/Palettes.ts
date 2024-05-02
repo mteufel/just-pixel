@@ -4,7 +4,7 @@
  */
 
 import Palette from '../model/Palette'
-import {Color} from "../../../modals/palette/ColorPalette";
+import {Color} from "../../../domain/Color";
 
 const colodore = new Palette([
     [0, 0, 0, 0xff], // black
@@ -101,9 +101,7 @@ const JustPixelPalette = new Palette([
     [0x94, 0x95, 0x95, 0xff] // light gray
 ])
 
-
 const toJustPixel = (pal: Palette) => {
-
     const r = 0
     const g = 1
     const b = 2

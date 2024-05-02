@@ -6,8 +6,8 @@ import {Palettes} from "../helpers/importer/profiles/Palettes";
 
 const createColorPaletteStore = () => {
 
-    let defaultColors = Palettes.toJustPixel(Palettes.JustPixelPalette)
-    let colors = defaultColors
+    let defaultColors:Array<Color> = Palettes.toJustPixel(Palettes.JustPixelPalette)
+    let colors:Array<Color> = defaultColors
 
     return {
         initPalette: () => {

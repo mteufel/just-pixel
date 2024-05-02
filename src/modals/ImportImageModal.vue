@@ -8,13 +8,17 @@ export default {
 
 <script setup>
 import { ref, watch } from "vue";
-import { UploadOutlined } from '@ant-design/icons-vue';
+import { UploadOutlined, ReloadOutlined } from '@ant-design/icons-vue';
 import 'jimp/browser/lib/jimp.js';
-import {PREPARATION, convert, prepare} from "../helpers/importer/util";
+import {PREPARATION, convert, prepare, PREPARE_ACTIONS} from "../helpers/importer/util";
 import BitmapStore from "../stores/BitmapStore";
 import ScreenStore from "../stores/ScreenStore";
 import {convertBitmap, convertColorram, convertScreenram} from "../helpers/importer/io/C64Layout";
 import ColorPaletteStore from "../stores/ColorPaletteStore";
+import ColorPalette from "../components/ColorPalette.vue";
+
+
+
 
 const uploadedFile = ref(null)  // this one holds the original uploaded picture
 const uploadedImage = ref(null) // and this is the one which holds the original picture after cropping
@@ -31,34 +35,48 @@ const ditheringStrengthDisabled = ref(false)
 const ditheringStrength = ref(32)
 const crop = ref('fit')
 
+const contrast = ref(0)
+const saturation = ref(0)
+const blu = ref(0)
+const threshold = ref(0)
+const normalize = ref(true)
+const singleColorLayers = ref(false)
+const selectedColors = ref(ColorPaletteStore.colors())
+
 
 const importImageVisible = ref(ImportImageStore.isVisible())
 ImportImageStore.subscribe( () =>  importImageVisible.value = ImportImageStore.isVisible()  )
 
 
-const refreshPixels = async (preparation) => {
+const refreshPixels = async (preparation, prepareAction=PREPARE_ACTIONS.NONE) => {
   if (preparation) {
-    await prepare(uploadedFile, uploadedImage, crop, brightness)
+    await prepare(uploadedFile, uploadedImage, prepareAction, crop, normalize, brightness, contrast, saturation, blu, threshold)
   }
   const image = await uploadedImage.value.getBase64Async(Jimp.MIME_JPEG);
   original.value = image
-  pixelImage.value = convert(uploadedImage, preview, colorspace, dithering, ditheringStrength)
+  pixelImage.value = convert(uploadedImage, preview, selectedColors, colorspace, singleColorLayers, dithering, ditheringStrength)
 }
 
-watch(uploadedFile, async () => await refreshPixels(PREPARATION.YES) )
-watch(crop, async () => await refreshPixels(PREPARATION.YES) )
-watch(brightness, async () => await refreshPixels(PREPARATION.YES)  )
+watch(normalize, async () => await refreshPixels(PREPARATION.YES, PREPARE_ACTIONS.CROP) )
+watch(uploadedFile, async () => await refreshPixels(PREPARATION.YES, PREPARE_ACTIONS.CROP) )
+watch(crop, async () => await refreshPixels(PREPARATION.YES, PREPARE_ACTIONS.CROP) )
+watch(brightness, async () => await refreshPixels(PREPARATION.YES, PREPARE_ACTIONS.BRIGHTNESS)  )
 watch(colorspace, async () => await refreshPixels(PREPARATION.NO)  )
+watch(singleColorLayers, async () => await refreshPixels(PREPARATION.NO)  )
 
 watch(ditheringStrength, async () => await refreshPixels(PREPARATION.NO)  )
-watch(dithering, () => {
+watch(dithering, async () => {
       ditheringStrengthDisabled.value = false
       if (dithering.value === 'none') {
         ditheringStrengthDisabled.value = true
       }
-    pixelImage.value = convert(uploadedImage, preview, colorspace, dithering, ditheringStrength)
-    console.log(pixelImage.value)
+      await refreshPixels(PREPARATION.NO)
 })
+
+watch(contrast, async () => await refreshPixels(PREPARATION.YES, PREPARE_ACTIONS.CONTRAST) )
+watch(saturation, async () => await refreshPixels(PREPARATION.YES, PREPARE_ACTIONS.SATURATION) )
+watch(blu, async () => await refreshPixels(PREPARATION.YES, PREPARE_ACTIONS.BLUR) )
+watch(threshold, async () => await refreshPixels(PREPARATION.YES, PREPARE_ACTIONS.THRESHOLD) )
 
 
 const okPressed = () => {
@@ -75,6 +93,24 @@ const okPressed = () => {
   ScreenStore.doCharChange(ScreenStore.getMemoryPosition())
 
   ImportImageStore.toggle()
+
+}
+
+const defaultPressed = () => {
+
+  //selectedColors.value = ColorPaletteStore.colors()
+  crop.value = 'fit'
+  brightness.value = 0
+  contrast.value = 0
+  saturation.value = 0
+  blu.value = 0
+  threshold.value = 0
+  normalize.value = true
+  singleColorLayers.value = false
+  dithering.value = 'bayer4x4'
+  ditheringStrengthDisabled.value = false
+  ditheringStrength.value = 32
+  colorspace.value = 'yuv'
 
 }
 
@@ -95,6 +131,15 @@ const fileUpload = (file) => {
   return false;
 }
 
+const colorSelected = (selection) => {
+  selectedColors.value = selection
+  if (original.value != null) {
+    refreshPixels(PREPARATION.NO)
+  }
+
+}
+
+
 </script>
 
 
@@ -112,6 +157,7 @@ const fileUpload = (file) => {
             Upload
           </a-button>
         </a-upload>
+        <a-button key="defaults" @click="defaultPressed"><ReloadOutlined />Defaults</a-button>
         <a-button key="submit" type="primary" @click="okPressed">OK</a-button>
       </a-space>
     </template>
@@ -130,25 +176,50 @@ const fileUpload = (file) => {
         <div class="grid-container">
           <div>Cropping</div>
           <div>
-            <a-radio-group v-model:value="crop" button-style="solid">
-              <a-radio-button value="crop">crop</a-radio-button>
-              <a-radio-button value="fill">fill</a-radio-button>
-              <a-radio-button value="fit">fit</a-radio-button>
-            </a-radio-group>
+            <a-space>
+              <a-radio-group v-model:value="crop" button-style="solid">
+                <a-radio-button value="crop">crop</a-radio-button>
+                <a-radio-button value="fill">fill</a-radio-button>
+                <a-radio-button value="fit">fit</a-radio-button>
+              </a-radio-group>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Normalize
+              <a-switch v-model:checked="normalize" />
+            </a-space>
           </div>
           <div>Brightness</div>
           <div>
             <a-slider :min="-1.0" :max="1.0" :step="0.05" v-model:value="brightness" />
           </div>
+          <div>Contrast</div>
+          <div>
+            <a-slider :min="-1.0" :max="1.0" :step="0.05" v-model:value="contrast" />
+          </div>
+          <div>Saturation</div>
+          <div>
+            <a-slider :min="-100" :max="100" :step="1" v-model:value="saturation" />
+          </div>
+          <div>Blur</div>
+          <div>
+            <a-slider :min="0" :max="10" :step="1" v-model:value="blu" />
+          </div>
+          <div>Threshold</div>
+          <div>
+            <a-slider :min="0" :max="255" :step="1" v-model:value="threshold" />
+          </div>
           <div>Colorspace</div>
           <div>
-            <a-radio-group v-model:value="colorspace" button-style="solid">
-              <a-radio-button value="rgb">rgb</a-radio-button>
-              <a-radio-button value="yuv">yuv</a-radio-button>
-              <a-radio-button value="xyz">xyz</a-radio-button>
-              <a-radio-button value="rainbow">rainbow</a-radio-button>
-            </a-radio-group>
+            <a-space>
+              <a-radio-group v-model:value="colorspace" button-style="solid">
+                <a-radio-button value="rgb">rgb</a-radio-button>
+                <a-radio-button value="yuv">yuv</a-radio-button>
+                <a-radio-button value="xyz">xyz</a-radio-button>
+                <a-radio-button value="rainbow">rainbow</a-radio-button>
+              </a-radio-group>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Single color layers
+              <a-switch v-model:checked="singleColorLayers" />
+            </a-space>
           </div>
+
           <div>Dithering</div>
           <div>
             <a-row>
@@ -165,6 +236,12 @@ const fileUpload = (file) => {
               </a-col>
             </a-row>
           </div>
+
+          <div>Colors</div>
+          <div>
+            <ColorPalette :multi-selection="true" @selection-changed="colorSelected"/>
+          </div>
+
         </div>
 
       </div>

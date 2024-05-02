@@ -9,6 +9,7 @@ import ColorPaletteStore from "../../stores/ColorPaletteStore";
 import {PaletteUpDownload} from "./PaletteUpDownload";
 import {defineColorPaletteKeys} from "../../util/keys";
 
+// TODO: This one is still in use! Beeds a refactoring or should be replaced by the new ColorPalette.vue component
 
 const ColorPalette = {
 

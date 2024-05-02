@@ -6,10 +6,21 @@ import Converter from "./conversion/Converter";
 import OrderedDither from "./conversion/OrderedDither";
 import {GraphicModes} from "./profiles/GraphicModes";
 import 'jimp/browser/lib/jimp.js';
+import {Color} from "../../domain/Color";
+import Palette from "./model/Palette";
 
 enum PREPARATION {
     YES = true,
     NO = false,
+}
+
+enum PREPARE_ACTIONS {
+    NONE,
+    BRIGHTNESS,
+    CONTRAST,
+    SATURATION,
+    BLUR,
+    THRESHOLD
 }
 
 
@@ -20,6 +31,7 @@ function resizeToTargetSize(jimpImage, pixelImage) {
 }
 
 function getImageDataFromPixelImage(pixelImage, palette) {
+
     if (pixelImage === undefined) {
         return new ImageData(1, 1);
     }
@@ -61,7 +73,8 @@ function cropJimpImage(jimpImage) {
     return jimpImage
 }
 
-async function prepare(uploadedFile, uploadedImage, cropMode, brightness) {
+async function prepare(uploadedFile, uploadedImage, action, cropMode, normalize, brightness, contrast, saturation, blu, threshold) {
+
     const clonedImage = uploadedFile.value.clone();
 
     if (cropMode.value === 'fit') {
@@ -73,24 +86,62 @@ async function prepare(uploadedFile, uploadedImage, cropMode, brightness) {
     if (cropMode.value === 'crop') {
         uploadedImage.value =cropJimpImage(clonedImage)
     }
+    if (normalize.value==true) {
+        uploadedImage.value.normalize();
+    }
 
-    uploadedImage.value.brightness(brightness.value);
+    if (action==PREPARE_ACTIONS.BRIGHTNESS) {
+        uploadedImage.value.brightness(brightness.value);
+    }
+    if (action==PREPARE_ACTIONS.CONTRAST) {
+        uploadedImage.value.contrast(contrast.value);
+    }
 
+    if (action==PREPARE_ACTIONS.SATURATION) {
+        if (saturation.value > 0) {
+            uploadedImage.value.color([{ apply: 'saturate', params: [saturation.value] }]);
+        } else if (saturation.value < 0) {
+            uploadedImage.value.color([{ apply: 'desaturate', params: [-saturation.value] }]);
+        }
+    }
+
+    if (action==PREPARE_ACTIONS.BLUR) {
+        if (blu.value > 0) {
+            uploadedImage.value.blur(blu.value);
+        }
+    }
+
+    if (action==PREPARE_ACTIONS.THRESHOLD) {
+        if (threshold.value > 0) {
+            uploadedImage.value.threshold({ max: threshold.value, autoGreyscale: false });
+        }
+    }
 
 }
 
 
-function convert(image, destination, colorspace, dithering, ditheringStrength) {
+function convert(image, destination, selectedColors, colorspace, singleColorLayers, dithering, ditheringStrength) {
 
     if (image.value == null) {
         return
     }
 
-    const defaultQuantizer = new Quantizer(Palettes.JustPixelPalette, ColorSpaces.byString(colorspace.value));
+    let palette:Palette = Palettes.JustPixelPalette
+    palette.enabled = []
+    selectedColors.value.forEach( (col:Color) => {
+        palette.enabled.push(col.colorIndex)
+    })
+
+    const defaultQuantizer = new Quantizer(palette, ColorSpaces.byString(colorspace.value));
     const defaultConverter = new Converter(defaultQuantizer);
     const defaultDitherer = new OrderedDither(OrderedDither.presets[dithering.value], ditheringStrength.value);
 
-    const newPixelImage = GraphicModes.bitmap([false,false])
+    const configuration: Record<string, boolean> = {
+        hires: false,
+        nomaps: singleColorLayers.value
+    }
+    const newPixelImage = GraphicModes.bitmap(configuration)
+
     const resizedImage = resizeToTargetSize(image.value, newPixelImage);
     defaultDitherer.dither(resizedImage.bitmap);
     defaultConverter.convert(resizedImage.bitmap, newPixelImage);
@@ -101,4 +152,4 @@ function convert(image, destination, colorspace, dithering, ditheringStrength) {
 
 
 
-export { PREPARATION, resizeToTargetSize, getImageDataFromPixelImage, prepare, convert }
+export { PREPARE_ACTIONS, PREPARATION, resizeToTargetSize, getImageDataFromPixelImage, prepare, convert }
