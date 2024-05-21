@@ -1,7 +1,7 @@
 // @ts-nocheck
 import BitmapStore from "./BitmapStore";
 import ScreenStore from "./ScreenStore";
-import {calculateMempos, flipBitsHorizontally, refreshComplete} from "../util/utils";
+import {calculateMempos, flipBitsHorizontally, refreshComplete, removeLastChar} from "../util/utils";
 import bitmapStore from "./BitmapStore";
 
 const CopyContext = () => {
@@ -230,6 +230,11 @@ const CopyContext = () => {
         this.dump(command, -1, -1)
       },
       dump: function(command, lineNumber, incrementBy) {
+
+          let screenAndColorRamLineSize = 33
+          let lineSizeCounter = 0
+          let line = ''
+
           console.log('dump ', { command, lineNumber, incrementBy })
 
           let lineNumberCnt = lineNumber
@@ -251,20 +256,44 @@ const CopyContext = () => {
           let l = this.getLineNumber
           let result = []
           // Bitmap
+          result.push ("############## BITMAP ####################")
           sourceList.forEach( function (value, index) {
               let line = counterFunction() + command + ' ' + BitmapStore.getBitmap().slice(sourceList[index],sourceList[index]+8).join(',')
               result.push(line)
           })
           // Screen
+          result.push ("############## SCREEN RAM ####################")
+          lineSizeCounter = screenAndColorRamLineSize
           sourceList.forEach( function (value, index) {
-              let line = counterFunction() + command + ' ' + BitmapStore.getScreenRam().slice(sourceList[index]/8,(sourceList[index]+8)/8).join(',')
-              result.push(line)
+              if (lineSizeCounter == screenAndColorRamLineSize) {
+                  result.push(removeLastChar(line))
+                  lineSizeCounter = 0
+                  line = counterFunction() + command + ' '
+              }
+              line = line + BitmapStore.getScreenRam().slice(sourceList[index]/8,(sourceList[index]+8)/8).join(',') + ","
+              lineSizeCounter++
           })
           // Color RAM
+          result.push ("############## COLOR RAM ####################")
+          /*
           sourceList.forEach( function (value, index) {
               let line = counterFunction() + command + ' ' + BitmapStore.getColorRam().slice(sourceList[index]/8,(sourceList[index]+8)/8).join(',')
               result.push(line)
           })
+           */
+          line = ''
+          lineSizeCounter = screenAndColorRamLineSize
+          sourceList.forEach( function (value, index) {
+              if (lineSizeCounter == screenAndColorRamLineSize) {
+                  result.push(removeLastChar(line))
+                  lineSizeCounter = 0
+                  line = counterFunction() + command + ' '
+              }
+              line = line + BitmapStore.getColorRam().slice(sourceList[index]/8,(sourceList[index]+8)/8).join(',') + ","
+              lineSizeCounter++
+          })
+
+
           return result
       },
       doCopy: function(mode: String) {

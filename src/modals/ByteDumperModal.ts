@@ -153,7 +153,7 @@ const ByteDumperModal = {
         }
     },
     render() {
-        return h(Modal, {  bodyStyle: 'height: 425px;', width:'1000px', onCancel: () => ByteDumperStore.toggle(),
+        return h(Modal, {  bodyStyle: 'height: 425px;', width:'1200px', onCancel: () => ByteDumperStore.toggle(),
             visible: ByteDumperStore.isVisible(),
             closable: true,
             destroyOnClose: true,

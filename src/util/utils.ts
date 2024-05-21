@@ -199,6 +199,11 @@ function getDaultColors() {
     return colors;
 }
 
+function removeLastChar(str:string) {
+    return str.substring(0, str.length - 1)
+}
+
 export { calculateMempos, arrayRotate, toBinary, isUndefined, createUUID, colorMega65,
          getColr, hexToRgb, rgbToHex, uploadData, uploadDataLineByLine, uploadPng, rgbToRgbValue,
-         rgbValueToRgb, pad, flipBitsHorizontally, deepCopy, refreshComplete }
+         rgbValueToRgb, pad, flipBitsHorizontally, deepCopy, refreshComplete,
+         removeLastChar }
