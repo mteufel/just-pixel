@@ -12,6 +12,7 @@ import ReplaceColorsModal from "../modals/ReplaceColorsModal.vue";
 import {notification} from "ant-design-vue";
 import {DIRECTION, movePixels} from "../helpers/pixelmover";
 import ImportImageModal from "../modals/ImportImageModal.vue";
+import StorageModal from "../modals/StorageModal.vue";
 
 const defineCursorKeys = () => {
     KeyDownBuilder.key('ArrowDown', () => cursorDown(), KeyDownBuilder.help("Cursor", 0, ["ArrowDown"], "Moves the cursor one pixel down"))
@@ -39,6 +40,9 @@ const definePaintKeys = () => {
     KeyDownBuilder.key('c', () =>  useTool(ToolMode.CIRCLE) , KeyDownBuilder.help("Paint", 0, ["c"], "Paint a circle or ellipse"))
     KeyDownBuilder.key('Delete', () => deleteKeyPressed(), KeyDownBuilder.help("Paint", 0, ["Del"], "Clear actual char"))
     KeyDownBuilder.key('r', () =>  replaceColors() , KeyDownBuilder.help("Paint", 0, ["r"], "Open a dialog to replace colors in the marked area"))
+    KeyDownBuilder.key('<', () => openStorageDialog() ,  KeyDownBuilder.help("Paint", 0, ["<"], "Open dialog to show all copy contexts that are in local storage"))
+    KeyDownBuilder.key('-', () => console.log('take over') ,  KeyDownBuilder.help("Paint", 0, ["-"], "Put your copy context into the local storage"))
+
     KeyDownBuilder.key('Escape', () => escapePressed() )
 
     KeyDownBuilder.shift('ArrowUp', () => pixelMove(DIRECTION.UP), KeyDownBuilder.help("Paint", 0, ["Shift", "ArrowUp"], "Move pixels in selection 1 pixel up"))
@@ -389,6 +393,12 @@ function replaceColors() {
 
 function pixelMove(direction) {
     movePixels(direction)
+}
+
+function openStorageDialog() {
+    console.log('OpenStorageDialog')
+    StorageModal.storageStore.toggle()
+
 }
 
 export { defineCursorKeys, definePaintKeys, defineStatusbarKeys, defineColorPaletteKeys }

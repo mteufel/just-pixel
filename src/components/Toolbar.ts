@@ -14,6 +14,7 @@ import {PasteModal} from "../modals/PasteModal";
 import {TextModal} from "./TextModal";
 import ReplaceColorsModal from "../modals/ReplaceColorsModal.vue";
 import ImportImageModal from "../modals/ImportImageModal.vue";
+import StorageModal from "../modals/StorageModal.vue";
 
 
 
@@ -39,7 +40,8 @@ const Toolbar = {
             h('div', { class:'toolbarIcon' } , h(UploadOutlined, { onClick: UploadStore.toggle }) ),
             h('div', { class:'toolbarIcon' } , h(QuestionOutlined, { onClick: Help.helpStore.toggle }) ),
             // ab hier die ganzen Dialog-Komponenten die potentiell aufgemacht werden können...
-            h('div', { } , [h(Help), h(Download), h(FilesUploadModal), h(NewModal), h(ByteDumperModal), h(PasteModal), h(TextModal), h(ReplaceColorsModal), h(ImportImageModal)])
+            h('div', { } , [h(Help), h(Download), h(FilesUploadModal), h(NewModal), h(ByteDumperModal), h(PasteModal), h(TextModal), h(ReplaceColorsModal),
+                            h(ImportImageModal), h(StorageModal)])
         ]
 
         let resultFCM = [
