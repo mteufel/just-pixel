@@ -1,6 +1,13 @@
 <script setup lang="ts">
 
-    import {ref} from "vue";
+    //        x
+    //   +-------->
+    //   |
+    // y |
+    //   |
+    //   V
+
+    import {onMounted, onUpdated, ref} from "vue";
 
     const data = ref({
                         name: 'simple',
@@ -14,7 +21,18 @@
                         ]
                       })
 
+    onUpdated( () => {
+      let length = (data.value.marker.endCharX - data.value.marker.startCharX ) + 1
+      let height = (data.value.marker.endCharY - data.value.marker.startCharY ) + 1
+
+      console.trace()
+      console.log('length....', length)
+      console.log('height....', height)
+
+    })
+
 </script>
+
 
 <template>
   <svg width="320" height="200" xmlns="http://www.w3.org/2000/svg">
