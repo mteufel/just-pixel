@@ -168,6 +168,22 @@ function arrayRotate(arr, count, reverse) {
     return arr;
 }
 
+function precisionRound(number, precision) {
+    let factor = Math.pow(10, precision);
+    return Math.round(number * factor) / factor;
+}
+
+function fromMemPos(mempos:number):object {
+    let charX = (  (  precisionRound( (mempos / 320) - Math.trunc(mempos / 320)  , 3) * 320 ) / 8 ) + 1
+    let charY = Math.trunc(mempos / 320) + 1
+    let coordX = ( (charX - 1) * 4 ) + 1
+    let coordY = ( (charY - 1) * 8 ) + 1
+    return { mempos: mempos, charX: charX, charY: charY, coordX: coordX, coordY: coordY }
+}
+
+function getNibble(number : number, nth : number) {
+   return (number >> 4*nth) & 0xF
+}
 
 function calculateMempos(x, y) {
     // x --->
@@ -206,4 +222,4 @@ function removeLastChar(str:string) {
 export { calculateMempos, arrayRotate, toBinary, isUndefined, createUUID, colorMega65,
          getColr, hexToRgb, rgbToHex, uploadData, uploadDataLineByLine, uploadPng, rgbToRgbValue,
          rgbValueToRgb, pad, flipBitsHorizontally, deepCopy, refreshComplete,
-         removeLastChar }
+         removeLastChar, fromMemPos, getNibble }

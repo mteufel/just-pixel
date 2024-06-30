@@ -13,7 +13,7 @@
     "ant-design-vue": "4.2.3",
     "lodash-es": "4.17.21",
     "pngjs": "7.0.0",
-    "vue": "3.4.30",
+    "vue": "3.4.31",
     "vue-color-kit": "1.0.6",
     "jimp": "0.22.12"
   },

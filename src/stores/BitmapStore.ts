@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {colorMega65} from '../util/utils'
+import {colorMega65, getNibble} from '../util/utils'
 import { Color } from '../modals/palette/ColorPalette'
 import ColorPaletteStore from "./ColorPaletteStore";
 import ScreenStore from "./ScreenStore";
@@ -62,7 +62,8 @@ const createBitmapStore = () => {
 
 
         },
-        getNibble: (number : number, nth : number) =>  (number >> 4*nth) & 0xF,
+        //getNibble: (number : number, nth : number) =>  (number >> 4*nth) & 0xF,
+        getNibble: (number : number, nth : number) =>  getNibble(number, nth),
         clearBitmap: () => {
             bitmap = []
             screenRam = []
