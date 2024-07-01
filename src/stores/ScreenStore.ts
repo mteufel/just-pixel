@@ -2,7 +2,7 @@
 import { h } from 'vue'
 import BitmapStore from './BitmapStore'
 import { Char } from '../components/Char'
-import { createUUID } from '../util/utils'
+import {createBinaryLine, createUUID} from '../util/utils'
 import { CopyContext } from './CopyContext'
 import {Screen} from "../components/Screen";
 import {ToolContext} from "./ToolContext";
@@ -316,7 +316,8 @@ const createPixelStore = () => {
                         // ----------------------------
                         let color;
 
-                        switch (BitmapStore.getBinaryLine(y).substr(x*2,2)) {
+                        //switch (BitmapStore.getBinaryLine(y).substr(x*2,2)) {
+                        switch (createBinaryLine(BitmapStore.getBitmap()[y]).binary.substr(x*2,2)) {
                             case "00":
                                 // Color comes from Background $D021
                                 color = BitmapStore.getBackgroundColorMCM()
@@ -574,15 +575,7 @@ const createPixelStore = () => {
                 let index = ScreenStore.getMemoryPosition() + ScreenStore.getCursorY()
                 let charPosition = 7-ScreenStore.getCursorX()
 
-                let binary = BitmapStore.getBinaryLine(index)
-                //let binaryIndex7 = binary.substr(0,2)
-                //let binaryIndex6 = binary.substr(2,2)
-                //let binaryIndex5 = binary.substr(4,2)
-                //let binaryIndex4 = binary.substr(6,2)
-                let binaryIndex7 = binary.substring(0,2)
-                let binaryIndex6 = binary.substring(2,4)
-                let binaryIndex5 = binary.substring(4,6)
-                let binaryIndex4 = binary.substring(6,8)
+                let binary = createBinaryLine(BitmapStore.getBitmap()[index])
 
                 switch (colorPart) {
                     case "b":
@@ -600,19 +593,19 @@ const createPixelStore = () => {
 
                 switch (charPosition) {
                     case 7:
-                        binaryIndex7 = pixelPattern
+                        binary.fragments[0] = pixelPattern
                         break;
                     case 6:
-                        binaryIndex6 = pixelPattern
+                        binary.fragments[1] = pixelPattern
                         break;
                     case 5:
-                        binaryIndex5 = pixelPattern
+                        binary.fragments[2] = pixelPattern
                         break;
                     case 4:
-                        binaryIndex4 = pixelPattern
+                        binary.fragments[3] = pixelPattern
                         break;
                 }
-                let binaryNew = ''.concat(binaryIndex7 , binaryIndex6 , binaryIndex5 , binaryIndex4)
+                let binaryNew = ''.concat(binary.fragments[0] , binary.fragments[1] , binary.fragments[2] , binary.fragments[3])
                 BitmapStore.setBinaryLine(index, binaryNew)
 
 

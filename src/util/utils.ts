@@ -176,7 +176,7 @@ function precisionRound(number, precision) {
 function fromMemPos(mempos:number):object {
     let charX = (  (  precisionRound( (mempos / 320) - Math.trunc(mempos / 320)  , 3) * 320 ) / 8 ) + 1
     let charY = Math.trunc(mempos / 320) + 1
-    let coordX = ( (charX - 1) * 4 ) + 1
+    let coordX = ( (charX - 1) * 4 ) + 1       // this version is optimized for MCM
     let coordY = ( (charY - 1) * 8 ) + 1
     return { mempos: mempos, charX: charX, charY: charY, coordX: coordX, coordY: coordY }
 }
@@ -190,6 +190,21 @@ function calculateMempos(x, y) {
     // y |
     //   V
     return  ( (y-1) * (40*8) + (x-1) * 8 )
+}
+
+function createBinaryLine(value: number) {
+    let binary = value.toString(2);
+    while (binary.length < (8 || 2)) {
+        binary = "0" + binary
+    }
+    binary.padStart(8,'0')
+    let binaryIndex7 = binary.substring(0,2)
+    let binaryIndex6 = binary.substring(2,4)
+    let binaryIndex5 = binary.substring(4,6)
+    let binaryIndex4 = binary.substring(6,8)
+    let fragments = [binaryIndex7, binaryIndex6, binaryIndex5, binaryIndex4]
+    return { value: value, binary: binary, fragments: fragments}
+
 }
 
 function getDaultColors() {
@@ -222,4 +237,4 @@ function removeLastChar(str:string) {
 export { calculateMempos, arrayRotate, toBinary, isUndefined, createUUID, colorMega65,
          getColr, hexToRgb, rgbToHex, uploadData, uploadDataLineByLine, uploadPng, rgbToRgbValue,
          rgbValueToRgb, pad, flipBitsHorizontally, deepCopy, refreshComplete,
-         removeLastChar, fromMemPos, getNibble }
+         removeLastChar, fromMemPos, getNibble, createBinaryLine }

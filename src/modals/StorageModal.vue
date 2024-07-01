@@ -10,7 +10,7 @@ export default {
 import {onBeforeUpdate, onMounted, onUpdated, ref} from "vue";
 import BitmapStore from "../stores/BitmapStore.ts";
 import SvgPreview from "../components/SvgPreview.vue";
-import {fromMemPos} from "../util/utils.ts";
+import {fromMemPos, getNibble} from "../util/utils.ts";
 
 
 const data = ref([])
@@ -49,14 +49,17 @@ const columns = [
 onBeforeUpdate( () => {
   if (StorageStore.isVisible()) {
       // do anything
-      console.log('test...(0):' , BitmapStore.getNibble(154,0))
-      console.log('test...(1):' , BitmapStore.getNibble(154,1))
+      console.log('test...(0):' , getNibble(154,0))
+      console.log('test...(1):' , getNibble(154,1))
   }
 })
 
 const toSvgData = (data) => {
   data = {  mempos: 0, bitmap: [ 65,0,65,64,128,64,128,196 ], screen: 154, color: 7 }
   let coords = fromMemPos( data.mempos )
+  let svgPixels = []
+
+  let svgPixel = { x: coords.coordX, y:coords.coordY, width: 2, height: 1, fill: '' }
 
 }
 

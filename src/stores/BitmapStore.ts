@@ -117,17 +117,6 @@ const createBitmapStore = () => {
             }
 
         },
-        getBinaryLine: (idx : number) => {
-            let s = "00000000"
-            if (idx < 7999) {
-                let value = bitmap[idx]
-                s = value.toString(2);
-                while (s.length < (8 || 2)) {
-                    s = "0" + s
-                }
-            }
-            return s;
-        },
         flipBackground: (index : number, pos : number) => {
             bitmap[index] = bitmap[index] & ~(1<<pos)  //  CLEAR BIT
             callSubscribers()
@@ -213,44 +202,44 @@ const createBitmapStore = () => {
         },
         setForegroundColorMCM: (memoryPosition : number, selColor : Color) => {
 
-            console.log("----------------------------------------")
-            console.log("-------------------setForegroundColorMCM")
-            console.log("start................ " ,   memoryPosition, selColor )
-            console.log("screen-ram-old/dez... " ,  BitmapStore.getColorFromScreenRam(memoryPosition))
-            console.log("screen-ram-old/hex... " ,  BitmapStore.getColorFromScreenRam(memoryPosition).toString(16))
+            //console.log("----------------------------------------")
+            //console.log("-------------------setForegroundColorMCM")
+            //console.log("start................ " ,   memoryPosition, selColor )
+            //console.log("screen-ram-old/dez... " ,  BitmapStore.getColorFromScreenRam(memoryPosition))
+            //console.log("screen-ram-old/hex... " ,  BitmapStore.getColorFromScreenRam(memoryPosition).toString(16))
             let num = parseInt(BitmapStore.getColorFromScreenRam(memoryPosition).toString(16), 16)
             //let low = (num & 0xF0) >> 4
             let high = num & 0x0F
             let low_new = selColor.colorIndex.toString(16)
             let high_new = high
             let result = "".concat(low_new.toString(16), high_new.toString(16))
-            console.log("num/low_new/high_new..", num.toString(16), low_new.toString(16), high_new.toString(16))
-            console.log("result hex............", result)
-            console.log("result dez............", parseInt(result,16))
+            //console.log("num/low_new/high_new..", num.toString(16), low_new.toString(16), high_new.toString(16))
+            //console.log("result hex............", result)
+            //console.log("result dez............", parseInt(result,16))
             screenRam[memoryPosition/8] =  parseInt(result,16)
-            console.log("----------------------------------------")
+            //console.log("----------------------------------------")
 
 
         },
 
         setForegroundColor2MCM: (memoryPosition : number, selColor : Color) => {
 
-            console.log("----------------------------------------")
-            console.log("------------------setForegroundColor2MCM")
-            console.log("start................ " ,   memoryPosition, selColor )
-            console.log("screen-ram-old/dez... " ,  BitmapStore.getColorFromScreenRam(memoryPosition))
-            console.log("screen-ram-old/hex... " ,  BitmapStore.getColorFromScreenRam(memoryPosition).toString(16))
+            //console.log("----------------------------------------")
+            //console.log("------------------setForegroundColor2MCM")
+            //console.log("start................ " ,   memoryPosition, selColor )
+            //console.log("screen-ram-old/dez... " ,  BitmapStore.getColorFromScreenRam(memoryPosition))
+            //console.log("screen-ram-old/hex... " ,  BitmapStore.getColorFromScreenRam(memoryPosition).toString(16))
             let num = parseInt(BitmapStore.getColorFromScreenRam(memoryPosition).toString(16), 16)
             let low = (num & 0xF0) >> 4
             //let high = num & 0x0F
             let low_new = low
             let high_new = selColor.colorIndex.toString(16)
             let result = "".concat(low_new.toString(16), high_new.toString(16))
-            console.log("num/low_new/high_new..", num.toString(16), low_new.toString(16), high_new.toString(16))
-            console.log("result hex............", result)
-            console.log("result dez............", parseInt(result,16))
+            //console.log("num/low_new/high_new..", num.toString(16), low_new.toString(16), high_new.toString(16))
+            //console.log("result hex............", result)
+            //console.log("result dez............", parseInt(result,16))
             screenRam[memoryPosition/8] =  parseInt(result,16)
-            console.log("----------------------------------------")
+            //console.log("----------------------------------------")
 
         },
 

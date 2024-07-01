@@ -4,6 +4,7 @@ import BitmapStore from '../stores/BitmapStore'
 import ScreenStore from '../stores/ScreenStore'
 import { Button, Checkbox } from 'ant-design-vue'
 import { ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons-vue'
+import {createBinaryLine} from "../util/utils";
 
 const Preview = {
     props: {
@@ -238,25 +239,16 @@ function paintPreviewMCM(ctx, scaleFactor, matrix, memoryPosition, withCursor = 
     //console.log('paintPreviewMCM ', { ctx, scaleFactor, matrix, memoryPosition, withCursor } )
     let pos = calculatePosition(matrix, memoryPosition)
     pos.x = memoryPosition - pos.posFrom
-    let bg = BitmapStore.getBackgroundColorMCM()
-    let fg = BitmapStore.getForegroundColorMCM(memoryPosition)
-    let fg2 = BitmapStore.getForegroundColor2MCM(memoryPosition)
-    let fg3 = BitmapStore.getForegroundColor2MCM(memoryPosition)
     let x = 0
     let y = 1
     let r,g,b
     for (let mp = memoryPosition; mp < (memoryPosition+8); mp++) {
         if (mp < 7999) {
-            let binary = BitmapStore.getBinaryLine(mp).padStart(8,'0')
-            let binaryIndex7 = binary.substr(0,2)
-            let binaryIndex6 = binary.substr(2,2)
-            let binaryIndex5 = binary.substr(4,2)
-            let binaryIndex4 = binary.substr(6,2)
-            let arr = [binaryIndex7, binaryIndex6, binaryIndex5, binaryIndex4]
-            //console.log('binary', binary, arr)
+
+            let binaryData = createBinaryLine(BitmapStore.getBitmap()[mp])
 
             let color = BitmapStore.getBackgroundColorMCM()
-            arr.forEach( pixelPattern => {
+            binaryData.fragments.forEach( pixelPattern => {
                 switch(pixelPattern) {
                     case "00":
                         color = BitmapStore.getBackgroundColorMCM()
