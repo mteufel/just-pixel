@@ -3,6 +3,8 @@ import {PNG} from "pngjs/browser"
 import BitmapStore from "../stores/BitmapStore"
 import { cloneDeep } from "lodash-es"
 import ScreenStore from "../stores/ScreenStore";
+import ColorPaletteStore from "../stores/ColorPaletteStore";
+import {CopyContext} from "../stores/CopyContext";
 
 const createUUID = () => {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -176,7 +178,7 @@ function precisionRound(number, precision) {
 function fromMemPos(mempos:number):object {
     let charX = (  (  precisionRound( (mempos / 320) - Math.trunc(mempos / 320)  , 3) * 320 ) / 8 ) + 1
     let charY = Math.trunc(mempos / 320) + 1
-    let coordX = ( (charX - 1) * 4 ) + 1       // this version is optimized for MCM
+    let coordX = ( (charX - 1) * 8 ) + 1
     let coordY = ( (charY - 1) * 8 ) + 1
     return { mempos: mempos, charX: charX, charY: charY, coordX: coordX, coordY: coordY }
 }
@@ -207,6 +209,54 @@ function createBinaryLine(value: number) {
 
 }
 
+function checkSum(data: object) {
+    let sum = 0
+    data.bytes.forEach ( byte => {
+        let coords = fromMemPos(byte.mempos)
+        let coordValues = coords.mempos + (coords.coordX * coords.coordY)
+        sum = sum + coordValues + byte.bitmap[0]+ byte.bitmap[0]+ byte.bitmap[0]+ byte.bitmap[0]+ byte.bitmap[0]+ byte.bitmap[0]+ byte.bitmap[0]+ byte.bitmap[0] + byte.screen + byte.color
+    })
+    return sum
+}
+
+function toSvgData(bytes: object) {
+
+    let result = []
+    bytes.forEach(data => {
+        let coords = fromMemPos( data.mempos )
+        let svgPixels = []
+        let y = 0
+        let x = 0
+        data.bitmap.forEach( value => {
+            x = 0
+            let binary = createBinaryLine(value)
+            for (let idx = 0; idx < 4; idx++) {
+                let color = ColorPaletteStore.getColorByIndex(0) // Background black, this is a hack: at the moment we do not have the background color saved in the copy context json data
+                switch(binary.fragments[idx]) {
+                    case "01":
+                        color = ColorPaletteStore.getColorByIndex(getNibble(data.screen,1))
+                        break
+                    case "10":
+                        color = ColorPaletteStore.getColorByIndex(getNibble(data.screen,0))
+                        break
+                    case "11":
+                        color = ColorPaletteStore.getColorByIndex(data.color)
+                        break
+                }
+                svgPixels.push( { x: coords.coordX + x, y:coords.coordY + y, width: 2, height: 1, fill: rgbToHex(color.r, color.g, color.b) } )
+                x = x + 2
+            }
+            y = y + 1
+        })
+        result.push(...svgPixels)
+    })
+    return result
+
+
+
+    return svgPixels
+}
+
 function getDaultColors() {
 
     let defaultColors : Color[] = [
@@ -234,7 +284,27 @@ function removeLastChar(str:string) {
     return str.substring(0, str.length - 1)
 }
 
+function unmarkArea() {
+    let cc = ScreenStore.getCopyContext()
+    let a = cc.startMemPos
+    let e = cc.endMemPos
+    ScreenStore.setCopyContext(CopyContext())
+    ScreenStore.refreshChar(a)
+    ScreenStore.refreshChar(e)
+
+    cc.startMemPos = -1
+
+    cc.startCharX = -1
+    cc.startCharY = -1
+    cc.endMemPos = 999999
+    cc.endCharX = -1
+    cc.endCharY = -1
+    ScreenStore.setCopyContext(cc)
+    ScreenStore.refreshChar(cc.startMemPos)
+    ScreenStore.refreshChar(cc.endMemPos)
+}
+
 export { calculateMempos, arrayRotate, toBinary, isUndefined, createUUID, colorMega65,
          getColr, hexToRgb, rgbToHex, uploadData, uploadDataLineByLine, uploadPng, rgbToRgbValue,
          rgbValueToRgb, pad, flipBitsHorizontally, deepCopy, refreshComplete,
-         removeLastChar, fromMemPos, getNibble, createBinaryLine }
+         removeLastChar, fromMemPos, getNibble, createBinaryLine, checkSum, toSvgData, unmarkArea }

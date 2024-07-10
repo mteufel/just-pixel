@@ -7,28 +7,18 @@ export default {
 </script>
 
 <script setup>
-import {onBeforeUpdate, onMounted, onUpdated, ref} from "vue";
-import BitmapStore from "../stores/BitmapStore.ts";
+import {computed, onBeforeUpdate, ref} from "vue";
 import SvgPreview from "../components/SvgPreview.vue";
-import {fromMemPos, getNibble} from "../util/utils.ts";
-
+import { DeleteOutlined } from "@ant-design/icons-vue";
+import {CopyContext} from "../stores/CopyContext.ts";
+import ScreenStore from "../stores/ScreenStore.ts";
+import BitmapStore from "../stores/BitmapStore.ts";
+import {unmarkArea} from "../util/utils.ts";
 
 const data = ref([])
-const preview = ref(null)
-const ctx = ref(null)
-
-data.value.push  ( { key: 'aaa',
-  color: 'aaaa',
-  css: 'colorPixelBlock',
-  colorStyle: 'e' ,
-  replaceColor: 'bbb',
-  replaceColorStyle: 'e'  } )
-data.value.push  ( { key: 'aaa',
-  color: 'aaaa',
-  css: 'colorPixelBlock',
-  colorStyle: 'e' ,
-  replaceColor: 'bbb',
-  replaceColorStyle: 'e'  } )
+const onOff = ref(false)
+const selection = ref(null)
+const removeEnabled = computed( () => !onOff.value )
 
 
 const storageVisible = ref(StorageStore.isVisible())
@@ -41,26 +31,71 @@ const columns = [
     key: 'entry',
     title: '',
     dataIndex: 'entry',
-    width: 100,
+    height: 200,
     align: 'left',
   }
 ];
 
 onBeforeUpdate( () => {
   if (StorageStore.isVisible()) {
-      // do anything
-      console.log('test...(0):' , getNibble(154,0))
-      console.log('test...(1):' , getNibble(154,1))
+    console.log('onBeforeUpdate Start')
+    readFromStore()
+    console.log('onBeforeUpdate End')
   }
+
 })
 
-const toSvgData = (data) => {
-  data = {  mempos: 0, bitmap: [ 65,0,65,64,128,64,128,196 ], screen: 154, color: 7 }
-  let coords = fromMemPos( data.mempos )
-  let svgPixels = []
+const customRow = (record) => {
+  return {
+    onDblclick: (event) => {
+      console.log('dblclick...', record)
+      let original = record.key
+      let withoutSvg = original.replace("_svg", "")
+      //let pixels = JSON.parse(localStorage.getItem(withoutSvg))
+      console.log(ScreenStore.getCopyContext())
+      unmarkArea()
+      ScreenStore.getCopyContext().svgFromStore = withoutSvg
+      StorageStore.toggle()
 
-  let svgPixel = { x: coords.coordX, y:coords.coordY, width: 2, height: 1, fill: '' }
+    }
+  };
+}
 
+const rowSelection = {
+  type: 'radio',
+  onChange: (selectedRowKeys,) => {
+    onOff.value = true
+    selection.value = selectedRowKeys[0]
+  }
+}
+
+const deletefromStore = () => {
+  console.log('delete from store...', selection.value)
+  let original = selection.value
+  let withoutSvg = original.replace("_svg", "")
+  localStorage.removeItem(original)
+  localStorage.removeItem(withoutSvg)
+  readFromStore()
+  onOff.value = false
+  selection.value = null
+}
+
+const readFromStore = () => {
+  onOff.value = false
+  selection.value = null
+  data.value = []
+  Object.keys(localStorage).forEach((key) => {
+    if (key.endsWith("_svg")) {
+      let pixels = JSON.parse(localStorage.getItem(key))
+      let src = JSON.parse(localStorage.getItem(key.replace("_svg", "")))
+      data.value.push({
+        key: key,
+        pixels: pixels,
+        src: src
+      })
+    }
+
+  })
 }
 
 </script>
@@ -70,8 +105,14 @@ const toSvgData = (data) => {
   <a-modal title="Storage"
            :closable="true"
            width="500px"
-            :open=storageVisible
+           :open=storageVisible
            @cancel="StorageStore.toggle()">
+    <template #footer>
+      <a-space>
+        <a-button :disabled="removeEnabled"  key="defaults" @click="deletefromStore"><DeleteOutlined />Remove</a-button>
+        <a-button key="cancel" type="primary" @click="StorageStore.toggle()">Close</a-button>
+      </a-space>
+    </template>
     <a-row justify="space-around" align="middle">
       <a-col flex="320">
         <a-table :columns="columns"
@@ -79,13 +120,14 @@ const toSvgData = (data) => {
                  :pagination="false"
                  size="small"
                  row-key="key"
-                  >
-
+                 :scroll="{ y: 600 }"
+                 :custom-row="customRow"
+                 :row-selection="rowSelection">
           <template #bodyCell="{ column, record }">
-              <div :id="record.key">
-                <SvgPreview />
-              </div>
+            <template v-if="column.dataIndex === 'entry'"> <SvgPreview :id="record.key" :pixels="record.pixels"/></template>
           </template>
+
+
         </a-table>
       </a-col>
     </a-row>

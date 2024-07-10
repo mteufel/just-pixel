@@ -1,7 +1,7 @@
 // @ts-nocheck
 import BitmapStore from "./BitmapStore";
 import ScreenStore from "./ScreenStore";
-import {calculateMempos, flipBitsHorizontally, refreshComplete, removeLastChar} from "../util/utils";
+import {calculateMempos, createUUID, flipBitsHorizontally, refreshComplete, removeLastChar} from "../util/utils";
 import bitmapStore from "./BitmapStore";
 
 const CopyContext = () => {
@@ -13,6 +13,8 @@ const CopyContext = () => {
       endMemPos: 99999999,
       endCharX: -1,
       endCharY: -1,
+      svgFromStore: null,
+
       getMarker: function() {
           return {
               startMemPos: this.startMemPos,
@@ -20,7 +22,8 @@ const CopyContext = () => {
               startCharX: this.startCharX,
               startCharY: this.startCharY,
               endCharX: this.endCharX,
-              endCharY: this.endCharY
+              endCharY: this.endCharY,
+              svgFromStore: this.svgFromStore
           }
       },
       hasMarker: function() {
@@ -175,7 +178,38 @@ const CopyContext = () => {
           }
           return ''
       },
-      toJSON: function() {
+      asObject: function() {
+          let result = {
+                  name: createUUID(),
+                  marker: { startMemPos: this.getMarker().startMemPos, endMemPos: this.getMarker().endMemPos,
+                              startCharX: this.getMarker().startCharX, startCharY: this.getMarker().startCharY,
+                              endCharX: this.getMarker().endCharX, endCharY: this.getMarker().endCharY },
+                  mode: 'mcm',
+                  bytes: []
+              }
+
+          let sourceList = this.getSourceIndexList('normal')
+          sourceList.forEach( mempos => {
+              let idx = 0
+              if (mempos > 0) {
+                  idx = mempos/8
+              }
+
+
+              let array = Array.from(BitmapStore.getBitmap().slice(mempos,mempos+8))
+              let bytes = {
+                  mempos: mempos,
+                  bitmap: array,
+                  screen: BitmapStore.getScreenRam()[idx],
+                  color: BitmapStore.getColorRam()[idx]
+              }
+              result.bytes.push(bytes)
+
+          })
+
+          return result
+    },
+    toJSON: function() {
           let result = []
           /*
             {
@@ -204,7 +238,7 @@ const CopyContext = () => {
 
           result.push ("// this file is a json representation of the marked pixels")
           result.push ("{")
-          result.push ("   name: '???',")
+          result.push ("   name: '" + createUUID() + "',")
           result.push ("   mode: '" + BitmapStore.getModeAsText() +  "',")
           result.push ("   marker: " + JSON.stringify(this.getMarker()).replace(/"([^"]+)":/g, '$1:') +  ",")
           result.push ("   bytes: [")
@@ -216,7 +250,7 @@ const CopyContext = () => {
                     idx = mempos/8
                 }
                 let bytes = BitmapStore.getBitmap().slice(mempos,mempos+8).join(',')
-                result.push ( "            {  mempos: " + mempos + ", bitmap: [ " + bytes + " ], screen: " + BitmapStore.getScreenRam()[idx]  + ", color: " + bitmapStore.getColorRam()[idx] +  " },")
+                result.push ( "            {  mempos: " + mempos + ", bitmap: [ " + bytes + " ], screen: " + BitmapStore.getScreenRam()[idx]  + ", color: " + BitmapStore.getColorRam()[idx] +  " },")
           })
 
 
@@ -297,11 +331,17 @@ const CopyContext = () => {
           return result
       },
       doCopy: function(mode: String) {
+          if (this.svgFromStore != null ) {
+              let pixels = JSON.parse(localStorage.getItem(ScreenStore.getCopyContext().svgFromStore))
 
-          BitmapStore.setBitmap ( ScreenStore.getCopyContext().copyBitmap(BitmapStore.getBitmap(), ScreenStore.getMemoryPosition(), mode) )
-          BitmapStore.setScreenRam( ScreenStore.getCopyContext().copyScreenRam(BitmapStore.getScreenRam(), ScreenStore.getMemoryPosition(), mode) )
-          if (BitmapStore.isMCM()) {
-              BitmapStore.setColorRam( ScreenStore.getCopyContext().copyColorRam(BitmapStore.getColorRam(), ScreenStore.getMemoryPosition(), mode) )
+              console.log('svgFromStore...', this.svgFromStore)
+              console.log('pixels.........', pixels)
+          } else {
+              BitmapStore.setBitmap ( ScreenStore.getCopyContext().copyBitmap(BitmapStore.getBitmap(), ScreenStore.getMemoryPosition(), mode) )
+              BitmapStore.setScreenRam( ScreenStore.getCopyContext().copyScreenRam(BitmapStore.getScreenRam(), ScreenStore.getMemoryPosition(), mode) )
+              if (BitmapStore.isMCM()) {
+                  BitmapStore.setColorRam( ScreenStore.getCopyContext().copyColorRam(BitmapStore.getColorRam(), ScreenStore.getMemoryPosition(), mode) )
+              }
           }
           refreshComplete()
 

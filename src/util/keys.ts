@@ -13,6 +13,7 @@ import {notification} from "ant-design-vue";
 import {DIRECTION, movePixels} from "../helpers/pixelmover";
 import ImportImageModal from "../modals/ImportImageModal.vue";
 import StorageModal from "../modals/StorageModal.vue";
+import {checkSum, toSvgData, unmarkArea} from "./utils";
 
 const defineCursorKeys = () => {
     KeyDownBuilder.key('ArrowDown', () => cursorDown(), KeyDownBuilder.help("Cursor", 0, ["ArrowDown"], "Moves the cursor one pixel down"))
@@ -40,8 +41,7 @@ const definePaintKeys = () => {
     KeyDownBuilder.key('c', () =>  useTool(ToolMode.CIRCLE) , KeyDownBuilder.help("Paint", 0, ["c"], "Paint a circle or ellipse"))
     KeyDownBuilder.key('Delete', () => deleteKeyPressed(), KeyDownBuilder.help("Paint", 0, ["Del"], "Clear actual char"))
     KeyDownBuilder.key('r', () =>  replaceColors() , KeyDownBuilder.help("Paint", 0, ["r"], "Open a dialog to replace colors in the marked area"))
-    KeyDownBuilder.key('<', () => openStorageDialog() ,  KeyDownBuilder.help("Paint", 0, ["<"], "Open dialog to show all copy contexts that are in local storage"))
-    KeyDownBuilder.key('-', () => console.log('take over') ,  KeyDownBuilder.help("Paint", 0, ["-"], "Put your copy context into the local storage"))
+    KeyDownBuilder.key('-', () => takeOverCopyContext() ,  KeyDownBuilder.help("Paint", 0, ["-"], "Put your copy context into the local storage and / or open the storage dialog "))
 
     KeyDownBuilder.key('Escape', () => escapePressed() )
 
@@ -224,28 +224,6 @@ function deleteKeyPressed() {
 
 }
 
-function unmarkArea() {
-    let cc = ScreenStore.getCopyContext()
-    let a = cc.startMemPos
-    let e = cc.endMemPos
-    ScreenStore.setCopyContext(CopyContext())
-    ScreenStore.refreshChar(a)
-    ScreenStore.refreshChar(e)
-
-    cc.startMemPos = -1
-
-    cc.startCharX = -1
-    cc.startCharY = -1
-    cc.endMemPos = 999999
-    cc.endCharX = -1
-    cc.endCharY = -1
-    ScreenStore.setCopyContext(cc)
-    ScreenStore.refreshChar(cc.startMemPos)
-    ScreenStore.refreshChar(cc.endMemPos)
-
-
-}
-
 
 function markArea() {
 
@@ -305,7 +283,7 @@ function markArea() {
         }
 
     }
-
+    cc.svgFromStore = null
     ScreenStore.setCopyContext(cc)
     ScreenStore.refreshChar(cc.startMemPos)
     ScreenStore.refreshChar(cc.endMemPos)
@@ -395,10 +373,18 @@ function pixelMove(direction) {
     movePixels(direction)
 }
 
-function openStorageDialog() {
-    console.log('OpenStorageDialog')
+function takeOverCopyContext() {
+    if (ScreenStore.getCopyContext().isCopyable()) {
+        console.log('take over copy context')
+        let data = ScreenStore.getCopyContext().asObject()
+        console.log('take over...', data)
+        let svgData = toSvgData(data.bytes)
+        let key = checkSum(data)
+        localStorage.setItem(key, JSON.stringify(data))
+        localStorage.setItem(key+"_svg", JSON.stringify(svgData))
+    }
     StorageModal.storageStore.toggle()
-
 }
+
 
 export { defineCursorKeys, definePaintKeys, defineStatusbarKeys, defineColorPaletteKeys }
