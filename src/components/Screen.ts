@@ -7,8 +7,6 @@ import {ColorPalette} from '../modals/palette/ColorPalette'
 import {StatusBar} from './StatusBar'
 import {Preview} from './Preview'
 import { createUUID } from '../util/utils'
-import {NewStore} from '../modals/NewModal';
-import {CopyContext} from '../stores/CopyContext';
 import ColorPaletteStore from "../stores/ColorPaletteStore";
 import {GridBitmap} from "./GridBitmap";
 import {KeyDownBuilder} from "../builders/KeyDownBuilder";
@@ -32,7 +30,6 @@ const Screen = {
 
 
         const modeSwitch = (d) => {
-            console.log('mode Switch ist erfolgt')
             modeCycle.value= createUUID()
         }
 

@@ -64,37 +64,46 @@ const createBitmapStore = () => {
         },
         //getNibble: (number : number, nth : number) =>  (number >> 4*nth) & 0xF,
         getNibble: (number : number, nth : number) =>  getNibble(number, nth),
-        clearBitmap: () => {
-            bitmap = []
-            screenRam = []
-            colorRam = []
+        clearBitmap_: ():any => {
+            console.log('clearBitmap_')
+            let myBitmap = []
+            let myScreenRam = []
+            let myColorRam = []
             if (BitmapStore.isFCM()) {
                 // In Full Color Mode we can have up to 1000 unique characters on the screen (H320)
                 // so this means a lot of "bitmap" or better "charset" data. This is 1000 times 8x8 Bytes = 64000 Bytes
                 for (let i = 0; i < 64000; i++) {
-                    bitmap.push(0)
+                    myBitmap.push(0)
                 }
             } else {
                 for (let i = 0; i < 8000; i++) {
-                    bitmap.push(0)
+                    myBitmap.push(0)
                 }
             }
             if (BitmapStore.isFCM()) {
                 for (let i = 0; i < 1000; i++) {
-                    screenRam.push(i)
-                    colorRam.push(0)
+                    myScreenRam.push(i)
+                    myColorRam.push(0)
                 }
             } else {
                 for (let i = 0; i < 1000; i++) {
-                    screenRam.push(0)
-                    colorRam.push(0)
+                    myScreenRam.push(0)
+                    myColorRam.push(0)
                 }
-                if (BitmapStore.isMCM()) {
-                    BitmapStore.setBackgroundColorMCM(ColorPaletteStore.defaultColors()[0])
-                }
-
             }
+            return { bitmap: myBitmap, screenRam: myScreenRam, colorRam: myColorRam }
 
+        },
+        clearBitmap: function() {
+            console.log('clearBitmap')
+            let clearAreas = this.clearBitmap_()
+            console.log('clearAreas....', clearAreas)
+            bitmap = clearAreas.bitmap
+            screenRam = clearAreas.screenRam
+            colorRam = clearAreas.colorRam
+            if (BitmapStore.isMCM()) {
+                BitmapStore.setBackgroundColorMCM(ColorPaletteStore.defaultColors()[0])
+            }
         },
         setBitmap: (data : number[]) => bitmap = data,
         setScreenRam: (data : number[] ) => screenRam = data,

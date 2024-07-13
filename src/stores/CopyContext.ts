@@ -1,7 +1,14 @@
 // @ts-nocheck
 import BitmapStore from "./BitmapStore";
 import ScreenStore from "./ScreenStore";
-import {calculateMempos, createUUID, flipBitsHorizontally, refreshComplete, removeLastChar} from "../util/utils";
+import {
+    calculateMempos,
+    createUUID,
+    flipBitsHorizontally,
+    refreshComplete,
+    removeLastChar,
+    unmarkArea
+} from "../util/utils";
 import bitmapStore from "./BitmapStore";
 
 const CopyContext = () => {
@@ -101,8 +108,46 @@ const CopyContext = () => {
       getDestinationIndexList: function(destMemPos: number) {
         return this.calculateIndexList(destMemPos, 'normal')
       },
-      copyBitmap: function(bitmap : number[], destMemPos: number, mode: String) {
-
+      copyBitmap: function(destBitmap : number[], destMemPos: number, mode: String) {
+          return this.copyBitmap_(destBitmap, destBitmap, destMemPos, mode)
+      },
+      copyScreenRam: function(destScreenRam : number[], destMemPos: number, mode: String) {
+          return this.copyScreenRam_(destScreenRam, destScreenRam, destMemPos, mode)
+      },
+      copyColorRam: function(destColorRam : number[], destMemPos: number, mode: String) {
+          return this.copyColorRam_(destColorRam, destColorRam,destMemPos, mode)
+      },
+      copyBitmapFromStorage(pixels:any, destBitmap : number[], destMemPos: number, mode: String) {
+          console.log('copyFromStorage')
+          let clearAreas = BitmapStore.clearBitmap_()
+          let sourceBitmap = clearAreas.bitmap
+          console.log('clearAreas......', clearAreas)
+          pixels.bytes.forEach(memArea => {
+              memArea.bitmap.forEach((bitmap, index) => {
+                  sourceBitmap[memArea.mempos+index] = bitmap
+              })
+          })
+         console.log('bitmap.....', sourceBitmap)
+         return this.copyBitmap_(sourceBitmap, destBitmap, destMemPos, mode)
+      },
+      copyColorRamFromStorage(pixels:any, destColorRam : number[], destMemPos: number, mode: String) {
+          let clearAreas = BitmapStore.clearBitmap_()
+          let sourceColorRam = clearAreas.colorRam
+          pixels.bytes.forEach(memArea => {
+              sourceColorRam[memArea.mempos/8] = memArea.color
+          })
+          return this.copyColorRam_(sourceColorRam, destColorRam, destMemPos, mode)
+      },
+      copyScreenRamFromStorage(pixels:any, destScreenRam : number[], destMemPos: number, mode: String) {
+          let clearAreas = BitmapStore.clearBitmap_()
+          let sourceScreenRam = clearAreas.screenRam
+          pixels.bytes.forEach(memArea => {
+              sourceScreenRam[memArea.mempos/8] = memArea.screen
+          })
+          return this.copyScreenRam_(sourceScreenRam, destScreenRam, destMemPos, mode)
+      },
+      copyBitmap_: function(sourceBitmap: number[], destBitmap : number[], destMemPos: number, mode: String) {
+          console.log('doCopy')
 
           let sourceList : number[] = this.getSourceIndexList(mode)
 
@@ -114,59 +159,59 @@ const CopyContext = () => {
           sourceList.forEach( function (value, index) {
 
               if (mode==='normal') {
-                  bitmap[destList[index]] =   bitmap[sourceList[index]]
-                  bitmap[destList[index]+1] = bitmap[sourceList[index]+1]
-                  bitmap[destList[index]+2] = bitmap[sourceList[index]+2]
-                  bitmap[destList[index]+3] = bitmap[sourceList[index]+3]
-                  bitmap[destList[index]+4] = bitmap[sourceList[index]+4]
-                  bitmap[destList[index]+5] = bitmap[sourceList[index]+5]
-                  bitmap[destList[index]+6] = bitmap[sourceList[index]+6]
-                  bitmap[destList[index]+7] = bitmap[sourceList[index]+7]
+                  destBitmap[destList[index]] =   sourceBitmap[sourceList[index]]
+                  destBitmap[destList[index]+1] = sourceBitmap[sourceList[index]+1]
+                  destBitmap[destList[index]+2] = sourceBitmap[sourceList[index]+2]
+                  destBitmap[destList[index]+3] = sourceBitmap[sourceList[index]+3]
+                  destBitmap[destList[index]+4] = sourceBitmap[sourceList[index]+4]
+                  destBitmap[destList[index]+5] = sourceBitmap[sourceList[index]+5]
+                  destBitmap[destList[index]+6] = sourceBitmap[sourceList[index]+6]
+                  destBitmap[destList[index]+7] = sourceBitmap[sourceList[index]+7]
               }
 
               if (mode==='vertically') {
-                  bitmap[destList[index]] =   bitmap[sourceList[index]+7]
-                  bitmap[destList[index]+1] = bitmap[sourceList[index]+6]
-                  bitmap[destList[index]+2] = bitmap[sourceList[index]+5]
-                  bitmap[destList[index]+3] = bitmap[sourceList[index]+4]
-                  bitmap[destList[index]+4] = bitmap[sourceList[index]+3]
-                  bitmap[destList[index]+5] = bitmap[sourceList[index]+2]
-                  bitmap[destList[index]+6] = bitmap[sourceList[index]+1]
-                  bitmap[destList[index]+7] = bitmap[sourceList[index]]
+                  destBitmap[destList[index]] =   sourceBitmap[sourceList[index]+7]
+                  destBitmap[destList[index]+1] = sourceBitmap[sourceList[index]+6]
+                  destBitmap[destList[index]+2] = sourceBitmap[sourceList[index]+5]
+                  destBitmap[destList[index]+3] = sourceBitmap[sourceList[index]+4]
+                  destBitmap[destList[index]+4] = sourceBitmap[sourceList[index]+3]
+                  destBitmap[destList[index]+5] = sourceBitmap[sourceList[index]+2]
+                  destBitmap[destList[index]+6] = sourceBitmap[sourceList[index]+1]
+                  destBitmap[destList[index]+7] = sourceBitmap[sourceList[index]]
               }
 
               if (mode==='horizontally') {
-                  bitmap[destList[index]] =   flipBitsHorizontally(bitmap[sourceList[index]])
-                  bitmap[destList[index]+1] = flipBitsHorizontally(bitmap[sourceList[index]+1])
-                  bitmap[destList[index]+2] = flipBitsHorizontally(bitmap[sourceList[index]+2])
-                  bitmap[destList[index]+3] = flipBitsHorizontally(bitmap[sourceList[index]+3])
-                  bitmap[destList[index]+4] = flipBitsHorizontally(bitmap[sourceList[index]+4])
-                  bitmap[destList[index]+5] = flipBitsHorizontally(bitmap[sourceList[index]+5])
-                  bitmap[destList[index]+6] = flipBitsHorizontally(bitmap[sourceList[index]+6])
-                  bitmap[destList[index]+7] = flipBitsHorizontally(bitmap[sourceList[index]+7])
+                  destBitmap[destList[index]] =   flipBitsHorizontally(sourceBitmap[sourceList[index]])
+                  destBitmap[destList[index]+1] = flipBitsHorizontally(sourceBitmap[sourceList[index]+1])
+                  destBitmap[destList[index]+2] = flipBitsHorizontally(sourceBitmap[sourceList[index]+2])
+                  destBitmap[destList[index]+3] = flipBitsHorizontally(sourceBitmap[sourceList[index]+3])
+                  destBitmap[destList[index]+4] = flipBitsHorizontally(sourceBitmap[sourceList[index]+4])
+                  destBitmap[destList[index]+5] = flipBitsHorizontally(sourceBitmap[sourceList[index]+5])
+                  destBitmap[destList[index]+6] = flipBitsHorizontally(sourceBitmap[sourceList[index]+6])
+                  destBitmap[destList[index]+7] = flipBitsHorizontally(sourceBitmap[sourceList[index]+7])
               }
 
 
 
 
           })
-          return bitmap
+          return destBitmap
       },
-      copyScreenRam: function(screenRam : number[], destMemPos: number, mode: String) {
+      copyScreenRam_: function(sourceScreenRam: number[], destScreenRam : number[], destMemPos: number, mode: String) {
           let sourceList : number[] = this.getSourceIndexList(mode)
           let destList : number[] = this.getDestinationIndexList(destMemPos)
           sourceList.forEach( function (value, index) {
-              screenRam[destList[index]/8] = screenRam[sourceList[index]/8]
+              destScreenRam[destList[index]/8] = sourceScreenRam[sourceList[index]/8]
           })
-          return screenRam
+          return destScreenRam
       },
-      copyColorRam: function(colorRam : number[], destMemPos: number, mode: String) {
+      copyColorRam_: function(sourceColorRam : number[], destColorRam : number[], destMemPos: number, mode: String) {
           let sourceList : number[] = this.getSourceIndexList(mode)
           let destList : number[] = this.getDestinationIndexList(destMemPos)
           sourceList.forEach( function (value, index) {
-              colorRam[destList[index]/8] = colorRam[sourceList[index]/8]
+              destColorRam[destList[index]/8] = sourceColorRam[sourceList[index]/8]
           })
-          return colorRam
+          return destColorRam
       },
       getLineNumber: function(incrementBy) {
           console.log('xxx', this.lineNumberCnt)
@@ -333,9 +378,21 @@ const CopyContext = () => {
       doCopy: function(mode: String) {
           if (this.svgFromStore != null ) {
               let pixels = JSON.parse(localStorage.getItem(ScreenStore.getCopyContext().svgFromStore))
-
               console.log('svgFromStore...', this.svgFromStore)
               console.log('pixels.........', pixels)
+              ScreenStore.getCopyContext().startMemPos = pixels.marker.startMemPos
+              ScreenStore.getCopyContext().endMemPos = pixels.marker.endMemPos
+              ScreenStore.getCopyContext().startCharX = pixels.marker.startCharX
+              ScreenStore.getCopyContext().startCharY = pixels.marker.startCharY
+              ScreenStore.getCopyContext().endCharX = pixels.marker.endCharX
+              ScreenStore.getCopyContext().endCharY = pixels.marker.endCharY
+              BitmapStore.setBitmap ( ScreenStore.getCopyContext().copyBitmapFromStorage(pixels, BitmapStore.getBitmap(), ScreenStore.getMemoryPosition(), mode) )
+              BitmapStore.setScreenRam( ScreenStore.getCopyContext().copyScreenRamFromStorage(pixels, BitmapStore.getScreenRam(), ScreenStore.getMemoryPosition(), mode) )
+              if (BitmapStore.isMCM()) {
+                  BitmapStore.setColorRam( ScreenStore.getCopyContext().copyColorRamFromStorage(pixels, BitmapStore.getColorRam(), ScreenStore.getMemoryPosition(), mode) )
+              }
+              unmarkArea()
+              console.log('svgFromStore DONE')
           } else {
               BitmapStore.setBitmap ( ScreenStore.getCopyContext().copyBitmap(BitmapStore.getBitmap(), ScreenStore.getMemoryPosition(), mode) )
               BitmapStore.setScreenRam( ScreenStore.getCopyContext().copyScreenRam(BitmapStore.getScreenRam(), ScreenStore.getMemoryPosition(), mode) )
@@ -344,7 +401,6 @@ const CopyContext = () => {
               }
           }
           refreshComplete()
-
       }
   }
 }
