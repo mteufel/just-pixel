@@ -310,7 +310,7 @@ const CopyContext = () => {
       },
       dump: function(command, lineNumber, incrementBy) {
 
-          let screenAndColorRamLineSize = 33
+          let screenAndColorRamLineSize = 5
           let lineSizeCounter = 0
           let line = ''
 
@@ -352,6 +352,7 @@ const CopyContext = () => {
               line = line + BitmapStore.getScreenRam().slice(sourceList[index]/8,(sourceList[index]+8)/8).join(',') + ","
               lineSizeCounter++
           })
+          result.push(removeLastChar(line))
           // Color RAM
           result.push ("############## COLOR RAM ####################")
           /*
@@ -371,6 +372,7 @@ const CopyContext = () => {
               line = line + BitmapStore.getColorRam().slice(sourceList[index]/8,(sourceList[index]+8)/8).join(',') + ","
               lineSizeCounter++
           })
+          result.push(removeLastChar(line))
 
 
           return result
