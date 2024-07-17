@@ -313,7 +313,6 @@ const CopyContext = () => {
           let screenAndColorRamLineSize = 5
           let lineSizeCounter = 0
           let line = ''
-
           console.log('dump ', { command, lineNumber, incrementBy })
 
           let lineNumberCnt = lineNumber
