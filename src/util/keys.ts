@@ -14,6 +14,7 @@ import {DIRECTION, movePixels} from "../helpers/pixelmover";
 import ImportImageModal from "../modals/ImportImageModal.vue";
 import StorageModal from "../modals/StorageModal.vue";
 import {checkSum, toSvgData, unmarkArea} from "./utils";
+import OptimizerModal from "../modals/OptimizerModal.vue";
 
 const defineCursorKeys = () => {
     KeyDownBuilder.key('ArrowDown', () => cursorDown(), KeyDownBuilder.help("Cursor", 0, ["ArrowDown"], "Moves the cursor one pixel down"))
@@ -36,12 +37,13 @@ const definePaintKeys = () => {
     KeyDownBuilder.key('i', () => importImage(), KeyDownBuilder.help("Paint", 0, ["i"], "Import from Image (powered by RetroPixels)"))
     KeyDownBuilder.key('e', () => exportArea(), KeyDownBuilder.help("Paint", 0, ["e"], "Exports marked area to assembler code (byte instructions) or to a JSON structure"))
     KeyDownBuilder.ctrl('v', () => doCopy(), KeyDownBuilder.help("Paint", 0, ["CTRL","v"], "Copy/Paste marked area"))
-    KeyDownBuilder.shift('v', ()  => copyDialog(), KeyDownBuilder.help("Paint", 0, ["SHIFT","v"], "Copy/Pasted marked area with mirror (dialog)"))
-    KeyDownBuilder.key('l', () =>  useTool(ToolMode.LINE) , KeyDownBuilder.help("Paint", 0, ["l"], "Paint a line"))
-    KeyDownBuilder.key('c', () =>  useTool(ToolMode.CIRCLE) , KeyDownBuilder.help("Paint", 0, ["c"], "Paint a circle or ellipse"))
+    KeyDownBuilder.shift('v', () => copyDialog(), KeyDownBuilder.help("Paint", 0, ["SHIFT","v"], "Copy/Pasted marked area with mirror (dialog)"))
+    KeyDownBuilder.key('l', () => useTool(ToolMode.LINE) , KeyDownBuilder.help("Paint", 0, ["l"], "Paint a line"))
+    KeyDownBuilder.key('c', () => useTool(ToolMode.CIRCLE) , KeyDownBuilder.help("Paint", 0, ["c"], "Paint a circle or ellipse"))
     KeyDownBuilder.key('Delete', () => deleteKeyPressed(), KeyDownBuilder.help("Paint", 0, ["Del"], "Clear actual char"))
-    KeyDownBuilder.key('r', () =>  replaceColors() , KeyDownBuilder.help("Paint", 0, ["r"], "Open a dialog to replace colors in the marked area"))
+    KeyDownBuilder.key('r', () => replaceColors() , KeyDownBuilder.help("Paint", 0, ["r"], "Open a dialog to replace colors in the marked area"))
     KeyDownBuilder.key('-', () => takeOverCopyContext() ,  KeyDownBuilder.help("Paint", 0, ["-"], "Put your copy context into the local storage and / or open the storage dialog "))
+    KeyDownBuilder.key('o', () => openBitmapOptimizer() , KeyDownBuilder.help("Paint", 0, ["o"], "Start the bitmap Optimizer tool on the marked area"))
 
     KeyDownBuilder.key('Escape', () => escapePressed() )
 
@@ -386,5 +388,20 @@ function takeOverCopyContext() {
     StorageModal.storageStore.toggle()
 }
 
+function openBitmapOptimizer() {
+
+    if (ScreenStore.getCopyContext().isCopyable()) {
+        OptimizerModal.optimizerStore.toggle()
+    } else {
+        notification.error({
+            message: 'No Area marked',
+            description:
+                'In order to optimize a bitmap, please mark an area.',
+            duration: 3,
+        })
+
+    }
+
+}
 
 export { defineCursorKeys, definePaintKeys, defineStatusbarKeys, defineColorPaletteKeys }
