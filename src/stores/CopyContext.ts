@@ -310,7 +310,7 @@ const CopyContext = () => {
       },
       dump: function(command, lineNumber, incrementBy) {
 
-          let screenAndColorRamLineSize = 5
+          let screenAndColorRamLineSize = 40
           let lineSizeCounter = 0
           let line = ''
           console.log('dump ', { command, lineNumber, incrementBy })

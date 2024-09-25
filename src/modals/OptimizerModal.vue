@@ -11,14 +11,15 @@ import {onBeforeUpdate, ref} from 'vue'
 import ScreenStore from "../stores/ScreenStore.ts";
 import {ReloadOutlined} from "@ant-design/icons-vue";
 import {createUUID} from "../util/utils.ts";
+import {calcOptimization } from "../helpers/BitmapOptimizerCore.ts";
 
 const optimizerVisible = ref(OptimizerStore.isVisible())
 OptimizerStore.subscribe( () => optimizerVisible.value = OptimizerStore.isVisible())
 
 const activeKey = ref('1');
 
-const rasterX = ref( 1 ) // will be set from marked area
-const rasterY = ref( 1 ) // will be set from marked area
+const blockX = ref( 1 ) // will be set from marked area
+const blockY = ref( 1 ) // will be set from marked area
 const tileX = ref(1)
 const tileY = ref(1)
 
@@ -45,40 +46,26 @@ const columns = [
 const calculate = () => {
   console.log('Calculate ----------- BEGIN')
 
+  let result = calcOptimization(checkColorRam.value, checkScreenRam.value,
+                                blockX.value, blockY.value)
 
-  let cc = ScreenStore.getCopyContext()
-  let size = "" + ( (cc.endCharX - cc.startCharX) + 1) + "x" + ( (cc.endCharY-cc.startCharY) + 1 )
-  let charsTotal = cc.getSourceIndexList('normal').length
-
-  let bytes = charsTotal * 8
-  if (checkColorRam.value) {
-    console.log('adding colorRam')
-    bytes = bytes + charsTotal
-  }
-  if (checkScreenRam.value) {
-    console.log('adding screenRam')
-    bytes = bytes + charsTotal
-  }
-
+  console.log('boResult...', result)
   let duplicates = "?"
 
   //console.log('size=', size)
   //console.log('charsTotal=', charsTotal)
   //console.log('copy-duplicates=', duplicates)
-  console.log('copy-context=', cc)
-  console.log('source-mempos=', cc.getSourceIndexList('normal'))
+  //console.log('copy-context=', cc)
+  //console.log('source-mempos=', cc.getSourceIndexList('normal'))
   data.value = [
-    { key: createUUID(),name: 'Size', value: size + ', ' + bytes + ' Bytes, ' + ' ' + bytes/1000 + "kb" },
-    { key: createUUID(),name: 'Chars total', value: charsTotal },
+    { key: createUUID(),name: 'Size', value: result.size + ', ' + result.bytes + ' Bytes, ' + ' ' + result.bytes/1000 + "kb" },
+    { key: createUUID(),name: 'Chars total', value: result.charsTotal },
     { key: createUUID(),name: 'Duplicates', value: duplicates },
   ]
-  console.log(data.value)
+  //console.log(data.value)
   console.log('Calculate ------------- END')
 }
 
-const getBlock = (memPos, x, y ) => {
-  
-}
 
 
 onBeforeUpdate( () => {
@@ -110,9 +97,9 @@ onBeforeUpdate( () => {
           <div class="grid-container">
             <div>Block Size:</div>
             <div>
-              <a-input-number class="number" id="rasterX" :min="1" :max="40" v-model:value="rasterX" />
+              <a-input-number class="number" id="blockX" :min="1" :max="40" v-model:value="blockX" />
               <span class="x">x</span>
-              <a-input-number class="number" id="rasterY" :min="1" :max="25" v-model:value="rasterY"/>
+              <a-input-number class="number" id="blockY" :min="1" :max="25" v-model:value="blockY"/>
             </div>
             <div>Tile Size:</div>
             <div>
