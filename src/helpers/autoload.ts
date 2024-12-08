@@ -5,7 +5,7 @@ import {CopyContext} from "../stores/CopyContext";
 export { autoload }
 
 // set to true only for debugging purposes (developer feature only)
-const autoloadActive = true;
+const autoloadActive = false;
 
 const autoload = () => {
     if (autoloadActive) {

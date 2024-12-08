@@ -1,6 +1,6 @@
 // @ts-nocheck
-import {colorMega65, getNibble} from '../util/utils'
-import { Color } from '../modals/palette/ColorPalette'
+import {colorMega65, createBinaryLine, getNibble} from '../util/utils'
+import {Color } from '../modals/palette/ColorPalette'
 import ColorPaletteStore from "./ColorPaletteStore";
 import ScreenStore from "./ScreenStore";
 import ColorSelectionStore from "./ColorSelectionStore";
@@ -433,7 +433,8 @@ const createBitmapStore = () => {
                 let index = coords.memPos + (coords.pixelY-1)
                 let charPosition = 7 - (coords.pixelX-1)
 
-                let binary = BitmapStore.getBinaryLine(index)
+                //let binary = BitmapStore.getBinaryLine(index)
+                let binary = createBinaryLine(BitmapStore.getBitmap()[index]).binary
                 //let binaryIndex7 = binary.substr(0,2)
                 //let binaryIndex6 = binary.substr(2,2)
                 //let binaryIndex5 = binary.substr(4,2)
