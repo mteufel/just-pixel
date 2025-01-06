@@ -9,7 +9,7 @@ const autoloadActive = false;
 
 const autoload = () => {
     if (autoloadActive) {
-        let pixels = getPixelsByName('segmented')
+        let pixels = getPixelsByName('simple')
         //console.log('autoload.... =================================')
         //console.log('autoload.... ', pixels)
 
