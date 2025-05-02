@@ -108,6 +108,7 @@ const StatusBar = {
         }
 
         const onColor = (e) => {
+
             cssBackground.value = 'colorPixelBlock'
             cssForeground.value = 'colorPixelBlock'
             cssForeground2.value = 'colorPixelBlock'
@@ -212,8 +213,13 @@ const StatusBar = {
                 statusBarContent.push( h('div') )
                 statusBarContent.push( h('div') )
                 statusBarContent.push( h('div') )
-                statusBarContent.push( h('div', createBlock('pb', this.colorPicBackground.r,this.colorPicBackground.g,this.colorPicBackground.b) ) )
-                statusBarContent.push( h('div', createBlock('pf', this.colorPicForeground.r,this.colorPicForeground.g,this.colorPicForeground.b) ) )
+
+                //statusBarContent.push( h('div', createBlock('pb', this.colorPicBackground.r,this.colorPicBackground.g,this.colorPicBackground.b) ) )
+                //statusBarContent.push( h('div', createBlock('pf', this.colorPicForeground.r,this.colorPicForeground.g,this.colorPicForeground.b) ) )
+                statusBarContent.push( h('div') )
+                statusBarContent.push( h('div') )
+
+
                 statusBarContent.push( h('div') )
                 statusBarContent.push( h('div') )
             }

@@ -39,7 +39,7 @@ const createPixelStore = () => {
 
 
     const refreshChar = (memPos, memPos2 = -1) => {
-       // console.log('refreshChar...', memPos, memPos2)
+        console.log('refreshChar...', memPos, memPos2)
         subscribers.forEach( callFunction => {
             callFunction(memPos)
             if (memPos2 != -1 && memoryPosition % ScreenStore.getOffset() == 0) {
@@ -346,7 +346,8 @@ const createPixelStore = () => {
                         let colLow = BitmapStore.getColorByHexNumber(colorLow)
                         let colHi = BitmapStore.getColorByHexNumber(colorHigh)
 
-                        if (BitmapStore.getBinaryLine(y).substr(x,1) === '1' )  {
+                        if ( createBinaryLine(BitmapStore.getBitmap()[y]).binary.substr(x,1)==='1') {
+                        //if (BitmapStore.getBinaryLine(y).substr(x,1) === '1' )  {
                             pixels.push (createPixel( memoryIndex, x, yy, colHi.r,colHi.g,colHi.b, doBlink, pixelClass))
                         }  else {
                             // Pixel is not set....
